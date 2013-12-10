@@ -1,4 +1,4 @@
-package edu.knowitall.collection.immutable
+package org.allenai.common.immutable
 
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen

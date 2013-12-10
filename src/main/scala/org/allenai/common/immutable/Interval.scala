@@ -2,7 +2,7 @@
   * at the the University of Washington.
   */
 
-package edu.knowitall.collection.immutable
+package org.allenai.common.immutable
 
 import Interval.empty
 import scala.util.matching.Regex
@@ -42,8 +42,9 @@ sealed class Interval protected (val start: Int, val end: Int)
     */
   override def apply(index: Int): Int = {
     require(index >= 0, "index < 0: " + index)
-    require(index < end, "index >= end: " + index + " >= " + end)
+    require(index < length, "index >= length: " + index + " >= " + length)
 
+    // a fast way of getting the ith index
     min + index
   }
 
