@@ -16,7 +16,7 @@ import scala.util.matching.Regex
   *
   * @author  Michael Schmitz
   */
-sealed class Interval protected (val start: Int, val end: Int)
+sealed class Interval private (val start: Int, val end: Int)
     extends IndexedSeq[Int] with Ordered[Interval] {
   import Interval._
   require(start <= end, "start must be <= end: " + start + ">" + end)
@@ -331,19 +331,13 @@ object Interval {
     }.reverse
   }
 
+  // implementations
+
   object Open {
     /** Match exposing the bounds as an open interval */
     def unapply(interval: Interval): Option[(Int, Int)] = interval match {
-      case Empty => None
+      case `empty` => None
       case open: Interval => Some((open.start, open.end))
-    }
-  }
-
-  object Closed {
-    /** Match exposing the bounds as an closed interval */
-    def unapply(interval: Interval): Option[(Int, Int)] = interval match {
-      case Empty => None
-      case open: Interval => Some((open.min, open.max))
     }
   }
 
@@ -351,29 +345,45 @@ object Interval {
     */
   object Empty extends Interval(0, 0) {
     override def toString = "{}"
+    def unapply(interval: Interval): Option[Unit] = interval match {
+      case `empty` => Some(Unit)
+      case _ => None
+    }
   }
-
-  // implementations
 
   /** `ClosedInterval` extends `Open` so it is not a
     * required case when  pattern matching an `Interval`.
     * This is a convenience class for providing a closed toString.
     * However, Open is the default Interval type.
     */
-  private class Closed(start: Int, end: Int) extends Interval(start, end + 1) {
+  class Closed private[Interval] (start: Int, end: Int) 
+  extends Interval(start, end + 1) {
     override def toString = "[" + start + ", " + end + "]"
+  }
+
+  object Closed {
+    def unapply(interval: Interval): Option[(Int, Int)] = interval match {
+      case `empty` => None
+      case closed: Interval => Some((interval.start, interval.last))
+      case _ => None
+    }
   }
 
   /** An interval that includes only a single index.
     * All intervals with a single element will always extend Singleton.
     */
-  sealed abstract class Singleton(elem: Int) extends Interval(elem, elem + 1) {
+  sealed abstract class Singleton private[Interval] (elem: Int) 
+  extends Interval(elem, elem + 1) {
     def index = this.start
     override def toString = "{" + elem + "}"
   }
+
   object Singleton {
     /** Match exposing the bounds as a singleton */
-    def unapply(interval: Singleton): Option[Int] = Some(interval.index)
+    def unapply(interval: Interval): Option[Int] = interval match {
+      case singleton: Singleton => Some(singleton.index)
+      case _ => None
+    }
   }
 
   private class SingletonImpl(elem: Int) extends Singleton(elem)
