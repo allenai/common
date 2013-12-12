@@ -1,3 +1,4 @@
+import Version._
 Format.settings
 
 Nexus.settings
@@ -5,6 +6,8 @@ Nexus.settings
 Version.versionWithGit
 
 Version.generateArtifactSource
+
+sourceGenerators in Compile <+= inject map identity
 
 organization := "org.allenai.common"
 
