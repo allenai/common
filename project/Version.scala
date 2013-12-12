@@ -4,6 +4,14 @@ import Keys._
 object Version {
   val inject = TaskKey[Seq[File]]("inject")
 
+  def settings =
+    // use 'git describe' for the version
+    versionWithGit ++
+    // add a file Artifact.scala containing the name and version
+    generateArtifactSource ++
+    // inject whenever code is compiled
+    Seq(sourceGenerators in Compile <+= inject map identity)
+
   def versionWithGit: Seq[Setting[_]] =
     Seq(
       version in ThisBuild := Git.describe().trim
