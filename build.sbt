@@ -4,6 +4,8 @@ Nexus.settings
 
 Version.versionWithGit
 
+Version.generateArtifactSource
+
 organization := "org.allenai.common"
 
 name := "common"
