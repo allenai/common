@@ -2,11 +2,11 @@ Format.settings
 
 Nexus.settings
 
-Version.versionWithGit
-
 organization := "org.allenai.common"
 
 name := "common"
+
+version := "0.0.1-SNAPSHOT"
 
 crossScalaVersions := Seq("2.10.3")
 
