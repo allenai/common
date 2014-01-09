@@ -2,6 +2,8 @@ Format.settings
 
 Nexus.settings
 
+TravisPublisher.settings
+
 organization := "org.allenai.common"
 
 name := "common"
