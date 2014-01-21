@@ -9,42 +9,42 @@ import org.slf4j.LoggerFactory
   * not constructed unless the message will be logged.
   */
 trait Logging {
-  val logger = LoggerFactory.getLogger(this.getClass)
+  val internalLogger = LoggerFactory.getLogger(this.getClass)
 
-  object log {
+  object logger {
     def trace(message: =>String) =
-      if (logger.isTraceEnabled) {
-        logger.trace(message)
+      if (internalLogger.isTraceEnabled) {
+        internalLogger.trace(message)
       }
 
     def debug(message: =>String) =
-      if (logger.isDebugEnabled) {
-        logger.debug(message)
+      if (internalLogger.isDebugEnabled) {
+        internalLogger.debug(message)
       }
 
     def info(message: =>String) =
-      if (logger.isInfoEnabled) {
-        logger.info(message)
+      if (internalLogger.isInfoEnabled) {
+        internalLogger.info(message)
       }
 
     def warn(message: =>String) =
-      if (logger.isWarnEnabled) {
-        logger.warn(message)
+      if (internalLogger.isWarnEnabled) {
+        internalLogger.warn(message)
       }
 
     def warn(message: =>String, throwable: Throwable) =
-      if (logger.isWarnEnabled) {
-        logger.warn(message, throwable)
+      if (internalLogger.isWarnEnabled) {
+        internalLogger.warn(message, throwable)
       }
 
     def error(message: =>String) =
-      if (logger.isErrorEnabled) {
-        logger.error(message)
+      if (internalLogger.isErrorEnabled) {
+        internalLogger.error(message)
       }
 
     def error(message: =>String, throwable: Throwable) =
-      if (logger.isErrorEnabled) {
-        logger.error(message, throwable)
+      if (internalLogger.isErrorEnabled) {
+        internalLogger.error(message, throwable)
       }
   }
 }
