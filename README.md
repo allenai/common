@@ -39,6 +39,6 @@ and comment the implementation with a TODO suggesting it belongs in `common`. An
 If you have created a GitHub issue for the `common` candidate, it is a good idea for traceability to
 reference the issue number in your TODO comment:
 
-    // TODO(mygithubusername): migrate to common [allenai/common#123]
+    // TODO(mygithubusername): migrate to common. See https://github.com/allenai/common/issues/123
 	...
 
