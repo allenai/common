@@ -1,6 +1,6 @@
 package org.allenai.common
 
-object ResourceHandling {
+package object resource {
   // Allow use of methods on structural types.
   import scala.language.reflectiveCalls
 
