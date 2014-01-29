@@ -19,7 +19,7 @@ your pull request.
 
 Feel free create a GitHub issue in the `common` project to provide traceability and a forum for discussion.
 
-### Use TODO C ###
+### Use TODO Comments ###
 
 While working on a task, go ahead and implement the functionality that you think would be a good fit for `common`,
 and comment the implementation with a TODO suggesting it belongs in `common`. An example:
