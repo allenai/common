@@ -17,7 +17,7 @@ package object resource {
     * @param  f  a computation involving the supplied resource
     * @returns  the result of the computation over the resource
     */
-  def using[A <: Closeable, B](resource: => A)(f: A => B) {
+  def using[A <: Closeable, B](resource: A)(f: A => B) {
     require(resource != null, "The supplied resource was null.")
     try {
       f(resource)
