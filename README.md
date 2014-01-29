@@ -12,8 +12,7 @@ There is no strict process for contributing to `common`. However, following are 
 
 ### Discuss in Pull Request Code Reviews ###
 
-If you are unsure that something you've implemented belongs in `common`, ask for feedback when issuing
-your pull request.
+If you have implemented something in a repository other than `common` and that you think could be a candidate to be migrated into `common`, ask reviewers for feedback when issuing your pull request.
 
 ### Create a GitHub Issue ###
 
@@ -26,19 +25,23 @@ and comment the implementation with a TODO suggesting it belongs in `common`. An
 
     // TODO(mygithubusername): migrate to common
     object ResourceHandling {
-	  type Resource = { def close(): Unit }
-	  def using[A](resource: => Resource)(f: Resource => A) {
-	    try {
-		  f(resource)
-		finally {
-		  resource.close()
-		}
-	  }
-	}
+      type Resource = { def close(): Unit }
+      def using[A](resource: => Resource)(f: Resource => A) {
+        try {
+          f(resource)
+        finally {
+          resource.close()
+        }
+      }
+    }
 
 If you have created a GitHub issue for the `common` candidate, it is a good idea for traceability to
 reference the issue number in your TODO comment:
 
     // TODO(mygithubusername): migrate to common. See https://github.com/allenai/common/issues/123
-	...
+    ...
+
+### Have Two Code Reviewers to `common` Pull Requests ###
+
+Try and always have at least two reviewers for a pull request to `common`
 
