@@ -34,14 +34,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package org.allenai.common.immutable
 
+import org.allenai.common.testkit.UnitSpec
+
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 import org.scalacheck.Prop.propBoolean
-import org.scalatest.FlatSpec
 import org.scalatest.prop.Checkers
 
-class IntervalSpec extends FlatSpec with Checkers {
+class IntervalSpec extends UnitSpec with Checkers {
   they should "border each other" in {
       assert((Interval.open(0, 4) borders Interval.open(4, 8)) == true)
       assert((Interval.open(4, 8) borders Interval.open(0, 4)) == true)
