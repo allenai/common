@@ -12,4 +12,4 @@ libraryDependencies ++= Seq(
 
 lazy val testkit = project.in(file("testkit"))
 
-lazy val common = project.in(file(".")).dependsOn(testkit % "test->compile")
+lazy val common = project.in(file(".")).dependsOn(testkit % "test->compile").aggregate(testkit)
