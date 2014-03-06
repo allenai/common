@@ -14,4 +14,4 @@ libraryDependencies += "org.allenai.common" %% "testkit" % "0.0.1-SNAPSHOT" % "t
 ## Usage
 
 There are specs for the base classes which should be enough to get you started.
-Look in `testkit/src/test/scala/org/allenai/common/testkit` for examples.
+Look at [the specs specs](src/test/scala/org/allenai/common/testkit) for examples.
