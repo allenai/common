@@ -8,4 +8,4 @@ resolvers += "allenai nexus repository" at "http://utility.allenai.org:8081/nexu
 
 credentials += Credentials("Sonatype Nexus Repository Manager", "utility.allenai.org", "deployment", "answermyquery")
 
-addSbtPlugin("org.allenai.plugins" % "sbt-travis-publisher" % "0.2.0")
+addSbtPlugin("org.allenai.plugins" % "sbt-travis-publisher" % "2014.2.24-1-SNAPSHOT")
