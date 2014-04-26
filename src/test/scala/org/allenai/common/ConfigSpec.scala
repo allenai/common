@@ -4,6 +4,8 @@ import org.allenai.common.testkit.UnitSpec
 import org.allenai.common.Config._
 
 import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{ Config => TypesafeConfig }
+import spray.json._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
@@ -61,5 +63,11 @@ class ConfigSpec extends UnitSpec {
 
   it should "return None when key missing" in {
     assert(testConfig.getScalaDuration("missing", SECONDS) === None)
+  }
+
+  "JSON serialization" should "work" in {
+    val json = testConfig.toJson
+    val deserialized = json.convertTo[TypesafeConfig]
+    assert(deserialized === testConfig)
   }
 }

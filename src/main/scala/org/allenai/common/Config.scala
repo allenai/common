@@ -11,9 +11,22 @@ import spray.json._
 import scala.collection.JavaConverters._
 
 /** Import to provide enhancements via implicit class conversion for making working
-  * with [[com.typesafe.config.Config]] more Scala-friendly (no nulls!)
+  * with [[com.typesafe.config.Config]] more Scala-friendly (no nulls!).
+  *
+  * Also provides a Spray JSON RootJsonFormat[Config].
   */
 object Config {
+
+  implicit object TypesafeConfigFormat extends RootJsonFormat[TypesafeConfig] {
+    val ParseOptions = ConfigParseOptions.defaults().setSyntax(ConfigSyntax.JSON)
+    val RenderOptions = ConfigRenderOptions.concise().setJson(true)
+    override def read(jsValue: JsValue): TypesafeConfig = jsValue match {
+      case obj: JsObject => ConfigFactory.parseString(obj.compactPrint, ParseOptions)
+      case _ => deserializationError("Expected JsObject for Config deserialization")
+    }
+
+    override def write(config: TypesafeConfig): JsValue = JsonParser(config.root.render(RenderOptions))
+  }
 
   /** Type class that defines method for reading a value of type T from a Typesafe Config key */
   trait ConfigReader[T] {
