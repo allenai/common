@@ -4,7 +4,7 @@ organization := "org.allenai.common"
 
 name := "common"
 
-version := "0.0.3-SNAPSHOT"
+version := "2014.04.28-SNAPSHOT"
 
 resolvers += "spray" at "http://repo.spray.io/"
 
