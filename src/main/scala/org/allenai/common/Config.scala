@@ -31,16 +31,13 @@ object Config {
   /** Type class that defines method for reading a value of type T from a Typesafe Config key */
   trait ConfigReader[T] {
     /** Returns Some[T] if key is present, None if key is missing */
-    def read(config: TypesafeConfig, key: String): Option[T] = optional(readUnsafe(config, key))
-
-    /** Returns a T, allowing underlying config exceptions to bubble up. */
-    def readUnsafe(config: TypesafeConfig, key: String): T
+    def read(config: TypesafeConfig, key: String): T
   }
 
   object ConfigReader {
     /** Factory for creating a new ConfigReader[T] type class instance */
     def apply[T](f: (TypesafeConfig, String) => T) = new ConfigReader[T] {
-      def readUnsafe(config: TypesafeConfig, key: String) = f(config, key)
+      def read(config: TypesafeConfig, key: String) = f(config, key)
     }
 
     // ConfigReader wrappers for built-in Typesafe Config extractors that may return null
@@ -58,16 +55,16 @@ object Config {
   }
 
   implicit class EnhancedConfig(config: TypesafeConfig) {
-    def get[T](key: String)(implicit reader: ConfigReader[T]): Option[T] = reader.read(config, key)
+    private def optional[T](f: => T) = try {
+      Some(f)
+    } catch {
+      case e: ConfigException.Missing => None
+    }
+
+    def get[T](key: String)(implicit reader: ConfigReader[T]): Option[T] = optional { reader.read(config, key) }
 
     def getScalaDuration(key: String, timeUnit: TimeUnit): Option[Duration] = optional {
       Duration(config.getDuration(key, timeUnit), timeUnit)
     }
-  }
-
-  private def optional[T](f: => T) = try {
-    Some(f)
-  } catch {
-    case e: ConfigException.Missing => None
   }
 }
