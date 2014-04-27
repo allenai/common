@@ -5,10 +5,10 @@ import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigRenderOptions
 import com.typesafe.config.{ Config => TypesafeConfig }
 import com.typesafe.config.{ ConfigParseOptions, ConfigSyntax }
-import scala.concurrent.duration._
 import spray.json._
 
 import scala.collection.JavaConverters._
+import scala.concurrent.duration._
 
 /** Import to provide enhancements via implicit class conversion for making working
   * with [[com.typesafe.config.Config]] more Scala-friendly (no nulls!).
@@ -49,8 +49,16 @@ object Config {
 
     implicit val stringListReader = apply[Seq[String]] { (config, key) => config.getStringList(key).asScala }
     implicit val intListReader = apply[Seq[Int]] { (config, key) =>
-      val javaIntList: List[Integer] = config.getIntList(key).asScala.toList
-      javaIntList.map(_.intValue())
+      config.getIntList(key).asScala.toList.map(_.intValue)
+    }
+    implicit val longListReader = apply[Seq[Long]] { (config, key) =>
+      config.getLongList(key).asScala.toList.map(_.longValue)
+    }
+    implicit val boolListReader = apply[Seq[Boolean]] { (config, key) =>
+      config.getBooleanList(key).asScala.toList.map(_.booleanValue)
+    }
+    implicit val doubleListReader = apply[Seq[Double]] { (config, key) =>
+      config.getDoubleList(key).asScala.toList.map(_.doubleValue)
     }
   }
 

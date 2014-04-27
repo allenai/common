@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 
 class ConfigSpec extends UnitSpec {
-
+  
   val testConfigMap: Map[String, Any] = Map(
     "string" -> "Hello world",
     "int" -> Int.MaxValue,
@@ -21,6 +21,8 @@ class ConfigSpec extends UnitSpec {
     "bool" -> true,
     "stringList" -> Seq("one", "two", "three").asJava,
     "intList" -> Seq(1, 2, 3, 4).asJava,
+    "boolList" -> Seq(true, false, true).asJava,
+    "doubleList" -> Seq(1.0, 2.2, 3.1415).asJava,
     "duration" -> "5 seconds",
     "null" -> null
   )
@@ -53,6 +55,18 @@ class ConfigSpec extends UnitSpec {
 
   it should "work for Seq[Int]" in {
     assert(testConfig.get[Seq[Int]]("intList") === Some(Seq(1, 2, 3, 4)))
+  }
+
+  it should "work for Seq[Long]" in {
+    assert(testConfig.get[Seq[Long]]("intList") === Some(Seq(1L, 2L, 3L, 4L)))
+  }
+
+  it should "work for Seq[Boolean]" in {
+    assert(testConfig.get[Seq[Boolean]]("boolList") === Some(Seq(true, false, true)))
+  }
+
+  it should "work for Seq[Double]" in {
+    assert(testConfig.get[Seq[Double]]("doubleList") === Some(Seq(1.0, 2.2, 3.1415)))
   }
 
   it should "return None when key missing" in {
