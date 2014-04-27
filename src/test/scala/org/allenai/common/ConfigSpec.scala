@@ -1,5 +1,6 @@
 package org.allenai.common
 
+import com.typesafe.config.ConfigException
 import org.allenai.common.testkit.UnitSpec
 import org.allenai.common.Config._
 
@@ -20,7 +21,8 @@ class ConfigSpec extends UnitSpec {
     "bool" -> true,
     "stringList" -> Seq("one", "two", "three").asJava,
     "intList" -> Seq(1, 2, 3, 4).asJava,
-    "duration" -> "5 seconds"
+    "duration" -> "5 seconds",
+    "null" -> null
   )
 
   val testConfig = ConfigFactory.parseMap(testConfigMap.asJava)
@@ -57,12 +59,28 @@ class ConfigSpec extends UnitSpec {
     assert(testConfig.get[String]("missing") === None)
   }
 
+  it should "return None when value is null" in {
+    assert(testConfig.get[String]("null") === None)
+  }
+
+  it should "raise ConfigException.WrongType" in {
+    intercept[ConfigException.WrongType] {
+      testConfig.get[Int]("string")
+    }
+  }
+
   "getScalaDuration(key, timeUnit)" should "work" in {
     assert(testConfig.getScalaDuration("duration", SECONDS) === Some(5.seconds))
   }
 
   it should "return None when key missing" in {
     assert(testConfig.getScalaDuration("missing", SECONDS) === None)
+  }
+
+  it should "raise ConfigException.BadValue" in {
+    intercept[ConfigException.BadValue] {
+      testConfig.getScalaDuration("string", SECONDS)
+    }
   }
 
   "JSON serialization" should "work" in {
