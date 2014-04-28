@@ -17,9 +17,10 @@ import scala.concurrent.duration._
   */
 object Config {
 
-  implicit object TypesafeConfigFormat extends RootJsonFormat[TypesafeConfig] {
+  class TypesafeConfigFormat(pretty: Boolean) extends RootJsonFormat[TypesafeConfig] {
     val ParseOptions = ConfigParseOptions.defaults().setSyntax(ConfigSyntax.JSON)
-    val RenderOptions = ConfigRenderOptions.concise().setJson(true)
+    val RenderOptions = ConfigRenderOptions.concise().setFormatted(pretty).setJson(true)
+
     override def read(jsValue: JsValue): TypesafeConfig = jsValue match {
       case obj: JsObject => ConfigFactory.parseString(obj.compactPrint, ParseOptions)
       case _ => deserializationError("Expected JsObject for Config deserialization")
@@ -27,6 +28,14 @@ object Config {
 
     override def write(config: TypesafeConfig): JsValue = JsonParser(config.root.render(RenderOptions))
   }
+
+  /** Renders JSON formatted */
+  object PrettyTypesafeConfigFormat extends TypesafeConfigFormat(pretty = true)
+
+  /** Renders JSON on compact (no whitespace) format */
+  object ConciseTypesafeConfigFormat extends TypesafeConfigFormat(pretty = false)
+
+  implicit val DefaultTypesafeConfigFormat = ConciseTypesafeConfigFormat
 
   /** Type class that defines method for reading a value of type T from a Typesafe Config key */
   trait ConfigReader[T] {

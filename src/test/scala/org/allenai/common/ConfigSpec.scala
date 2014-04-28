@@ -12,7 +12,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 
 class ConfigSpec extends UnitSpec {
-  
+
   val testConfigMap: Map[String, Any] = Map(
     "string" -> "Hello world",
     "int" -> Int.MaxValue,
@@ -97,9 +97,22 @@ class ConfigSpec extends UnitSpec {
     }
   }
 
-  "JSON serialization" should "work" in {
+  "JSON serialization" should "work with default format" in {
     val json = testConfig.toJson
     val deserialized = json.convertTo[TypesafeConfig]
+    assert(deserialized === testConfig)
+  }
+
+  it should "work with concise format" in {
+    val json = testConfig.toJson(ConciseTypesafeConfigFormat)
+    println(json)
+    val deserialized = json.convertTo[TypesafeConfig](ConciseTypesafeConfigFormat)
+    assert(deserialized === testConfig)
+  }
+
+  it should "work with pretty format" in {
+    val json = testConfig.toJson(PrettyTypesafeConfigFormat)
+    val deserialized = json.convertTo[TypesafeConfig](PrettyTypesafeConfigFormat)
     assert(deserialized === testConfig)
   }
 }
