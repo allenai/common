@@ -4,10 +4,14 @@ organization := "org.allenai.common"
 
 name := "common"
 
-version := "0.0.2-SNAPSHOT"
+version := "2014.04.28-SNAPSHOT"
+
+resolvers += "spray" at "http://repo.spray.io/"
 
 libraryDependencies ++= Seq(
-  "org.slf4j" % "slf4j-api" % "1.7.5"
+  "org.slf4j" % "slf4j-api" % "1.7.5",
+  "com.typesafe" % "config" % "1.2.0",
+  "io.spray" %%  "spray-json" % "1.2.6"
 )
 
 conflictManager := ConflictManager.strict
