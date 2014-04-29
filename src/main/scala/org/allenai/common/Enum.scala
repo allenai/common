@@ -44,7 +44,7 @@ abstract class EnumCompanion[E <: Enum[E]] {
   implicit object EnumJsonFormat extends JsonFormat[E] {
     override def read(jsValue: JsValue): E = jsValue match {
       case JsString(id) => withId(id)
-      case other => throw deserializationError(s"Enum id must be a JsString: $other")
+      case other => deserializationError(s"Enum id must be a JsString: $other")
     }
     override def write(e: E): JsValue = JsString(e.id)
   }
