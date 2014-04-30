@@ -3,7 +3,9 @@ package org.allenai.common
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 
-/** Enumeration implementation that supports automatic Spray JSON serialization.
+/** Enumeration implementation that supports automatic Spray JSON serialization as JsString(id).
+  *
+  * @param id  value used for lookup and JSON serialization
   *
   * Usage:
   * {{{
@@ -13,7 +15,14 @@ import spray.json.DefaultJsonProtocol._
   *   case object Two extends MyEnum("two")
   *   register(One, Two)
   * }
+  *
+  * // JSON serialization:
+  * MyEnum.One.toJson // JsString("one")
+  * MyEnum.Two.toJson // JsString("two")
+  * JsString("one").convertTo[MyEnum] // MyEnum.One
+  * JsString("two").convertTo[MyEnum] // MyEnum.Two
   * }}}
+  *
   */
 abstract class Enum[E <: Enum[E]](val id: String)
 
