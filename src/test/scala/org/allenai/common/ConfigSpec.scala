@@ -1,17 +1,23 @@
 package org.allenai.common
 
 import com.typesafe.config.ConfigException
+import java.net.URI
 import org.allenai.common.testkit.UnitSpec
 import org.allenai.common.Config._
 
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.{ Config => TypesafeConfig }
 import spray.json._
+import spray.json.DefaultJsonProtocol._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 
 class ConfigSpec extends UnitSpec {
+
+  def createConfig(map: Map[String, Any]): TypesafeConfig = {
+    ConfigFactory.parseMap(map.asJava)
+  }
 
   val testConfigMap: Map[String, Any] = Map(
     "string" -> "Hello world",
@@ -24,12 +30,20 @@ class ConfigSpec extends UnitSpec {
     "boolList" -> Seq(true, false, true).asJava,
     "doubleList" -> Seq(1.0, 2.2, 3.1415).asJava,
     "duration" -> "5 seconds",
+    "uri" -> "http://www.example.com?q=hello&r=world",
     "null" -> null
   )
 
-  val testConfig = ConfigFactory.parseMap(testConfigMap.asJava)
+  val testConfig = createConfig(testConfigMap)
 
-  "get[T]" should "work for String" in {
+  "ConfigReader.map[A]" should "generate a new ConfigReader[A]" in {
+    case class Stringy(value: String)
+    implicit val stringyConfigReader = ConfigReader.stringReader map { value => Stringy(value) }
+    val stringy = testConfig.get[Stringy]("string")
+    assert(stringy === Some(Stringy("Hello world")))
+  }
+
+  "config.get[T]" should "work for String" in {
     assert(testConfig.get[String]("string") === Some("Hello world"))
   }
 
@@ -69,6 +83,12 @@ class ConfigSpec extends UnitSpec {
     assert(testConfig.get[Seq[Double]]("doubleList") === Some(Seq(1.0, 2.2, 3.1415)))
   }
 
+  it should "work for URI" in {
+    assert(testConfig.get[URI]("uri") === Some(new URI("http://www.example.com?q=hello&r=world")))
+  }
+
+  // non-happy path cases
+
   it should "return None when key missing" in {
     assert(testConfig.get[String]("missing") === None)
   }
@@ -83,7 +103,51 @@ class ConfigSpec extends UnitSpec {
     }
   }
 
-  "getScalaDuration(key, timeUnit)" should "work" in {
+  "config.apply[T]" should "work for String" in {
+    assert(testConfig[String]("string") === "Hello world")
+  }
+
+  it should "work for Int" in {
+    assert(testConfig[Int]("int") === Int.MaxValue)
+  }
+
+  it should "work for Long" in {
+    assert(testConfig[Long]("long") === Long.MaxValue)
+  }
+
+  it should "work for Double" in {
+    assert(testConfig[Double]("double") === 1234.5678)
+  }
+
+  it should "work for Boolean" in {
+    assert(testConfig[Boolean]("bool") === true)
+  }
+
+  it should "work for Seq[String]" in {
+    assert(testConfig[Seq[String]]("stringList") === Seq("one", "two", "three"))
+  }
+
+  it should "work for Seq[Int]" in {
+    assert(testConfig[Seq[Int]]("intList") === Seq(1, 2, 3, 4))
+  }
+
+  it should "work for Seq[Long]" in {
+    assert(testConfig[Seq[Long]]("intList") === Seq(1L, 2L, 3L, 4L))
+  }
+
+  it should "work for Seq[Boolean]" in {
+    assert(testConfig[Seq[Boolean]]("boolList") === Seq(true, false, true))
+  }
+
+  it should "work for Seq[Double]" in {
+    assert(testConfig[Seq[Double]]("doubleList") === Seq(1.0, 2.2, 3.1415))
+  }
+
+  it should "work for URI" in {
+    assert(testConfig[URI]("uri") === new URI("http://www.example.com?q=hello&r=world"))
+  }
+
+  "config.getScalaDuration(key, timeUnit)" should "work" in {
     assert(testConfig.getScalaDuration("duration", SECONDS) === Some(5.seconds))
   }
 
@@ -95,6 +159,20 @@ class ConfigSpec extends UnitSpec {
     intercept[ConfigException.BadValue] {
       testConfig.getScalaDuration("string", SECONDS)
     }
+  }
+
+  "config.fromJson" should "parse into specified type" in {
+    case class Foo(name: String, age: Int)
+    implicit val fooFormat = jsonFormat2(Foo.apply)
+    val config = createConfig(Map("foo" -> Map("name" -> "Howard", "age" -> 35).asJava))
+    assert(config.fromJson[Foo]("foo") === Foo("Howard", 35))
+  }
+
+  "config.getFromJson" should "parse into specified type" in {
+    case class Foo(name: String, age: Int)
+    implicit val fooFormat = jsonFormat2(Foo.apply)
+    val config = createConfig(Map("foo" -> Map("name" -> "Howard", "age" -> 35).asJava))
+    assert(config.getFromJson[Foo]("foo") === Some(Foo("Howard", 35)))
   }
 
   "JSON serialization" should "work with default format" in {

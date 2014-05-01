@@ -3,10 +3,11 @@ package org.allenai.common
 import com.typesafe.config.ConfigException
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.ConfigRenderOptions
-import com.typesafe.config.{ Config => TypesafeConfig }
+import com.typesafe.config.{ Config => TypesafeConfig, ConfigObject }
 import com.typesafe.config.{ ConfigParseOptions, ConfigSyntax }
 import spray.json._
 
+import java.net.URI
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 
@@ -41,6 +42,18 @@ object Config {
   trait ConfigReader[T] {
     /** Returns Some[T] if key is present, None if key is missing */
     def read(config: TypesafeConfig, key: String): T
+
+    /** Generates a new ConfigReader[A] from the T value extracted
+      *
+      * @tparam A the type of the new ConfigReader
+      * @param f function that transforms a T into an A
+      */
+    def map[A](f: T => A): ConfigReader[A] = {
+      val self = this
+      new ConfigReader[A] {
+        override def read(config: TypesafeConfig, key: String): A = f(self.read(config, key))
+      }
+    }
   }
 
   object ConfigReader {
@@ -69,8 +82,32 @@ object Config {
     implicit val doubleListReader = apply[Seq[Double]] { (config, key) =>
       config.getDoubleList(key).asScala.toList.map(_.doubleValue)
     }
+
+    implicit val configObjReader = apply[ConfigObject] { (config, key) =>
+      config.getObject(key)
+    }
+
+    // Other common types that could occur in config files
+    implicit val uriReader: ConfigReader[URI] = stringReader map { URI.create(_) }
+
+    // convert config object to a JsValue
+    // this is useful for doing two-step conversion from config value to some class that already has
+    // a JsFormat available (and therefore the user doesn't have to also define a ConfigReader)
+    val jsonReader: ConfigReader[JsValue] = configObjReader map { _.toConfig.toJson }
   }
 
+  /** Adds Scala-friendly methods to a [[com.typesafe.config.Config]] instance:
+    *
+    * Examples:
+    *
+    * {{{
+    * import org.allenai.common.Config._
+    *
+    * val config = ConfigFactory.load()
+    * val unsafeConfigValue: String = config[String]("unsafe.key")
+    * val optionalConfigValue: Option[URI] = config.get[URI]("optional.key")
+    * }}}
+    */
   implicit class EnhancedConfig(config: TypesafeConfig) {
     private def optional[T](f: => T) = try {
       Some(f)
@@ -78,7 +115,18 @@ object Config {
       case e: ConfigException.Missing => None
     }
 
-    def get[T](key: String)(implicit reader: ConfigReader[T]): Option[T] = optional { reader.read(config, key) }
+    /** Unsafe value extraction */
+    def apply[T](key: String)(implicit reader: ConfigReader[T]): T = reader.read(config, key)
+
+    /** Optional value extraction */
+    def get[T](key: String)(implicit reader: ConfigReader[T]): Option[T] = optional { apply[T](key) }
+
+    /** Unsafe JSON parse */
+    def fromJson[T](key: String)(implicit reader: JsonReader[T]): T =
+      ConfigReader.jsonReader.read(config, key).convertTo[T]
+
+    /** Optional JSON parse */
+    def getFromJson[T](key: String)(implicit reader: JsonReader[T]): Option[T] = optional { fromJson[T](key) }
 
     def getScalaDuration(key: String, timeUnit: TimeUnit): Option[Duration] = optional {
       Duration(config.getDuration(key, timeUnit), timeUnit)
