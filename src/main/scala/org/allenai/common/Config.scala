@@ -88,11 +88,16 @@ object Config {
     }
 
     // Other common types that could occur in config files
+
+    /** In addition to com.typesafe.config.ConfigException,
+      * will potentially throw java.net.URISyntaxException
+      */
     implicit val uriReader: ConfigReader[URI] = stringReader map { URI.create(_) }
 
     // convert config object to a JsValue
     // this is useful for doing two-step conversion from config value to some class that already has
     // a JsFormat available (and therefore the user doesn't have to also define a ConfigReader)
+    // Note: any exceptions due to JSON parse (such as DeserializationException) will not be caught.
     val jsonReader: ConfigReader[JsValue] = configObjReader map { _.toConfig.toJson }
   }
 
