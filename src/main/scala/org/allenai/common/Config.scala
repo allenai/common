@@ -104,7 +104,7 @@ object Config {
     * import org.allenai.common.Config._
     *
     * val config = ConfigFactory.load()
-    * val unsafeConfigValue: String = config[String]("unsafe.key")
+    * val requiredConfigValue: String = config[String]("required.key")
     * val optionalConfigValue: Option[URI] = config.get[URI]("optional.key")
     * }}}
     */
@@ -115,13 +115,13 @@ object Config {
       case e: ConfigException.Missing => None
     }
 
-    /** Unsafe value extraction */
+    /** Required value extraction */
     def apply[T](key: String)(implicit reader: ConfigReader[T]): T = reader.read(config, key)
 
     /** Optional value extraction */
     def get[T](key: String)(implicit reader: ConfigReader[T]): Option[T] = optional { apply[T](key) }
 
-    /** Unsafe JSON parse */
+    /** Required JSON parse */
     def fromJson[T](key: String)(implicit reader: JsonReader[T]): T =
       ConfigReader.jsonReader.read(config, key).convertTo[T]
 
