@@ -115,13 +115,24 @@ object Config {
       case e: ConfigException.Missing => None
     }
 
-    /** Required value extraction */
+    /** Required value extraction
+      *
+      * @throws com.typesafe.config.ConfigException
+      */
     def apply[T](key: String)(implicit reader: ConfigReader[T]): T = reader.read(config, key)
 
-    /** Optional value extraction */
+    /** Optional value extraction
+      *
+      * Catches any com.typesafe.config.ConfigException.Missing exceptions and converts to None.
+      *
+      * @throws com.typesafe.config.ConfigException
+      */
     def get[T](key: String)(implicit reader: ConfigReader[T]): Option[T] = optional { apply[T](key) }
 
-    /** Required JSON parse */
+    /** Required JSON parse
+      *
+      * @throws com.typesafe.config.ConfigException
+      */
     def fromJson[T](key: String)(implicit reader: JsonReader[T]): T =
       ConfigReader.jsonReader.read(config, key).convertTo[T]
 
