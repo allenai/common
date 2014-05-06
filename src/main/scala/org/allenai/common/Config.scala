@@ -86,6 +86,9 @@ object Config {
     implicit val configObjReader = apply[ConfigObject] { (config, key) =>
       config.getObject(key)
     }
+    implicit val typesafeConfigReader = apply[TypesafeConfig] { (config, key) =>
+      config.getConfig(key)
+    }
 
     // Other common types that could occur in config files
 
