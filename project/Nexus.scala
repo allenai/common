@@ -2,22 +2,25 @@ import sbt._
 import Keys._
 
 import scala.util.Try
+import java.net.URL
 
 object Nexus {
-  val nexusHost = "54.200.244.75"
   lazy val settings = Seq(
     credentials += Credentials("Sonatype Nexus Repository Manager",
-                               "54.200.244.75",
-                               "deployment",
+                               "oss.sonatype.org",
+                               "marksai2",
                                "answermyquery"),
-    publishTo <<= version { (v: String) =>
-      val nexus = s"http://${nexusHost}:8081/nexus/content/repositories/"
-      if (v.trim.endsWith("SNAPSHOT"))
-        Some("snapshots" at nexus + "snapshots")
-      else if(Try(sys.env("TRAVIS")).getOrElse("false") == "true")
+    publishTo <<= isSnapshot { isSnap =>
+      if (isSnap) {
+        Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
+      } else if (Try(sys.env("TRAVIS")).getOrElse("false") == "true") {
         None
-      else
-        Some("releases"  at nexus + "releases")
+      } else {
+        Some("releases" at "https://oss.sonatype.org/service/local/staging/deploy/maven2")
       }
+    },
+    licenses := Seq(
+      "Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")
+    )
   )
 }
