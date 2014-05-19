@@ -15,7 +15,6 @@ class JsonFormatsSpec extends UnitSpec {
 
   "ThrowableWriter" should "write message and stackTrace" in {
     val e = new Exception("my message")
-    //e.printStackTrace
     val json = e.toJson
     val jsonObj = json.asJsObject
     assert(jsonObj.fields("message") === JsString("my message"))
