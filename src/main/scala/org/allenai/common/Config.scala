@@ -1,10 +1,6 @@
 package org.allenai.common
 
-import com.typesafe.config.ConfigException
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.ConfigRenderOptions
-import com.typesafe.config.{ Config => TypesafeConfig, ConfigObject }
-import com.typesafe.config.{ ConfigParseOptions, ConfigSyntax }
+import com.typesafe.config.{ Config => TypesafeConfig, _ }
 import spray.json._
 
 import java.net.URI
@@ -68,6 +64,7 @@ object Config {
     implicit val longReader = apply[Long] { (config, key) => config.getLong(key) }
     implicit val doubleReader = apply[Double] { (config, key) => config.getDouble(key) }
     implicit val boolReader = apply[Boolean] { (config, key) => config.getBoolean(key) }
+    implicit val configValueReader = apply[ConfigValue] { (config, key) => config.getValue(key) }
 
     implicit val stringListReader = apply[Seq[String]] { (config, key) => config.getStringList(key).asScala }
     implicit val intListReader = apply[Seq[Int]] { (config, key) =>
@@ -81,6 +78,9 @@ object Config {
     }
     implicit val doubleListReader = apply[Seq[Double]] { (config, key) =>
       config.getDoubleList(key).asScala.toList.map(_.doubleValue)
+    }
+    implicit val configValueListReader = apply[Seq[ConfigValue]] { (config, key) =>
+      config.getList(key).asScala.toSeq
     }
 
     implicit val configObjReader = apply[ConfigObject] { (config, key) =>

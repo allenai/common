@@ -1,17 +1,16 @@
 package org.allenai.common
 
-import com.typesafe.config.ConfigException
-import java.net.URI
 import org.allenai.common.testkit.UnitSpec
 import org.allenai.common.Config._
 
-import com.typesafe.config.ConfigFactory
-import com.typesafe.config.{ Config => TypesafeConfig }
+import com.typesafe.config.{ Config => TypesafeConfig, _ }
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.duration._
+
+import java.net.URI
 
 class ConfigSpec extends UnitSpec {
 
@@ -64,6 +63,10 @@ class ConfigSpec extends UnitSpec {
     assert(testConfig.get[Boolean]("bool") === Some(true))
   }
 
+  it should "work for ConfigValue" in {
+    assert((testConfig.get[ConfigValue]("string") map { _.unwrapped }) === Some("Hello world"))
+  }
+
   it should "work for Seq[String]" in {
     assert(testConfig.get[Seq[String]]("stringList") === Some(Seq("one", "two", "three")))
   }
@@ -82,6 +85,11 @@ class ConfigSpec extends UnitSpec {
 
   it should "work for Seq[Double]" in {
     assert(testConfig.get[Seq[Double]]("doubleList") === Some(Seq(1.0, 2.2, 3.1415)))
+  }
+
+  it should "work for Seq[ConfigValue]" in {
+    assert((testConfig.get[Seq[ConfigValue]]("intList") map { _ map { _.unwrapped }}) ===
+      Some(Seq(1, 2, 3, 4)))
   }
 
   it should "work for URI" in {
