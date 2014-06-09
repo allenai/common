@@ -1,7 +1,5 @@
 import Dependencies._
 
-name := "testkit"
-
 version := "0.0.3-SNAPSHOT"
 
 libraryDependencies ++= Seq(

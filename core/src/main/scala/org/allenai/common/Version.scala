@@ -2,10 +2,6 @@ package org.allenai.common
 
 import com.typesafe.config.ConfigFactory
 
-import spray.http.StatusCodes
-import spray.routing.Directives._
-import spray.routing.Route
-
 /** Represents the version of this component. Should be built with the `fromResources` method on the
   * companion object.
   *

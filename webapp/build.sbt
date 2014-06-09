@@ -1,8 +1,6 @@
 import Dependencies._
 
-name := "common"
-
-version := "2014.04.28-SNAPSHOT"
+version := "2014.06.09-1-SNAPSHOT"
 
 libraryDependencies ++= Seq(
   akkaModule("actor"),

@@ -2,7 +2,8 @@ import sbt._
 import Keys._
 
 object CommonBuild extends Build {
-  val inheritedSettings = Format.settings ++ Publish.settings ++ TravisPublisher.settings
+  val inheritedSettings = Defaults.defaultSettings ++ Format.settings ++ Publish.settings ++
+    TravisPublisher.settings
 
   val buildSettings = inheritedSettings ++ Seq(
     organization := "org.allenai.common",
@@ -20,8 +21,19 @@ object CommonBuild extends Build {
     settings = buildSettings)
 
   lazy val common = Project(
-    id = "common",
-    base = file("."),
+    id = "core",
+    base = file("core"),
     settings = buildSettings
-  ).dependsOn(testkit % "test->compile").aggregate(testkit)
+  ).dependsOn(testkit % "test->compile")
+
+  lazy val webapp = Project(
+    id = "webapp",
+    base = file("webapp"),
+    settings = buildSettings
+  ).dependsOn(common)
+
+  lazy val root = Project(id = "root", base = file(".")).settings(
+    // Don't publish a jar for the root project.
+    publish := { }, publishLocal := { }
+  ).aggregate(webapp, common, testkit)
 }
