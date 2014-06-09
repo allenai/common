@@ -31,7 +31,7 @@ object JsonFormats {
   implicit def exceptionWriter[E <: Throwable] = throwableWriter.asInstanceOf[RootJsonWriter[E]]
 
   /** Writer for an Try[T] where T has an implicit JsonWriter[T] */
-  implicit def tryWriter[R : JsonWriter]: RootJsonWriter[Try[R]] = new RootJsonWriter[Try[R]] {
+  implicit def tryWriter[R: JsonWriter]: RootJsonWriter[Try[R]] = new RootJsonWriter[Try[R]] {
     override def write(responseTry: Try[R]) = {
       responseTry match {
         case Success(r) => JsObject("success" -> r.toJson)
