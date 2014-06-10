@@ -1,6 +1,8 @@
 import Dependencies._
 
-version := "2014.06.09-1-SNAPSHOT"
+name := "common-webapp"
+
+version := "2014.06.10-0-SNAPSHOT"
 
 libraryDependencies ++= Seq(
   akkaModule("actor"),
