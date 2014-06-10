@@ -2,9 +2,9 @@ import sbt._
 import Keys._
 
 import scala.util.Try
-import java.net.URL
 
-object Nexus {
+/** Publish settings, for a public repository. */
+object Publish {
   lazy val settings = Seq(
     credentials += Credentials("Sonatype Nexus Repository Manager",
                                "oss.sonatype.org",

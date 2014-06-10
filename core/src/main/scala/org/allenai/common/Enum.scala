@@ -8,6 +8,7 @@ import spray.json.DefaultJsonProtocol._
   * @param id  value used for lookup and JSON serialization
   *
   * Usage:
+  * (format: OFF)
   * {{{
   * sealed abstract class MyEnum(id: String) extends Enum[MyEnum](id)
   * object MyEnum extends EnumCompanion[MyEnum] {
@@ -22,7 +23,7 @@ import spray.json.DefaultJsonProtocol._
   * JsString("one").convertTo[MyEnum] // MyEnum.One
   * JsString("two").convertTo[MyEnum] // MyEnum.Two
   * }}}
-  *
+  * (format: ON)
   */
 abstract class Enum[E <: Enum[E]](val id: String)
 

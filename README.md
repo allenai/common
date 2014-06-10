@@ -5,6 +5,11 @@ common
 
 A collection of useful utility classes and functions.
 
+`testkit` - Unit test classes and utilities.
+`webapp` - Spray- and web-specific tools.
+`core` - Catchall collection of utilities, with smaller dependency footprint than `webapp`.
+
+
 Guideline for Contributing to `common`
 ---------------------------
 
