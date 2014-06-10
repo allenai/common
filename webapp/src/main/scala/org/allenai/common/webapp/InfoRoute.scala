@@ -1,4 +1,6 @@
-package org.allenai.common
+package org.allenai.common.webapp
+
+import org.allenai.common.Version
 
 import spray.http.StatusCodes
 import spray.routing.Directives._
