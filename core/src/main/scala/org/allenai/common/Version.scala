@@ -1,5 +1,7 @@
 package org.allenai.common
 
+import org.allenai.common.Config._
+
 import com.typesafe.config.ConfigFactory
 
 /** Represents the version of this component. Should be built with the `fromResources` method on the
@@ -31,9 +33,9 @@ object Version {
     val artifactConf = ConfigFactory.parseURL(artifactConfUrl)
     val gitConf = ConfigFactory.parseURL(gitConfUrl)
 
-    val artifactVersion = artifactConf.getString("version")
-    val gitVersion = gitConf.getString("sha1")
-    val gitCommitDate = gitConf.getLong("date")
+    val artifactVersion = artifactConf[String]("version")
+    val gitVersion = gitConf[String]("sha1")
+    val gitCommitDate = gitConf[Long]("date")
 
     Version(gitVersion, artifactVersion, gitCommitDate)
   }
