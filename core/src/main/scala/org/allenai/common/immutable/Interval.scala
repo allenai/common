@@ -253,9 +253,9 @@ sealed class Interval private (val start: Int, val end: Int)
 
   /** The minimum index in the interval. */
   def min = {
-      require(this != empty, "empty interval")
-      start
-    }
+    require(this != empty, "empty interval")
+    start
+  }
 
   /** The maximum index in the interval. */
   def max = {

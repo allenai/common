@@ -31,8 +31,7 @@ class ConfigSpec extends UnitSpec {
     "duration" -> "5 seconds",
     "uri" -> "http://www.example.com?q=hello&r=world",
     "null" -> null,
-    "object" -> Map("foo" -> "bar").asJava
-  )
+    "object" -> Map("foo" -> "bar").asJava)
 
   val testConfig = createConfig(testConfigMap)
 
@@ -88,7 +87,7 @@ class ConfigSpec extends UnitSpec {
   }
 
   it should "work for Seq[ConfigValue]" in {
-    assert((testConfig.get[Seq[ConfigValue]]("intList") map { _ map { _.unwrapped }}) ===
+    assert((testConfig.get[Seq[ConfigValue]]("intList") map { _ map { _.unwrapped } }) ===
       Some(Seq(1, 2, 3, 4)))
   }
 
