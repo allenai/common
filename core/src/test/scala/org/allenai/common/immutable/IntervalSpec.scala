@@ -166,6 +166,13 @@ class IntervalSpec extends UnitSpec with Checkers {
 
     assert((Interval.open(2, 4) superset Interval.empty)  == true)
     assert((Interval.empty superset Interval.open(2, 4))  == false)
+    
+    intercept[IllegalArgumentException] {Interval.empty.min}
+    intercept[IllegalArgumentException] {Interval.empty.max}
+    intercept[IllegalArgumentException] {Interval.empty leftOf Interval.open(2, 4)}
+    intercept[IllegalArgumentException] {Interval.open(2, 4) rightOf Interval.empty}
+    
+    assert(Interval.empty.shift(5) == Interval.empty)
   }
 
   def roundtripString(s: String): String = Interval.Format.write(Interval.Format.read(s))
