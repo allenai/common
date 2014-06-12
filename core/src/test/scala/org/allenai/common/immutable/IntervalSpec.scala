@@ -235,6 +235,6 @@ class IntervalSpec extends UnitSpec with Checkers {
     //assert(Interval.empty.toJson.toString == "[]")  /* Interval.empty has weird type */
     assert(Interval.open(3, 3).toJson.toString == "[]")
     assert(Interval.open(3, 4).toJson.toString == "[3,4]")
-    assert(Interval.closed(3, 4).toJson.toString == "[3,4,true]")
+    assert(Interval.closed(3, 4).toJson.toString == "[3,5]")
   }
 }

@@ -287,7 +287,7 @@ object Interval {
     require(end < Int.MaxValue, "end must be < Int.MaxValue")
     require(end >= start, "end < start: " + end + " < " + start)
     if (end == start) Interval.singleton(start)
-    else new Closed(start, end)
+    else new Interval(start, end + 1)
   }
 
   /** Create an interval at the specified starting point of the specified length. */
@@ -310,23 +310,20 @@ object Interval {
       }
     }
   }
- 
+
   /* Simple Json (de-)serialization for intervals:
    * Interval.open(3, 6)  -> [3,6]
-   * Interval.closed(3, 6) -> [3,6,true]
    * Interval.empty -> []
    */
   implicit object IntervalJsonFormat extends RootJsonFormat[Interval] {
     def write(i: Interval) = i match {
       case Interval.empty => JsArray()
-      case _: Closed => JsArray(JsNumber(i.start), JsNumber(i.end - 1), JsTrue)
       case _ => JsArray(JsNumber(i.start), JsNumber(i.end))
     }
 
     def read(value: JsValue) = value match {
       case JsArray(Nil) => empty
       case JsArray(JsNumber(start) :: JsNumber(end) :: Nil) => Interval.open(start.toInt, end.toInt)
-      case JsArray(JsNumber(start) :: JsNumber(end) :: JsTrue :: Nil) => Interval.closed(start.toInt, end.toInt)
       case _ => deserializationError("Interval expected")
     }
   }
@@ -410,24 +407,6 @@ object Interval {
     override def toString = "{}"
     def unapply(interval: Interval): Option[Unit] = interval match {
       case `empty` => Some(Unit)
-      case _ => None
-    }
-  }
-
-  /** `ClosedInterval` extends `Open` so it is not a
-    * required case when  pattern matching an `Interval`.
-    * This is a convenience class for providing a closed toString.
-    * However, Open is the default Interval type.
-    */
-  class Closed private[Interval] (start: Int, end: Int)
-      extends Interval(start, end + 1) {
-    override def toString = "[" + start + ", " + end + "]"
-  }
-
-  object Closed {
-    def unapply(interval: Interval): Option[(Int, Int)] = interval match {
-      case `empty` => None
-      case closed: Interval => Some((interval.start, interval.last))
       case _ => None
     }
   }
