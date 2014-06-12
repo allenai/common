@@ -41,6 +41,7 @@ import org.scalacheck.Gen
 import org.scalacheck.Prop.forAll
 import org.scalacheck.Prop.propBoolean
 import org.scalatest.prop.Checkers
+import spray.json._
 
 class IntervalSpec extends UnitSpec with Checkers {
   they should "border each other" in {
@@ -216,5 +217,24 @@ class IntervalSpec extends UnitSpec with Checkers {
         roundtrip(interval) == interval
       }
     }
+  }
+
+  def roundtripJson(x: Interval): Interval = (x.toJson).convertTo[Interval]
+
+  def roundtripsJsonOk(x: Interval): Unit = assert({
+    val rtrip = roundtripJson(x)
+    /* check string form as well to distinguish open/closed intervals */
+    rtrip == x && rtrip.toString == x.toString
+  })
+
+  "Json serialization for intervals" should "work" in {
+    roundtripsJsonOk(Interval.empty)
+    roundtripsJsonOk(Interval.open(3, 4))
+    roundtripsJsonOk(Interval.open(2, 4))
+    roundtripsJsonOk(Interval.closed(3, 6))
+    //assert(Interval.empty.toJson.toString == "[]")  /* Interval.empty has weird type */
+    assert(Interval.open(3, 3).toJson.toString == "[]")
+    assert(Interval.open(3, 4).toJson.toString == "[3,4]")
+    assert(Interval.closed(3, 4).toJson.toString == "[3,4,true]")
   }
 }

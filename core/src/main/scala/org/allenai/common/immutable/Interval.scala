@@ -35,6 +35,9 @@
 package org.allenai.common.immutable
 
 import Interval.empty
+import spray.json._
+import spray.json.DefaultJsonProtocol._
+
 import scala.util.matching.Regex
 
 /** Represents an open interval in the Integers.
@@ -305,6 +308,26 @@ object Interval {
         case openIntervalRegex(a, b) => Interval.open(a.toInt, b.toInt)
         case closedIntervalRegex(a, b) => Interval.closed(a.toInt, b.toInt)
       }
+    }
+  }
+ 
+  /* Simple Json (de-)serialization for intervals:
+   * Interval.open(3, 6)  -> [3,6]
+   * Interval.closed(3, 6) -> [3,6,true]
+   * Interval.empty -> []
+   */
+  implicit object IntervalJsonFormat extends RootJsonFormat[Interval] {
+    def write(i: Interval) = i match {
+      case Interval.empty => JsArray()
+      case _: Closed => JsArray(JsNumber(i.start), JsNumber(i.end - 1), JsTrue)
+      case _ => JsArray(JsNumber(i.start), JsNumber(i.end))
+    }
+
+    def read(value: JsValue) = value match {
+      case JsArray(Nil) => empty
+      case JsArray(JsNumber(start) :: JsNumber(end) :: Nil) => Interval.open(start.toInt, end.toInt)
+      case JsArray(JsNumber(start) :: JsNumber(end) :: JsTrue :: Nil) => Interval.closed(start.toInt, end.toInt)
+      case _ => deserializationError("Interval expected")
     }
   }
 
