@@ -215,13 +215,17 @@ sealed class Interval private (val start: Int, val end: Int)
 
   /** Returns true if this is left of that.
     */
-  def leftOf(that: Interval) =
+  def leftOf(that: Interval) = {
+    require(that != empty && this != empty, "empty interval")
     this.end <= that.start
+  }
 
   /** Returns true if this is right of that.
     */
-  def rightOf(that: Interval) =
+  def rightOf(that: Interval) = {
+    require(that != empty && this != empty, "empty interval")
     this.start >= that.end
+  }
 
   /** Determine whether this interval or the supplied interval is left.
     * First compare based on the intervals' start, and secondly compare
@@ -248,10 +252,16 @@ sealed class Interval private (val start: Int, val end: Int)
     else this
 
   /** The minimum index in the interval. */
-  def min = start
+  def min = {
+    require(this != empty, "empty interval")
+    start
+  }
 
   /** The maximum index in the interval. */
-  def max = end - 1
+  def max = {
+    require(this != empty, "empty interval")
+    end - 1
+  }
 }
 
 object Interval {
