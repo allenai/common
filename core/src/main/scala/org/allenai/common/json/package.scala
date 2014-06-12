@@ -9,6 +9,12 @@ import spray.json.DefaultJsonProtocol
   * {{{
   * import spray.json._
   * import org.allenai.common.json._
+  *
+  * val json: JsObject = ...
+  * val packed = json.pack("foo" -> 5) // creates a new JsObject with the added field
+  * packed[Int]("foo") // returns 5
+  * packed.get[Int]("foo") // returns Some(5)
+  *
   * }}}
   * (format: ON)
   */
@@ -28,5 +34,11 @@ package object json extends DefaultJsonProtocol {
       val aJsValue = implicitly[JsonWriter[A]].write(newField._2)
       pack(newField._1 -> aJsValue)
     }
+
+    /** Extract a value of type A by the given key */
+    def apply[A : JsonReader](key: String): A = jsObj.fields(key).convertTo[A]
+
+    /** Extract a value of type A by the given key */
+    def get[A : JsonReader](key: String): Option[A] = jsObj.fields.get(key) map (_.convertTo[A])
   }
 }
