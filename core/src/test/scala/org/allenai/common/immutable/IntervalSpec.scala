@@ -232,7 +232,7 @@ class IntervalSpec extends UnitSpec with Checkers {
     roundtripsJsonOk(Interval.open(3, 4))
     roundtripsJsonOk(Interval.open(2, 4))
     roundtripsJsonOk(Interval.closed(3, 6))
-    //assert(Interval.empty.toJson.toString == "[]")  /* Interval.empty has weird type */
+    assert(Interval.empty.toJson.toString == "[]")
     assert(Interval.open(3, 3).toJson.toString == "[]")
     assert(Interval.open(3, 4).toJson.toString == "[3,4]")
     assert(Interval.closed(3, 4).toJson.toString == "[3,5]")

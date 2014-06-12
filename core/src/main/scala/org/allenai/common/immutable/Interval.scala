@@ -269,7 +269,7 @@ sealed class Interval private (val start: Int, val end: Int)
 
 object Interval {
   /** The empty interval. */
-  val empty = Empty
+  val empty: Interval = Empty
 
   /** Create a new singleton interval. */
   def singleton(x: Int): Singleton = new SingletonImpl(x)
