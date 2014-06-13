@@ -41,23 +41,9 @@ class PackedJsonFormatSpec extends UnitSpec {
         // (format: ON)
         //
         // However, the `unpack` partial functions already provide the guard (check for packed field value),
-        // so you can reduce boilerplate (and potential bugs) by composing them as follows:
+        // and with a helper method imported from org.allenai.common.json you can simply do this:
 
-        // combine the partial functions into one:
-        val combinedUnpack: PartialFunction[JsValue, Super] = namedFormat.unpack orElse numberedFormat.unpack
-
-        // optionally apply the partial function to the jsValue:
-        val liftedResult: Option[Super] = combinedUnpack.lift(jsValue)
-
-        // return the result or error:
-        liftedResult getOrElse {
-          deserializationError("Missing valid `type` field")
-        }
-
-        // Or, more conciesly:
-        //(packedNamedFormat.unpack orElse packedNumberedFormat.unpack).lift(jsValue) getOrElse {
-        //  deserializationError("Missing valid `type` field")
-        //}
+        unpackUsing[Super](jsValue)(namedFormat, numberedFormat)
       }
     }
   }
