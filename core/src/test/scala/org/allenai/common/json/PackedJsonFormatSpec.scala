@@ -26,9 +26,38 @@ class PackedJsonFormatSpec extends UnitSpec {
       }
 
       override def read(jsValue: JsValue): Super = {
-        (namedFormat.unpack orElse numberedFormat.unpack).lift(jsValue) getOrElse {
+        // The `unpack` member of a PackedJsonFormat[T] is a PartialFunction[JsValue, T].
+        // This is nice because it allows us to combine several `unpack` partial functions into
+        // one using the `orElse` combinator. The result is the same as if you write out
+        // case statements with guards for each of the `unpack` partial functions. For example,
+        // you could write the following:
+        //
+        // (format: OFF)
+        // jsValue match {
+        //   case JsObject(fields) if fields.get("type") == Some("named") => jsValue.convertTo[NamedChild]
+        //   case JsObject(fields) if fields.get("type") == Some("numbered") => jsValue.convertTo[NumberedChild]
+        //   case _ => deserializationError("Missing valid `type` field")
+        // }
+        // (format: ON)
+        //
+        // However, the `unpack` partial functions already provide the guard (check for packed field value),
+        // so you can reduce boilerplate (and potential bugs) by composing them as follows:
+
+        // combine the partial functions into one:
+        val combinedUnpack: PartialFunction[JsValue, Super] = namedFormat.unpack orElse numberedFormat.unpack
+
+        // optionally apply the partial function to the jsValue:
+        val liftedResult: Option[Super] = combinedUnpack.lift(jsValue)
+
+        // return the result or error:
+        liftedResult getOrElse {
           deserializationError("Missing valid `type` field")
         }
+
+        // Or, more conciesly:
+        //(packedNamedFormat.unpack orElse packedNumberedFormat.unpack).lift(jsValue) getOrElse {
+        //  deserializationError("Missing valid `type` field")
+        //}
       }
     }
   }
