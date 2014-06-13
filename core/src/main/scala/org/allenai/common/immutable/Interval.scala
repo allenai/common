@@ -35,6 +35,9 @@
 package org.allenai.common.immutable
 
 import Interval.empty
+import spray.json._
+import spray.json.DefaultJsonProtocol._
+
 import scala.util.matching.Regex
 
 /** Represents an open interval in the Integers.
@@ -266,7 +269,7 @@ sealed class Interval private (val start: Int, val end: Int)
 
 object Interval {
   /** The empty interval. */
-  val empty = Empty
+  val empty: Interval = Empty
 
   /** Create a new singleton interval. */
   def singleton(x: Int): Singleton = new SingletonImpl(x)
@@ -284,7 +287,7 @@ object Interval {
     require(end < Int.MaxValue, "end must be < Int.MaxValue")
     require(end >= start, "end < start: " + end + " < " + start)
     if (end == start) Interval.singleton(start)
-    else new Closed(start, end)
+    else new Interval(start, end + 1)
   }
 
   /** Create an interval at the specified starting point of the specified length. */
@@ -305,6 +308,23 @@ object Interval {
         case openIntervalRegex(a, b) => Interval.open(a.toInt, b.toInt)
         case closedIntervalRegex(a, b) => Interval.closed(a.toInt, b.toInt)
       }
+    }
+  }
+
+  /* Simple Json (de-)serialization for intervals:
+   * Interval.open(3, 6)  -> [3,6]
+   * Interval.empty -> []
+   */
+  implicit object IntervalJsonFormat extends RootJsonFormat[Interval] {
+    def write(i: Interval) = i match {
+      case Interval.empty => JsArray()
+      case _ => JsArray(JsNumber(i.start), JsNumber(i.end))
+    }
+
+    def read(value: JsValue) = value match {
+      case JsArray(Nil) => empty
+      case JsArray(JsNumber(start) :: JsNumber(end) :: Nil) => Interval.open(start.toInt, end.toInt)
+      case _ => deserializationError("Interval expected")
     }
   }
 
@@ -387,24 +407,6 @@ object Interval {
     override def toString = "{}"
     def unapply(interval: Interval): Option[Unit] = interval match {
       case `empty` => Some(Unit)
-      case _ => None
-    }
-  }
-
-  /** `ClosedInterval` extends `Open` so it is not a
-    * required case when  pattern matching an `Interval`.
-    * This is a convenience class for providing a closed toString.
-    * However, Open is the default Interval type.
-    */
-  class Closed private[Interval] (start: Int, end: Int)
-      extends Interval(start, end + 1) {
-    override def toString = "[" + start + ", " + end + "]"
-  }
-
-  object Closed {
-    def unapply(interval: Interval): Option[(Int, Int)] = interval match {
-      case `empty` => None
-      case closed: Interval => Some((interval.start, interval.last))
       case _ => None
     }
   }
