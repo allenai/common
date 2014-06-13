@@ -1,7 +1,5 @@
 package org.allenai.common
 
-import spray.json.DefaultJsonProtocol
-
 /** Utilities for making it easier to work with spray-json for common use cases.
   *
   * Usage:
@@ -18,9 +16,10 @@ import spray.json.DefaultJsonProtocol
   * }}}
   * (format: ON)
   */
-package object json extends DefaultJsonProtocol {
+package object json {
 
   import spray.json._
+  import spray.json.DefaultJsonProtocol._
 
   implicit class RichJsObject(val jsObj: JsObject) extends AnyVal {
 

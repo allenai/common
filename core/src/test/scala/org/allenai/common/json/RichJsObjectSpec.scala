@@ -3,6 +3,7 @@ package org.allenai.common.json
 import org.allenai.common.testkit.UnitSpec
 
 import spray.json._
+import spray.json.DefaultJsonProtocol._
 
 import scala.util.{ Try, Success, Failure }
 
