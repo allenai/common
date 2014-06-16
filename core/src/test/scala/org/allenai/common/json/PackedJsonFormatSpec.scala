@@ -20,6 +20,8 @@ class PackedJsonFormatSpec extends UnitSpec {
     // a PackedJsonFormat[NumberedChild] that packs a field "type" -> JsString("numbered") during write
     implicit val numberedFormat = jsonFormat1(NumberedChild.apply).pack("type" -> "numbered")
 
+    implicit val unpackers = Seq(namedFormat, numberedFormat)
+
     implicit object SuperFormat extends RootJsonFormat[Super] {
       override def write(child: Super): JsValue = child match {
         case named: NamedChild => named.toJson
@@ -44,7 +46,11 @@ class PackedJsonFormatSpec extends UnitSpec {
         // However, the `unpack` partial functions already provide the guard (check for packed field value),
         // and with a helper method imported from org.allenai.common.json you can simply do this:
 
-        unpackUsing[Super](jsValue)(namedFormat, numberedFormat)
+        // using implicit Seq[PackedJsonFormat[_ <: Super]]:
+        jsValue.asJsObject.unpackAs[Super]
+
+        // or more explicitly:
+        // jsValue.asJsObject.unpackWith[Super](namedFormat, numberedFormat)
       }
     }
   }

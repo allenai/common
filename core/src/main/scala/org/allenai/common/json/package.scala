@@ -34,6 +34,39 @@ package object json {
       pack(newField._1 -> aJsValue)
     }
 
+    /** Optionally unpack json using the provided [[PackedJsonFormat]]s
+      *
+      * @param packedFormats
+      */
+    def unpackOptWith[T](packedFormats: PackedJsonFormat[_ <: T] *): Option[T] = {
+      val unpacks: Seq[PartialFunction[JsValue, T]] = packedFormats map (_.unpack)
+      val combinedUnpack = unpacks reduce (_ orElse _)
+      combinedUnpack.lift(jsObj)
+    }
+
+    /** Optionally unpack json using the provided PackedJsonFormats
+      *
+      * @param packedFormats
+      * @throws spray.json.DeserializationException
+      */
+    def unpackWith[T](packedFormats: PackedJsonFormat[_ <: T] *): T = {
+      unpackOptWith[T](packedFormats: _*) getOrElse {
+        deserializationError(s"Invalid JSON. Expected a JsObject with a valid packed field, but got ${jsObj.toString}")
+      }
+    }
+
+    /** Unpack json using the implicitly provided PackedJsonFormats
+      *
+      * @tparam the type to unpack
+      * @param packedFormats
+      * @throws spray.json.DeserializationException
+      */
+    def unpackAs[T](implicit unpackers: Seq[PackedJsonFormat[_ <: T]]): T = {
+      unpackOptWith[T](unpackers: _*) getOrElse {
+        deserializationError(s"Invalid JSON. Expected a JsObject with a valid packed field, but got ${jsObj.toString}")
+      }
+    }
+
     /** Extract a value of type A by the given key */
     def apply[A : JsonReader](key: String): A = jsObj.fields(key).convertTo[A]
 
@@ -62,28 +95,5 @@ package object json {
       */
     def pack[A : JsonWriter](packField: (String, A)): PackedJsonFormat[T] =
       pack(packField._1 -> packField._2.toJson)
-  }
-
-  /** Optionally unpack json using the provided [[PackedJsonFormat]]s
-    *
-    * @param json the JsValue to unpack, must be a JsObject
-    * @param packedFormats
-    */
-  def unpackOptUsing[T](json: JsValue)(packedFormats: PackedJsonFormat[_ <: T] *): Option[T] = {
-    val unpacks: Seq[PartialFunction[JsValue, T]] = packedFormats map (_.unpack)
-    val combinedUnpack = unpacks reduce (_ orElse _)
-    combinedUnpack.lift(json)
-  }
-
-  /** Optionally unpack json using the provided PackedJsonFormats
-    *
-    * @param json the JsValue to unpack, must be a JsObject
-    * @param packedFormats
-    * @throws spray.json.DeserializationException
-    */
-  def unpackUsing[T](json: JsValue)(packedFormats: PackedJsonFormat[_ <: T] *): T = {
-    unpackOptUsing[T](json)(packedFormats: _*) getOrElse {
-      deserializationError(s"Invalid JSON. Expected a JsObject with a valid packed field, but got ${json.toString}")
-    }
   }
 }
