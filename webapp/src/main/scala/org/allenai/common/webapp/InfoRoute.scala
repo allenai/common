@@ -21,9 +21,11 @@ class InfoRoute(val info: Map[String, String] = Map.empty) {
 
   // format: OFF
   def route: Route = get {
-    path("info") {
-      complete {
-        info.keys mkString "\n"
+    pathPrefix("info") {
+      pathEndOrSingleSlash {
+        complete {
+          info.keys mkString "\n"
+        }
       }
     } ~
     path("info" / Segment) { key =>
