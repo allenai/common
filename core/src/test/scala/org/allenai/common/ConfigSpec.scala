@@ -195,7 +195,6 @@ class ConfigSpec extends UnitSpec {
 
   it should "work with concise format" in {
     val json = testConfig.toJson(ConciseTypesafeConfigFormat)
-    println(json)
     val deserialized = json.convertTo[TypesafeConfig](ConciseTypesafeConfigFormat)
     assert(deserialized === testConfig)
   }
