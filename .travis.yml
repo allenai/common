@@ -15,3 +15,5 @@ notifications:
   hipchat:
     rooms:
       secure: BP7hxRHo+YUKjOpbRsA16247KKb7CTWu/U7wPI1QHjMA9ACNzlDDSyyTyYGKizAQMhlLZi21AIlFEvHXpRyk8FRM+WRrUhUTLQrOelJBmZlCEovPYHS+deFd3Is0/hbmT7gXPOQ2FvVkASCIKfGIiYPYGVwuciqVfwZqnrMZ1mc=
+    on_success: change
+    on_failure: always
