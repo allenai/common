@@ -8,3 +8,6 @@ branches:
   - master
 after_success:
 - sbt publishMasterOnTravis
+cache:
+  directories:
+  - $HOME/.ivy2
