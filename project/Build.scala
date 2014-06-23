@@ -1,6 +1,7 @@
 import sbt._
 import Keys._
 
+object CommonBuild extends Build {
   val inheritedSettings = Defaults.defaultSettings ++ Format.settings ++ Publish.settings ++
     TravisPublisher.settings
 
