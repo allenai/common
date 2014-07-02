@@ -12,7 +12,7 @@ object Dependencies {
 
   val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.11.3"
   val scalaTest = "org.scalatest" %% "scalatest" % "2.1.3"
-  val sl4j = "org.slf4j" % "slf4j-api" % "1.7.5"
+  val sl4j = "org.slf4j" % "slf4j-api" % "1.7.6"
   val sprayJson = "io.spray" %% "spray-json" % "1.2.6"
   val sprayRouting = "io.spray" % "spray-routing" % "1.3.1"
   val typesafeConfig = "com.typesafe" % "config" % "1.2.0"
