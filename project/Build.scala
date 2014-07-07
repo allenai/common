@@ -1,11 +1,10 @@
 import sbt._
 import Keys._
 
-object CommonBuild extends Build {
-  val inheritedSettings = Defaults.defaultSettings ++ Format.settings ++ Publish.settings ++
-    TravisPublisher.settings
+import org.allenai.sbt.format._
 
-  val buildSettings = inheritedSettings ++ Seq(
+object CommonBuild extends Build {
+  val buildSettings = Seq(
     organization := "org.allenai.common",
     crossScalaVersions := Seq("2.10.4"),
     scalaVersion <<= crossScalaVersions { (vs: Seq[String]) => vs.head },
