@@ -2,6 +2,7 @@ import sbt._
 import Keys._
 
 import org.allenai.sbt.format._
+import org.allenai.sbt.travispublisher._
 
 object CommonBuild extends Build {
   val buildSettings = Seq(
@@ -17,19 +18,19 @@ object CommonBuild extends Build {
   lazy val testkit = Project(
     id = "testkit",
     base = file("testkit"),
-    settings = buildSettings)
+    settings = buildSettings).enablePlugins(TravisPublisherPlugin)
 
   lazy val common = Project(
     id = "core",
     base = file("core"),
     settings = buildSettings
-  ).dependsOn(testkit % "test->compile")
+  ).dependsOn(testkit % "test->compile").enablePlugins(TravisPublisherPlugin)
 
   lazy val webapp = Project(
     id = "webapp",
     base = file("webapp"),
     settings = buildSettings
-  ).dependsOn(common)
+  ).dependsOn(common).enablePlugins(TravisPublisherPlugin)
 
   lazy val root = Project(id = "root", base = file(".")).settings(
     // Don't publish a jar for the root project.
