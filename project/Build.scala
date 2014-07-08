@@ -13,7 +13,7 @@ object CommonBuild extends Build {
     conflictManager := ConflictManager.strict,
     dependencyOverrides ++= Dependencies.Overrides,
     resolvers ++= Dependencies.Resolvers
-  )
+  ) ++ Publish.settings
 
   lazy val testkit = Project(
     id = "testkit",
