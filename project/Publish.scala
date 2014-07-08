@@ -8,8 +8,8 @@ object Publish {
   lazy val settings = Seq(
     credentials += Credentials("Sonatype Nexus Repository Manager",
                                "oss.sonatype.org",
-                               "marksai2",
-                               "answermyquery"),
+                               "allenai-role",
+                               System.getenv("NEXUS_PASS")),
     publishTo <<= isSnapshot { isSnap =>
       if (isSnap) {
         Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
