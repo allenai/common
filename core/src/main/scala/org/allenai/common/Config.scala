@@ -89,6 +89,9 @@ object Config {
     implicit val typesafeConfigReader = apply[TypesafeConfig] { (config, key) =>
       config.getConfig(key)
     }
+    implicit val typesafeConfigListReader = apply[Seq[TypesafeConfig]] { (config, key) =>
+      config.getConfigList(key).asScala.toSeq
+    }
 
     // Other common types that could occur in config files
 
