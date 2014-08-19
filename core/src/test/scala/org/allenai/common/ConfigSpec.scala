@@ -31,7 +31,9 @@ class ConfigSpec extends UnitSpec {
     "duration" -> "5 seconds",
     "uri" -> "http://www.example.com?q=hello&r=world",
     "null" -> null,
-    "object" -> Map("foo" -> "bar").asJava)
+    "object" -> Map("foo" -> "bar").asJava,
+    "objectList" -> Seq(Map("foo" -> "bar").asJava, Map("one" -> "two").asJava).asJava
+  )
 
   val testConfig = createConfig(testConfigMap)
 
@@ -97,6 +99,11 @@ class ConfigSpec extends UnitSpec {
 
   it should "work for com.typesafe.config.Config" in {
     assert(testConfig.get[TypesafeConfig]("object") === Some(createConfig(Map("foo" -> "bar"))))
+  }
+
+  it should "work for Seq[com.typesafe.config.Config]" in {
+    assert(testConfig.get[Seq[TypesafeConfig]]("objectList") === Some(
+          Seq(createConfig(Map("foo" -> "bar")), createConfig(Map("one" -> "two")))))
   }
 
   // non-happy path cases
