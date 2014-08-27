@@ -102,7 +102,7 @@ object StringImplicits {
     '\u301E' -> "\"",
     '\uFEFF' -> " ")
 
-  implicit class NLPSanitizedString(string: String) {
+  implicit class NLPSanitizedString(val string: String) extends AnyVal {
     def replaceWeirdUnicodeChars: String =
       unicodeCharMap.foldLeft(string) {
         case (s, (unicodeChar, replacement)) =>
