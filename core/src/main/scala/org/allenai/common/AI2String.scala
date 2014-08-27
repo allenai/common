@@ -10,7 +10,8 @@ class AI2String(string: String) {
 }
 
 object AI2String {
-  /** Maps weird unicode characters to ASCII equivalents */
+  /** Maps weird unicode characters to ASCII equivalents
+    * This list comes from http://lexsrv3.nlm.nih.gov/LexSysGroup/Projects/lvg/current/docs/designDoc/UDF/unicode/DefaultTables/symbolTable.html */
   val unicodeCharMap = Map(
     '\u00AB' -> "\"",
     '\u00AD' -> "-",
