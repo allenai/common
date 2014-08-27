@@ -5,6 +5,6 @@ import org.allenai.common.StringImplicits._
 
 class StringImplicitsSpec extends UnitSpec {
   "NLPSanitizedString" should "replace unicode characters" in {
-    assert("object′s properties".replaceWeirdChars === "object's properties")
+    assert("object′s properties".replaceWeirdUnicodeChars === "object's properties")
   }
 }

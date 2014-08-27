@@ -103,7 +103,7 @@ object StringImplicits {
     '\uFEFF' -> " ")
 
   implicit class NLPSanitizedString(string: String) {
-    def replaceWeirdChars: String =
+    def replaceWeirdUnicodeChars: String =
       unicodeCharMap.foldLeft(string) {
         case (s, (unicodeChar, replacement)) =>
           s.replace(unicodeChar.toString, replacement)
