@@ -1,15 +1,9 @@
 package org.allenai.common
 
-import scala.language.implicitConversions
-
-class AI2String(string: String) {
-  def replaceWeirdChars(): String =
-    AI2String.unicodeCharMap.foldLeft(string) {
-      case (s, (unicodeChar, replacement)) => s.replace(unicodeChar.toString, replacement)
-    }
-}
-
-object AI2String {
+/**
+ * Utility functions on strings
+ */
+object StringImplicits {
   /** Maps weird unicode characters to ASCII equivalents
     * This list comes from http://lexsrv3.nlm.nih.gov/LexSysGroup/Projects/lvg/current/docs/designDoc/UDF/unicode/DefaultTables/symbolTable.html */
   val unicodeCharMap = Map(
@@ -108,5 +102,11 @@ object AI2String {
     '\u301E' -> "\"",
     '\uFEFF' -> " ")
 
-  implicit def implicitConversion(string: String) = new AI2String(string)
+  implicit class NLPSanitizedString(string: String) {
+    def replaceWeirdChars(): String =
+      unicodeCharMap.foldLeft(string) {
+        case (s, (unicodeChar, replacement)) =>
+          s.replace(unicodeChar.toString, replacement)
+      }
+  }
 }
