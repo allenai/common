@@ -5,13 +5,15 @@ import scala.util.Try
 
 /** Publish settings, for a public repository. */
 object Publish {
+  val nexusHost = "utility.allenai.org"
+  val nexus = s"http://${nexusHost}:8081/nexus/content/repositories/"
+
   lazy val settings = Seq(
-    publishTo <<= isSnapshot { isSnap =>
-      if (isSnap) {
-        Some("Sonatype Nexus Repository Manager" at "https://oss.sonatype.org/content/repositories/snapshots")
-      } else {
-        Some("Allenai Nexus Repository Manager" at "http://utility.allenai.org:8081/nexus/content/repositories/releases")
-      }
+    publishTo := {
+      if(isSnapshot.value)
+        Some("snapshots" at nexus + "snapshots")
+      else
+        Some("releases"  at nexus + "releases")
     },
     licenses := Seq(
       "Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")
