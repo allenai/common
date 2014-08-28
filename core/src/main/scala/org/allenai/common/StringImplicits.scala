@@ -1,8 +1,7 @@
 package org.allenai.common
 
-/**
- * Utility functions on strings
- */
+/** Utility functions on strings
+  */
 object StringImplicits {
   implicit class NLPSanitizedString(val string: String) extends AnyVal {
     def replaceWeirdUnicodeChars: String =
@@ -14,7 +13,8 @@ object StringImplicits {
 
   object NLPSanitizedString {
     /** Maps weird unicode characters to ASCII equivalents
-      * This list comes from http://lexsrv3.nlm.nih.gov/LexSysGroup/Projects/lvg/current/docs/designDoc/UDF/unicode/DefaultTables/symbolTable.html */
+      * This list comes from http://lexsrv3.nlm.nih.gov/LexSysGroup/Projects/lvg/current/docs/designDoc/UDF/unicode/DefaultTables/symbolTable.html
+      */
     val unicodeCharMap = Map(
       '\u00AB' -> "\"",
       '\u00AD' -> "-",
