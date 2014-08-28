@@ -8,9 +8,9 @@ object Publish {
   lazy val settings = Seq(
     publishTo <<= isSnapshot { isSnap =>
       if (isSnap) {
-        Some("snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
+        Some("Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots")
       } else {
-        Some("releases" at "https://oss.sonatype.org/content/repositories/releases")
+        Some("AllenAI Releases" at "http://utility.allenai.org:8081/nexus/content/repositories/releases")
       }
     },
     licenses := Seq(
