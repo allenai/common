@@ -33,6 +33,12 @@ object CommonBuild extends Build {
     settings = buildSettings
   ).enablePlugins(AllenaiReleasePlugin).dependsOn(common)
 
+  lazy val pipeline = Project(
+    id = "pipeline",
+    base = file("pipeline"),
+    settings = buildSettings
+  ).dependsOn(testkit % "test->compile", common).enablePlugins(AllenaiReleasePlugin)
+
   lazy val root = Project(id = "root", base = file(".")).settings(
     // Don't publish a jar for the root project.
     publishTo := None, publish := { }, publishLocal := { }
