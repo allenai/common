@@ -25,7 +25,9 @@ import spray.json.DefaultJsonProtocol._
   * }}}
   * (format: ON)
   */
-abstract class Enum[E <: Enum[E]](val id: String)
+abstract class Enum[E <: Enum[E]](val id: String) {
+  override def toString: String = id
+}
 
 /** Superclass for Enum companion objects providing enum registration and JSON serialization */
 abstract class EnumCompanion[E <: Enum[E]] {

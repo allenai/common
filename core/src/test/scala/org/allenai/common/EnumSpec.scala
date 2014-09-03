@@ -31,6 +31,10 @@ class EnumSpec extends UnitSpec {
     }
   }
 
+  "toString" should "act like builtin Enumeration" in {
+    assert(FakeEnum.Value1.toString === "value1")
+  }
+
   "JSON serialization" should "work" in {
     FakeEnum.all foreach { enum =>
       val js = enum.toJson
