@@ -1,4 +1,5 @@
 import org.allenai.sbt.release.AllenaiReleasePlugin
+import sbtrelease.ReleasePlugin._
 
 import sbt._
 import Keys._
@@ -14,7 +15,9 @@ object CommonBuild extends Build {
     conflictManager := ConflictManager.strict,
     dependencyOverrides ++= Dependencies.Overrides,
     resolvers ++= Dependencies.Resolvers
-  ) ++ Publish.settings
+  ) ++ 
+    Publish.settings ++
+    releaseSettings
 
   lazy val testkit = Project(
     id = "testkit",
@@ -42,5 +45,5 @@ object CommonBuild extends Build {
   lazy val root = Project(id = "root", base = file(".")).settings(
     // Don't publish a jar for the root project.
     publishTo := None, publish := { }, publishLocal := { }
-  ).aggregate(webapp, common, testkit, pipeline)
+  ).aggregate(webapp, common, testkit, pipeline).enablePlugins(AllenaiReleasePlugin)
 }
