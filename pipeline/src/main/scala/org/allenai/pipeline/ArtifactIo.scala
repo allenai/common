@@ -28,7 +28,7 @@ trait StringSerializable[T] {
 /** Persist a single object to a flat file.  */
 class SingletonIo[T: StringSerializable] extends ArtifactIo[T, FlatArtifact] {
   override def read(artifact: FlatArtifact): T = {
-    Resource.using(Source.fromInputStream(artifact.read)) { src =>
+    Resource.using(Source.fromInputStream(artifact.read, "UTF-8")) { src =>
       implicitly[StringSerializable[T]].fromString(src.mkString)
     }
   }
@@ -71,7 +71,7 @@ class LineIteratorIo[T: StringSerializable] extends ArtifactIo[Iterator[T], Flat
 
   override def read(artifact: FlatArtifact): Iterator[T] =
     StreamClosingIterator(artifact.read) { is =>
-      Source.fromInputStream(is).getLines.map(s => format.fromString(s))
+      Source.fromInputStream(is, "UTF-8").getLines.map(s => format.fromString(s))
     }
 
   override def write(data: Iterator[T], artifact: FlatArtifact): Unit = {
