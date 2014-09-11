@@ -65,7 +65,6 @@ class TestArtifactIo extends UnitSpec {
 
   "LineCollectionIo" should "handle character encoding" in {
     val data = List("Björk", "Sinéad O'Connor", "Spın̈al Tap")
-    implicit val codec = Codec.UTF8
     val io = LineCollectionIo.text[String]
     val file = new File("unicodeTest.txt")
     val artifact = new FileArtifact(file)
