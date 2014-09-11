@@ -63,7 +63,7 @@ class TestArtifactIo extends UnitSpec {
     file.delete()
   }
 
-  "LineCollectionIo" should "handle character encoding" in {
+  "LineCollectionIo" should "handle utf-8 character encoding" in {
     val data = List("Björk", "Sinéad O'Connor", "Spın̈al Tap")
     val io = LineCollectionIo.text[String]
     val file = new File("unicodeTest.txt")
