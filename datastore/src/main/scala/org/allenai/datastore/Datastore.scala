@@ -10,8 +10,7 @@ import java.nio.file._
 import java.util.zip.ZipFile
 
 class Datastore(val s3config: S3Config) extends Logging {
-  private val systemTempDir =
-    FileSystems.getDefault.getPath(System.getProperty("java.io.tmpdir"))
+  private val systemTempDir = Paths.get(System.getProperty("java.io.tmpdir"))
   private val cacheDir = systemTempDir.resolve("ai2-datastore-cache")
   Files.createDirectories(cacheDir)
 
