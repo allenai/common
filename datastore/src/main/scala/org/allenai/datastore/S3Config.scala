@@ -13,5 +13,5 @@ object S3Config {
 
   def apply(bucket: String): S3Config = S3Config(new AmazonS3Client(), bucket)
 
-  def apply() = apply(defaultBucketName)
+  def apply(): S3Config = apply(defaultBucketName)
 }
