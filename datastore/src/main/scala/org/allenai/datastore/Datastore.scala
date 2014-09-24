@@ -29,6 +29,7 @@ class Datastore(val s3config: S3Config) extends Logging {
     def flatLocalCacheKey = localCacheKey.replace('/', '%')
     def localCachePath = cacheDir.resolve(localCacheKey)
     def lockfilePath = cacheDir.resolve(localCacheKey + ".lock")
+    def zipLocator = copy(name = name + ".zip")
   }
 
   // If the process dies for any reason, we have to be ready to remove all the
@@ -136,8 +137,7 @@ class Datastore(val s3config: S3Config) extends Logging {
           leftOverFiles.add(tempDir)
 
           // download and extract the zip file to the directory
-          val zipLocator = locator.copy(name = locator.name + ".zip")
-          Resource.using(new ZipFile(filePath(zipLocator).toFile)) { zipFile =>
+          Resource.using(new ZipFile(filePath(locator.zipLocator).toFile)) { zipFile =>
             val entries = zipFile.entries()
             while (entries.hasMoreElements) {
               val entry = entries.nextElement()
