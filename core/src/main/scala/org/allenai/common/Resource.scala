@@ -25,4 +25,15 @@ object Resource {
       resource.close()
     }
   }
+
+  def using2[A1 <: Closeable, A2 <: Closeable, B](resource1: A1, resource2: A2)(f: (A1, A2) => B): B = {
+    require(resource1 != null, "The supplied resource was null.")
+    require(resource2 != null, "The supplied resource was null.")
+    try {
+      f(resource1, resource2)
+    } finally {
+      resource1.close()
+      resource2.close()
+    }
+  }
 }
