@@ -42,14 +42,14 @@ object CommonBuild extends Build {
     settings = buildSettings
   ).dependsOn(testkit % "test->compile", core).enablePlugins(AllenaiReleasePlugin)
 
-  lazy val vault = Project(
-    id = "vault",
-    base = file("vault"),
+  lazy val datastore = Project(
+    id = "datastore",
+    base = file("datastore"),
     settings = buildSettings
   ).dependsOn(core).enablePlugins(AllenaiReleasePlugin)
 
   lazy val root = Project(id = "common", base = file(".")).settings(
     // Don't publish a jar for the root project.
     publishTo := None, publish := { }, publishLocal := { }
-  ).aggregate(webapp, core, testkit, pipeline, vault).enablePlugins(AllenaiReleasePlugin)
+  ).aggregate(webapp, core, testkit, pipeline, datastore).enablePlugins(AllenaiReleasePlugin)
 }

@@ -1,18 +1,18 @@
-package org.allenai.vault
+package org.allenai.datastore
 
 import org.allenai.common.Resource
+import org.allenai.common.Logging
 
-import java.io.{FileInputStream, File, InputStream}
-import java.net.URI
+import java.io.File
 import java.nio.file.Files
 import java.util.zip.ZipFile
 
-class Vault(val s3config: S3Config) {
+class Datastore(val s3config: S3Config) extends Logging {
   private val systemTempDir = new File(System.getProperty("java.io.tmpdir"))
-  private val cacheDir = new File(systemTempDir, "ai2-vault-cache")
+  private val cacheDir = new File(systemTempDir, "ai2-datastore-cache")
   cacheDir.mkdirs()
 
-  /** Identifies a single version of a file or directory in the vault */
+  /** Identifies a single version of a file or directory in the datastore */
   case class Locator(group: String, name: String, version: Int) {
     def nameWithVersion = {
       val lastDotIndex = name.lastIndexOf('.')
@@ -37,6 +37,7 @@ class Vault(val s3config: S3Config) {
     override def run(): Unit = {
       while(!openLockfiles.isEmpty) {
         val lockfile = openLockfiles.pollLast()
+        logger.info(s"Cleaning up lockfile at ${lockfile.getAbsolutePath}")
         lockfile.delete()
       }
     }
@@ -45,17 +46,27 @@ class Vault(val s3config: S3Config) {
 
   private def getS3Object(key: String) =
     s3config.service.getObject(s3config.bucket, key).getObjectContent
+  private def waitForLockfile(lockfile: File): Unit = {
+    val start = System.currentTimeMillis()
+    while(lockfile.exists) {
+      val message = s"Waiting for lockfile at ${ lockfile.getAbsolutePath }"
+      if (System.currentTimeMillis() - start > 60 * 1000)
+        logger.warn(message)
+      else
+        logger.info(message)
+      Thread.sleep(1000)
+    }
+  }
 
   def filePath(group: String, name: String, version: Int): File =
     filePath(Locator(group, name, version))
   def filePath(locator: Locator): File = {
-    // wait for the lockfile to disappear
-    while(locator.lockfilePath.exists)
-      Thread.sleep(1000)
+    waitForLockfile(locator.lockfilePath)
 
     if(!locator.localCachePath.isFile) {
       val created = locator.lockfilePath.createNewFile()
       if(!created) {
+        // someone else started creating this in the meantime
         filePath(locator)
       } else {
         openLockfiles.add(locator.lockfilePath)
@@ -64,7 +75,7 @@ class Vault(val s3config: S3Config) {
           // the file directly, and we died half-way through the download, we'd
           // leave half a file, and that's not good.
           val tempFile =
-            Files.createTempFile("ai2-vault" + locator.localCacheKey, ".tmp")
+            Files.createTempFile("ai2-datastore-" + locator.localCacheKey, ".tmp")
           Resource.using(getS3Object(locator.s3key))(Files.copy(_, tempFile))
           Files.move(tempFile, locator.localCachePath.toPath)
         } finally {
@@ -81,9 +92,7 @@ class Vault(val s3config: S3Config) {
   def directoryPath(group: String, name: String, version: Int): File =
     directoryPath(Locator(group, name, version))
   def directoryPath(locator: Locator): File = {
-    // wait for the lockfile to disappear
-    while(locator.lockfilePath.exists)
-      Thread.sleep(1000)
+    waitForLockfile(locator.lockfilePath)
 
     if(locator.localCachePath.isDirectory) {
       locator.localCachePath
@@ -95,7 +104,7 @@ class Vault(val s3config: S3Config) {
         openLockfiles.add(locator.lockfilePath)
         try {
           val tempDir =
-            Files.createTempDirectory("ai2-vault" + locator.localCacheKey)
+            Files.createTempDirectory("ai2-datastore-" + locator.localCacheKey)
 
           // download and extract the zip file to the directory
           val zipLocator = locator.copy(name = locator.name + ".zip")
@@ -120,19 +129,21 @@ class Vault(val s3config: S3Config) {
     }
   }
 
-  def publishFile(file: InputStream, group: String, name: String, version: Int)
-  def publishFile(file: File, group: String, name: String, version: Int) =
-    Resource.using(new FileInputStream(file)) { is =>
-      publishFile(is, group, name, version)
-    }
   def publishFile(file: String, group: String, name: String, version: Int) =
-    Resource.using(new FileInputStream(file)) { is =>
-      publishFile(is, group, name, version)
-    }
+    publishFile(new File(file), group, name, version)
+  def publishFile(file: File, group: String, name: String, version: Int) =
+    publishFile(file, Locator(group, name, version))
+  def publishFile(file: File, locator: Locator): Unit = {
+    s3config.service.putObject(s3config.bucket, locator.s3key, file)
+  }
 
-  def publishDirectory(path: File, group: String, name: String, version: Int)
+  def publishDirectory(path: File, group: String, name: String, version: Int) =
+    publishDirectory(path, Locator(group, name, version))
+  def publishDirectory(path: File, locator: Locator): Unit = {
+
+  }
 }
 
-object Vault extends Vault(S3Config()) {
+object Datastore extends Datastore(S3Config()) {
 
 }
