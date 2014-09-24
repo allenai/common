@@ -26,6 +26,7 @@ class Datastore(val s3config: S3Config) extends Logging {
     }
     def s3key = s"$group/$nameWithVersion"
     def localCacheKey = s3key
+    def flatLocalCacheKey = localCacheKey.replace('/', '%')
     def localCachePath = cacheDir.resolve(localCacheKey)
     def lockfilePath = cacheDir.resolve(localCacheKey + ".lock")
   }
@@ -100,7 +101,7 @@ class Datastore(val s3config: S3Config) extends Logging {
           // the file directly, and we died half-way through the download, we'd
           // leave half a file, and that's not good.
           val tempFile =
-            Files.createTempFile("ai2-datastore-" + locator.localCacheKey, ".tmp")
+            Files.createTempFile("ai2-datastore-" + locator.flatLocalCacheKey, ".tmp")
           leftOverFiles.add(tempFile)
           Resource.using(getS3Object(locator.s3key))(Files.copy(_, tempFile))
           Files.move(tempFile, locator.localCachePath)
@@ -131,7 +132,7 @@ class Datastore(val s3config: S3Config) extends Logging {
         leftOverFiles.add(locator.lockfilePath)
         try {
           val tempDir =
-            Files.createTempDirectory("ai2-datastore-" + locator.localCacheKey)
+            Files.createTempDirectory("ai2-datastore-" + locator.flatLocalCacheKey)
           leftOverFiles.add(tempDir)
 
           // download and extract the zip file to the directory
