@@ -3,20 +3,23 @@ package org.allenai.datastore
 import org.allenai.common.Resource
 import org.allenai.common.Logging
 
+import org.apache.commons.io.FileUtils
+
 import java.io.File
-import java.nio.file.Files
+import java.nio.file._
 import java.util.zip.ZipFile
 
 class Datastore(val s3config: S3Config) extends Logging {
-  private val systemTempDir = new File(System.getProperty("java.io.tmpdir"))
-  private val cacheDir = new File(systemTempDir, "ai2-datastore-cache")
-  cacheDir.mkdirs()
+  private val systemTempDir =
+    FileSystems.getDefault.getPath(System.getProperty("java.io.tmpdir"))
+  private val cacheDir = systemTempDir.resolve("ai2-datastore-cache")
+  Files.createDirectories(cacheDir)
 
   /** Identifies a single version of a file or directory in the datastore */
   case class Locator(group: String, name: String, version: Int) {
     def nameWithVersion = {
       val lastDotIndex = name.lastIndexOf('.')
-      if(lastDotIndex < 0) {
+      if (lastDotIndex < 0) {
         s"name-v$version"
       } else {
         name.substring(0, lastDotIndex) + s"-v$version" + name.substring(lastDotIndex)
@@ -24,21 +27,33 @@ class Datastore(val s3config: S3Config) extends Logging {
     }
     def s3key = s"$group/$nameWithVersion"
     def localCacheKey = s3key
-    def localCachePath = new File(cacheDir, localCacheKey)
-    def lockfilePath = new File(cacheDir, localCacheKey + ".lock")
+    def localCachePath = cacheDir.resolve(localCacheKey)
+    def lockfilePath = cacheDir.resolve(localCacheKey + ".lock")
   }
 
   // If the process dies for any reason, we have to be ready to remove all the
-  // locks we're still holding. This stores which lock files we created, so they
-  // can be cleaned up at the end.
-  private val openLockfiles =
-    new java.util.concurrent.ConcurrentSkipListSet[File]
+  // locks and temporary files we're still holding. This stores which files we
+  // created, so they can be cleaned up at the end.
+  private val leftOverFiles =
+    new java.util.concurrent.ConcurrentSkipListSet[Path]
   private val cleanupThread = new Thread() {
     override def run(): Unit = {
-      while(!openLockfiles.isEmpty) {
-        val lockfile = openLockfiles.pollLast()
-        logger.info(s"Cleaning up lockfile at ${lockfile.getAbsolutePath}")
-        lockfile.delete()
+      while (!leftOverFiles.isEmpty) {
+        val leftOverFile = leftOverFiles.pollLast()
+        try {
+          try {
+            val deleted = Files.deleteIfExists(leftOverFile)
+            if (deleted)
+              logger.info(s"Cleaning up file at $leftOverFile")
+          } catch {
+            case _: DirectoryNotEmptyException =>
+              FileUtils.deleteDirectory(leftOverFile.toFile)
+              logger.info(s"Cleaning up non-empty directory at $leftOverFile")
+          }
+        } catch {
+          case e: Throwable =>
+            logger.warn(s"Could not clean up file at $leftOverFile", e)
+        }
       }
     }
   }
@@ -46,10 +61,12 @@ class Datastore(val s3config: S3Config) extends Logging {
 
   private def getS3Object(key: String) =
     s3config.service.getObject(s3config.bucket, key).getObjectContent
-  private def waitForLockfile(lockfile: File): Unit = {
+
+  private def waitForLockfile(lockfile: Path): Unit = {
+    // TODO: Use watch interfaces instead of busy wait
     val start = System.currentTimeMillis()
-    while(lockfile.exists) {
-      val message = s"Waiting for lockfile at ${ lockfile.getAbsolutePath }"
+    while (Files.exists(lockfile)) {
+      val message = s"Waiting for lockfile at $lockfile}"
       if (System.currentTimeMillis() - start > 60 * 1000)
         logger.warn(message)
       else
@@ -58,29 +75,40 @@ class Datastore(val s3config: S3Config) extends Logging {
     }
   }
 
-  def filePath(group: String, name: String, version: Int): File =
+  private def tryCreateFile(file: Path): Boolean = {
+    try {
+      Files.createFile(file)
+      true
+    } catch {
+      case _: FileAlreadyExistsException => false
+    }
+  }
+
+  def filePath(group: String, name: String, version: Int): Path =
     filePath(Locator(group, name, version))
-  def filePath(locator: Locator): File = {
+  def filePath(locator: Locator): Path = {
     waitForLockfile(locator.lockfilePath)
 
-    if(!locator.localCachePath.isFile) {
-      val created = locator.lockfilePath.createNewFile()
-      if(!created) {
+    if (!Files.isRegularFile(locator.localCachePath)) {
+      val created = tryCreateFile(locator.lockfilePath)
+      if (!created) {
         // someone else started creating this in the meantime
         filePath(locator)
       } else {
-        openLockfiles.add(locator.lockfilePath)
+        leftOverFiles.add(locator.lockfilePath)
         try {
           // We're downloading to a temp file first. If we were downloading into
           // the file directly, and we died half-way through the download, we'd
           // leave half a file, and that's not good.
           val tempFile =
             Files.createTempFile("ai2-datastore-" + locator.localCacheKey, ".tmp")
+          leftOverFiles.add(tempFile)
           Resource.using(getS3Object(locator.s3key))(Files.copy(_, tempFile))
-          Files.move(tempFile, locator.localCachePath.toPath)
+          Files.move(tempFile, locator.localCachePath)
+          leftOverFiles.remove(tempFile)
         } finally {
-          locator.lockfilePath.delete()
-          openLockfiles.remove(locator.lockfilePath)
+          Files.delete(locator.lockfilePath)
+          leftOverFiles.remove(locator.lockfilePath)
         }
         locator.localCachePath
       }
@@ -89,39 +117,42 @@ class Datastore(val s3config: S3Config) extends Logging {
     }
   }
 
-  def directoryPath(group: String, name: String, version: Int): File =
+  def directoryPath(group: String, name: String, version: Int): Path =
     directoryPath(Locator(group, name, version))
-  def directoryPath(locator: Locator): File = {
+  def directoryPath(locator: Locator): Path = {
     waitForLockfile(locator.lockfilePath)
 
-    if(locator.localCachePath.isDirectory) {
+    if (Files.isDirectory(locator.localCachePath)) {
       locator.localCachePath
     } else {
-      val created = locator.lockfilePath.createNewFile()
-      if(!created) {
+      val created = tryCreateFile(locator.lockfilePath)
+      if (!created) {
         directoryPath(locator)
       } else {
-        openLockfiles.add(locator.lockfilePath)
+        leftOverFiles.add(locator.lockfilePath)
         try {
           val tempDir =
             Files.createTempDirectory("ai2-datastore-" + locator.localCacheKey)
+          leftOverFiles.add(tempDir)
 
           // download and extract the zip file to the directory
           val zipLocator = locator.copy(name = locator.name + ".zip")
-          Resource.using(new ZipFile(filePath(zipLocator))){ zipFile =>
+          Resource.using(new ZipFile(filePath(zipLocator).toFile)) { zipFile =>
             val entries = zipFile.entries()
             while (entries.hasMoreElements) {
               val entry = entries.nextElement()
               val pathForEntry = tempDir.resolve(entry.getName)
+              Files.createDirectories(pathForEntry.getParent)
               Resource.using(zipFile.getInputStream(entry))(Files.copy(_, pathForEntry))
             }
           }
 
           // move the directory where it belongs
-          Files.move(tempDir, locator.localCachePath.toPath)
+          Files.move(tempDir, locator.localCachePath)
+          leftOverFiles.remove(tempDir)
         } finally {
-          locator.lockfilePath.delete()
-          openLockfiles.remove(locator.lockfilePath)
+          Files.delete(locator.lockfilePath)
+          leftOverFiles.remove(locator.lockfilePath)
         }
 
         locator.localCachePath
