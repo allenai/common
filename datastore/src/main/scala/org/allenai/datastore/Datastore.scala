@@ -5,9 +5,9 @@ import org.allenai.common.Logging
 
 import org.apache.commons.io.FileUtils
 
-import java.io.File
 import java.nio.file._
-import java.util.zip.ZipFile
+import java.nio.file.attribute.BasicFileAttributes
+import java.util.zip.{ZipEntry, ZipOutputStream, ZipFile}
 
 class Datastore(val s3config: S3Config) extends Logging {
   private val systemTempDir = Paths.get(System.getProperty("java.io.tmpdir"))
@@ -160,18 +160,38 @@ class Datastore(val s3config: S3Config) extends Logging {
     }
   }
 
-  def publishFile(file: String, group: String, name: String, version: Int) =
-    publishFile(new File(file), group, name, version)
-  def publishFile(file: File, group: String, name: String, version: Int) =
+  def publishFile(file: String, group: String, name: String, version: Int): Unit =
+    publishFile(Paths.get(file), group, name, version)
+  def publishFile(file: Path, group: String, name: String, version: Int): Unit =
     publishFile(file, Locator(group, name, version))
-  def publishFile(file: File, locator: Locator): Unit = {
-    s3config.service.putObject(s3config.bucket, locator.s3key, file)
+  def publishFile(file: Path, locator: Locator): Unit = {
+    s3config.service.putObject(s3config.bucket, locator.s3key, file.toFile)
   }
 
-  def publishDirectory(path: File, group: String, name: String, version: Int) =
+  def publishDirectory(path: Path, group: String, name: String, version: Int): Unit =
     publishDirectory(path, Locator(group, name, version))
-  def publishDirectory(path: File, locator: Locator): Unit = {
+  def publishDirectory(path: Path, locator: Locator): Unit = {
+    val zipFile =
+      Files.createTempFile(
+        locator.flatLocalCacheKey,
+        ".ai2-datastore.upload.zip")
+    leftOverFiles.add(zipFile)
+    try {
+      Resource.using(new ZipOutputStream(Files.newOutputStream(zipFile))) { zip =>
+        Files.walkFileTree(path, new SimpleFileVisitor[Path] {
+          override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+            zip.putNextEntry(new ZipEntry(path.relativize(file).toString))
+            Files.copy(file, zip)
+            FileVisitResult.CONTINUE
+          }
+        })
+      }
 
+      publishFile(zipFile, locator.zipLocator)
+    } finally {
+      Files.deleteIfExists(zipFile)
+      leftOverFiles.remove(zipFile)
+    }
   }
 }
 
