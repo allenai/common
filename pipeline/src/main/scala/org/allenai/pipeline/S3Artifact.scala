@@ -5,8 +5,10 @@ import org.allenai.common.Logging
 import com.amazonaws.AmazonServiceException
 import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.services.s3.AmazonS3Client
+import com.amazonaws.services.s3.model.{CannedAccessControlList, PutObjectRequest, ObjectMetadata}
 
-import java.io.{ File, FileOutputStream }
+import java.io.{File, FileOutputStream}
+import java.net.URI
 
 case class S3Config(service: AmazonS3Client, bucket: String)
 
@@ -28,8 +30,7 @@ class S3FlatArtifact(val path: String, val config: S3Config) extends FlatArtifac
 
   override def write[T](writer: ArtifactStreamWriter => T): T = {
     val result = getCachedArtifact.write(writer)
-    logger.debug(s"Uploading ${cachedFile.get.file} to $bucket/$path")
-    service.putObject(bucket, path, cachedFile.get.file)
+    upload(cachedFile.get.file)
     result
   }
 
@@ -50,8 +51,7 @@ class S3ZipArtifact(val path: String, val config: S3Config) extends StructuredAr
 
   override def write[T](writer: Writer => T): T = {
     val result = getCachedArtifact.write(writer)
-    logger.debug(s"Uploading ${cachedFile.get.file} to $bucket/$path")
-    service.putObject(bucket, path, cachedFile.get.file)
+    upload(cachedFile.get.file)
     result
   }
 
@@ -66,6 +66,8 @@ trait S3Artifact[A <: Artifact] extends Logging {
 
   def path: String
 
+  override def url = new URI("s3", bucket, s"/$path", null)
+
   protected val S3Config(service, bucket) = config
 
   def exists = {
@@ -79,12 +81,28 @@ trait S3Artifact[A <: Artifact] extends Logging {
     result
   }
 
+  protected def contentType = path match {
+    case s if s.endsWith(".html") => "text/html"
+    case s if s.endsWith(".txt") => "text/plain"
+    case s if s.endsWith(".json") => "application/json"
+    case _ => "application/octet-stream"
+  }
+
+  protected def upload(file: File): Unit = {
+    logger.debug(s"Uploading $file to $bucket/$path")
+    val metadata = new ObjectMetadata()
+    metadata.setContentType(contentType)
+    val request = new PutObjectRequest(bucket, path, file).withMetadata(metadata)
+    request.setCannedAcl(CannedAccessControlList.PublicRead)
+    service.putObject(request)
+  }
+
   protected var cachedFile: Option[A] = None
 
   protected def getCachedArtifact: A = cachedFile match {
     case Some(f) => f
     case None =>
-      val tmpFile = File.createTempFile(path.replaceAll("""/""", """\$"""), "tmp")
+      val tmpFile = File.createTempFile(path.replaceAll( """/""", """\$"""), "tmp")
       if (exists) {
         logger.debug(s"Downloading $bucket/$path to $tmpFile")
         val os = new FileOutputStream(tmpFile)
@@ -95,7 +113,7 @@ trait S3Artifact[A <: Artifact] extends Logging {
         is.close()
         os.close()
       }
-      tmpFile.deleteOnExit
+      tmpFile.deleteOnExit()
       cachedFile = Some(makeLocalArtifact(tmpFile))
       cachedFile.get
   }

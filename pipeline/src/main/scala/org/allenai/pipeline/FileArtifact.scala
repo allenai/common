@@ -9,7 +9,12 @@ import java.util.zip.{ ZipEntry, ZipFile, ZipOutputStream }
 
 /** Flat file.  */
 class FileArtifact(val file: File) extends FlatArtifact {
+  private val parentDir = file.getCanonicalFile.getParentFile
+  require((parentDir.exists && parentDir.isDirectory) || parentDir.mkdirs,
+    s"Unable to find or create directory $parentDir")
   override def exists = file.exists
+
+  override def url = file.getCanonicalFile.toURI
 
   // Caller is responsible for closing the InputStream.
   // Unfortunately necessary to support streaming
@@ -18,8 +23,8 @@ class FileArtifact(val file: File) extends FlatArtifact {
   // Note:  The write operation is atomic.  The file is only created if the write operation
   // completes successfully
   def write[T](writer: ArtifactStreamWriter => T): T = {
-    val tmpFile = File.createTempFile(file.getName, "tmp", file.getParentFile)
-    tmpFile.deleteOnExit
+    val tmpFile = File.createTempFile(file.getName, "tmp", parentDir)
+    tmpFile.deleteOnExit()
     val fileOut = new FileOutputStream(tmpFile)
     val out = new ArtifactStreamWriter(fileOut)
     val result = writer(out)
@@ -36,7 +41,9 @@ class DirectoryArtifact(val dir: File) extends StructuredArtifact {
 
   import org.allenai.pipeline.StructuredArtifact._
 
-  private val parentDir = dir.getAbsoluteFile.getParentFile
+  override def url = dir.getCanonicalFile.toURI
+
+  private val parentDir = dir.getCanonicalFile.getParentFile
   require((parentDir.exists && parentDir.isDirectory) || parentDir.mkdirs,
     s"Unable to find or create directory $dir")
 
@@ -62,7 +69,7 @@ class DirectoryArtifact(val dir: File) extends StructuredArtifact {
     }
     val tmpDir = createTempDirectory
     val dirWriter = new Writer {
-      def writeEntry[T](name: String)(writer: ArtifactStreamWriter => T): T = {
+      def writeEntry[T2](name: String)(writer: ArtifactStreamWriter => T2): T2 = {
         val out = new FileOutputStream(new File(tmpDir, name))
         val result = writer(new ArtifactStreamWriter(out))
         out.close()
@@ -93,6 +100,8 @@ class ZipFileArtifact(val file: File) extends StructuredArtifact {
 
   override def exists = file.exists
 
+  override def url = file.getCanonicalFile.toURI
+
   override def reader: Reader = {
     require(exists, s"Cannot read from non-existent file $file")
     new ZipFileReader(file)
@@ -121,8 +130,11 @@ class ZipFileArtifact(val file: File) extends StructuredArtifact {
   }
 
   class ZipFileWriter(file: File) extends Writer {
-    private val tmpFile = File.createTempFile(file.getName, "tmp", file.getParentFile)
-    tmpFile.deleteOnExit
+    private val parentDir = file.getCanonicalFile.getParentFile
+    require((parentDir.exists && parentDir.isDirectory) || parentDir.mkdirs,
+      s"Unable to find or create directory $parentDir")
+    private val tmpFile = File.createTempFile(file.getName, "tmp", parentDir)
+    tmpFile.deleteOnExit()
     private val zipOut = new ZipOutputStream(new FileOutputStream(tmpFile))
     private val out = new ArtifactStreamWriter(zipOut)
 
@@ -135,7 +147,7 @@ class ZipFileArtifact(val file: File) extends StructuredArtifact {
     }
 
     private[ZipFileArtifact] def close() = {
-      zipOut.close
+      zipOut.close()
       require(tmpFile.renameTo(file), s"Unable to create $file")
     }
   }

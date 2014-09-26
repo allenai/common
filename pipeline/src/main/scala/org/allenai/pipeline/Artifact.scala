@@ -2,12 +2,14 @@ package org.allenai.pipeline
 
 import org.allenai.common.Resource
 
-import java.io.{ PrintStream, InputStream, OutputStream }
+import java.io.{InputStream, OutputStream}
+import java.net.URI
 
 /** Represents data in a persistent store. */
 trait Artifact {
   /** Return true if this data has been written to the persistent store. */
   def exists: Boolean
+  def url: URI
 }
 
 /** Generic data blob.  */
@@ -57,7 +59,7 @@ object StructuredArtifact {
   */
 trait StructuredArtifact extends Artifact {
 
-  import StructuredArtifact.{ Reader, Writer }
+  import org.allenai.pipeline.StructuredArtifact.{Reader, Writer}
 
   def reader: Reader
 
@@ -105,11 +107,11 @@ class ArtifactStreamWriter(out: OutputStream) {
 
   // This was lifted from java.util.zip.ZipOutputStream
   private def asUTF8(s: String): Array[Byte] = {
-    val c = s.toCharArray()
+    val c = s.toCharArray
     val len = c.length
     // Count the number of encoded bytes...
     var count = 0
-    for (i <- (0 until len)) {
+    for (i <- 0 until len) {
       val ch = c(i)
       if (ch <= 0x7f) {
         count += 1
@@ -120,9 +122,9 @@ class ArtifactStreamWriter(out: OutputStream) {
       }
     }
     // Now return the encoded bytes...
-    val b = new Array[Byte](count);
-    var off = 0;
-    for (i <- (0 until len)) {
+    val b = new Array[Byte](count)
+    var off = 0
+    for (i <- 0 until len) {
       val ch = c(i)
       if (ch <= 0x7f) {
         b(off) = ch.toByte
