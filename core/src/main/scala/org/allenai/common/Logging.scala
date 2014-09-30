@@ -12,37 +12,37 @@ trait Logging {
   val internalLogger = LoggerFactory.getLogger(this.getClass)
 
   object logger {
-    def trace(message: => String) =
+    def trace(message: => String): Unit =
       if (internalLogger.isTraceEnabled) {
         internalLogger.trace(message)
       }
 
-    def debug(message: => String) =
+    def debug(message: => String): Unit =
       if (internalLogger.isDebugEnabled) {
         internalLogger.debug(message)
       }
 
-    def info(message: => String) =
+    def info(message: => String): Unit =
       if (internalLogger.isInfoEnabled) {
         internalLogger.info(message)
       }
 
-    def warn(message: => String) =
+    def warn(message: => String): Unit =
       if (internalLogger.isWarnEnabled) {
         internalLogger.warn(message)
       }
 
-    def warn(message: => String, throwable: Throwable) =
+    def warn(message: => String, throwable: Throwable): Unit =
       if (internalLogger.isWarnEnabled) {
         internalLogger.warn(message, throwable)
       }
 
-    def error(message: => String) =
+    def error(message: => String): Unit =
       if (internalLogger.isErrorEnabled) {
         internalLogger.error(message)
       }
 
-    def error(message: => String, throwable: Throwable) =
+    def error(message: => String, throwable: Throwable): Unit =
       if (internalLogger.isErrorEnabled) {
         internalLogger.error(message, throwable)
       }
