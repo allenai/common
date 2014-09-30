@@ -4,8 +4,6 @@ import sbtrelease.ReleasePlugin._
 import sbt._
 import Keys._
 
-import org.allenai.sbt.format._
-
 object CommonBuild extends Build {
   val buildSettings = Seq(
     organization := "org.allenai.common",
