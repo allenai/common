@@ -116,4 +116,31 @@ class DatastoreSpec extends UnitSpec {
       deleteDatastore(datastore)
     }
   }
+
+  it should "download the same file only once even if requested twice" in {
+    val testfile = "big_file_at_root.bin"
+    val testfilesDir = copyTestFiles
+    val datastore = makeTestDatastore
+    try {
+      val testfilePath = testfilesDir.resolve(testfile)
+      datastore.publishFile(testfilePath, group, testfile, 83)
+
+      def downloadAndCheckFile(): Unit = {
+        val path = datastore.filePath(group, testfile, 83)
+        assert(FileUtils.contentEquals(path.toFile, testfilePath.toFile))
+      }
+
+      def time(f: => Unit) = {
+        val start = System.nanoTime()
+        f
+        System.nanoTime() - start
+      }
+
+      val firstTime = time(downloadAndCheckFile)
+      val secondTime = time(downloadAndCheckFile)
+      assert(firstTime > secondTime)
+    } finally {
+      deleteDatastore(datastore)
+    }
+  }
 }
