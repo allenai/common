@@ -7,7 +7,7 @@ import org.apache.commons.io.FileUtils
 
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
-import java.util.zip.{ZipEntry, ZipOutputStream, ZipFile}
+import java.util.zip.{ ZipEntry, ZipOutputStream, ZipFile }
 
 class Datastore(val s3config: S3Config) extends Logging {
   private val systemTempDir = Paths.get(System.getProperty("java.io.tmpdir"))
