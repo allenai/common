@@ -50,7 +50,7 @@ object CommonBuild extends Build {
     enablePlugins(AllenaiReleasePlugin).
     configs(IntegrationTest)
 
-  lazy val root = Project(id = "common", base = file(".")).settings(
+  lazy val common = Project(id = "common", base = file(".")).settings(
     // Don't publish a jar for the root project.
     publishTo := None, publish := { }, publishLocal := { }
   ).aggregate(webapp, core, testkit, pipeline, datastore).enablePlugins(AllenaiReleasePlugin)
