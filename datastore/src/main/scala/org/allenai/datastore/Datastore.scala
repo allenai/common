@@ -63,6 +63,7 @@ class Datastore(val s3config: S3Config) extends Logging {
     waitForLockfile(locator.lockfilePath)
 
     if (!Files.isRegularFile(locator.localCachePath)) {
+      Files.createDirectories(locator.lockfilePath.getParent)
       val created = tryCreateFile(locator.lockfilePath)
       if (!created) {
         // someone else started creating this in the meantime
@@ -76,7 +77,10 @@ class Datastore(val s3config: S3Config) extends Logging {
           val tempFile =
             Files.createTempFile("ai2-datastore-" + locator.flatLocalCacheKey, ".tmp")
           TempCleanup.remember(tempFile)
-          Resource.using(getS3Object(locator.s3key))(Files.copy(_, tempFile))
+          Resource.using(getS3Object(locator.s3key)) { s3object =>
+            Files.copy(s3object, tempFile, StandardCopyOption.REPLACE_EXISTING)
+          }
+          Files.createDirectories(locator.localCachePath.getParent)
           Files.move(tempFile, locator.localCachePath)
           TempCleanup.forget(tempFile)
         } finally {
@@ -164,6 +168,10 @@ class Datastore(val s3config: S3Config) extends Logging {
       Files.deleteIfExists(zipFile)
       TempCleanup.forget(zipFile)
     }
+  }
+
+  def wipeCache(): Unit = {
+    FileUtils.deleteDirectory(cacheDir.toFile)
   }
 }
 
