@@ -12,6 +12,8 @@ import java.util.UUID
 import java.util.zip.ZipFile
 
 class DatastoreSpec extends UnitSpec {
+  private val group = "org.allenai.datastore.test"
+
   private def copyTestFiles: Path = {
     // copy the zip file with the tests from the jar into a temp file
     val zipfile = Files.createTempFile("ai2-datastore-test", ".zip")
@@ -80,12 +82,35 @@ class DatastoreSpec extends UnitSpec {
     try {
       for (filename <- filenames) {
         val fullFilenameString = testfilesDir.toString + "/" + filename
-        datastore.publishFile(fullFilenameString, "org.allenai.datastore.test", filename, 13)
+        datastore.publishFile(fullFilenameString, group, filename, 13)
       }
 
       for(filename <- filenames) {
-        val path = datastore.filePath("org.allenai.datastore.test", filename, 13)
+        val path = datastore.filePath(group, filename, 13)
         assert(FileUtils.contentEquals(path.toFile, testfilesDir.resolve(filename).toFile))
+      }
+    } finally {
+      deleteDatastore(datastore)
+    }
+  }
+
+  it should "fail to download files that don't exist" in {
+    val testfile = "medium_file_at_root.bin"
+    val testfilesDir = copyTestFiles
+    val datastore = makeTestDatastore
+    try {
+      datastore.publishFile(testfilesDir.resolve(testfile), group, testfile, 83)
+
+      intercept[Datastore.DoesNotExistException] {
+        datastore.filePath(group, testfile, 13)
+      }
+
+      intercept[Datastore.DoesNotExistException] {
+        datastore.filePath(group, testfile + ".does_not_exist", 83)
+      }
+
+      intercept[Datastore.DoesNotExistException] {
+        datastore.filePath(group + ".does_not_exist", testfile, 83)
       }
     } finally {
       deleteDatastore(datastore)

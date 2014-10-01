@@ -3,6 +3,7 @@ package org.allenai.datastore
 import org.allenai.common.Resource
 import org.allenai.common.Logging
 
+import com.amazonaws.services.s3.model.AmazonS3Exception
 import org.apache.commons.io.FileUtils
 
 import java.nio.file._
@@ -13,6 +14,8 @@ class Datastore(val s3config: S3Config) extends Logging {
   private val systemTempDir = Paths.get(System.getProperty("java.io.tmpdir"))
   private val cacheDir = systemTempDir.resolve("ai2-datastore-cache").resolve(s3config.bucket)
   Files.createDirectories(cacheDir)
+
+  def name = s3config.bucket
 
   /** Identifies a single version of a file or directory in the datastore */
   case class Locator(group: String, name: String, version: Int) {
@@ -31,6 +34,12 @@ class Datastore(val s3config: S3Config) extends Logging {
     def lockfilePath = cacheDir.resolve(localCacheKey + ".lock")
     def zipLocator = copy(name = name + ".zip")
   }
+
+  class DoesNotExistException(
+    locator: Locator,
+    cause: Throwable) extends Exception(
+    s"${locator.s3key} does not exist in the $name datastore",
+    cause)
 
   private def getS3Object(key: String) =
     s3config.service.getObject(s3config.bucket, key).getObjectContent
@@ -77,8 +86,13 @@ class Datastore(val s3config: S3Config) extends Logging {
           val tempFile =
             Files.createTempFile("ai2-datastore-" + locator.flatLocalCacheKey, ".tmp")
           TempCleanup.remember(tempFile)
-          Resource.using(getS3Object(locator.s3key)) { s3object =>
-            Files.copy(s3object, tempFile, StandardCopyOption.REPLACE_EXISTING)
+          try {
+            Resource.using(getS3Object(locator.s3key)) { s3object =>
+              Files.copy(s3object, tempFile, StandardCopyOption.REPLACE_EXISTING)
+            }
+          } catch {
+            case e: AmazonS3Exception if e.getErrorCode == "NoSuchKey" =>
+              throw new DoesNotExistException(locator, e)
           }
           Files.createDirectories(locator.localCachePath.getParent)
           Files.move(tempFile, locator.localCachePath)
