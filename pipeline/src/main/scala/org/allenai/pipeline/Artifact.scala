@@ -2,12 +2,14 @@ package org.allenai.pipeline
 
 import org.allenai.common.Resource
 
-import java.io.{ PrintStream, InputStream, OutputStream }
+import java.io.{ InputStream, OutputStream }
+import java.net.URI
 
 /** Represents data in a persistent store. */
 trait Artifact {
   /** Return true if this data has been written to the persistent store. */
   def exists: Boolean
+  def url: URI
 }
 
 /** Generic data blob.  */
@@ -24,9 +26,10 @@ trait FlatArtifact extends Artifact {
     */
   def write[T](writer: ArtifactStreamWriter => T): T
 
+  private val BUFFER_SIZE = 16384
   def copyTo(other: FlatArtifact): Unit = {
     other.write { writer =>
-      val buffer = new Array[Byte](16384)
+      val buffer = new Array[Byte](BUFFER_SIZE)
       Resource.using(read) { is =>
         Iterator.continually(is.read(buffer)).takeWhile(_ != -1).foreach(n =>
           writer.write(buffer, 0, n))
@@ -57,7 +60,7 @@ object StructuredArtifact {
   */
 trait StructuredArtifact extends Artifact {
 
-  import StructuredArtifact.{ Reader, Writer }
+  import org.allenai.pipeline.StructuredArtifact.{ Reader, Writer }
 
   def reader: Reader
 
@@ -69,7 +72,9 @@ trait StructuredArtifact extends Artifact {
   def copyTo(other: StructuredArtifact): Unit = {
     other.write { writer =>
       for ((name, is) <- reader.readAll) {
+        // scalastyle:off
         val buffer = new Array[Byte](16384)
+        // scalastyle:on
         writer.writeEntry(name) { entryWriter =>
           Iterator.continually(is.read(buffer)).takeWhile(_ != -1).foreach(n => entryWriter.
             write(buffer, 0, n))
@@ -105,11 +110,11 @@ class ArtifactStreamWriter(out: OutputStream) {
 
   // This was lifted from java.util.zip.ZipOutputStream
   private def asUTF8(s: String): Array[Byte] = {
-    val c = s.toCharArray()
+    val c = s.toCharArray
     val len = c.length
     // Count the number of encoded bytes...
     var count = 0
-    for (i <- (0 until len)) {
+    for (i <- 0 until len) {
       val ch = c(i)
       if (ch <= 0x7f) {
         count += 1
@@ -120,9 +125,9 @@ class ArtifactStreamWriter(out: OutputStream) {
       }
     }
     // Now return the encoded bytes...
-    val b = new Array[Byte](count);
-    var off = 0;
-    for (i <- (0 until len)) {
+    val b = new Array[Byte](count)
+    var off = 0
+    for (i <- 0 until len) {
       val ch = c(i)
       if (ch <= 0x7f) {
         b(off) = ch.toByte
