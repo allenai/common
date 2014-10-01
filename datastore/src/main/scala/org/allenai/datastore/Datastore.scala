@@ -11,7 +11,7 @@ import java.util.zip.{ ZipEntry, ZipOutputStream, ZipFile }
 
 class Datastore(val s3config: S3Config) extends Logging {
   private val systemTempDir = Paths.get(System.getProperty("java.io.tmpdir"))
-  private val cacheDir = systemTempDir.resolve("ai2-datastore-cache")
+  private val cacheDir = systemTempDir.resolve("ai2-datastore-cache").resolve(s3config.bucket)
   Files.createDirectories(cacheDir)
 
   /** Identifies a single version of a file or directory in the datastore */
@@ -31,34 +31,6 @@ class Datastore(val s3config: S3Config) extends Logging {
     def lockfilePath = cacheDir.resolve(localCacheKey + ".lock")
     def zipLocator = copy(name = name + ".zip")
   }
-
-  // If the process dies for any reason, we have to be ready to remove all the
-  // locks and temporary files we're still holding. This stores which files we
-  // created, so they can be cleaned up at the end.
-  private val leftOverFiles =
-    new java.util.concurrent.ConcurrentSkipListSet[Path]
-  private val cleanupThread = new Thread() {
-    override def run(): Unit = {
-      while (!leftOverFiles.isEmpty) {
-        val leftOverFile = leftOverFiles.pollLast()
-        try {
-          try {
-            val deleted = Files.deleteIfExists(leftOverFile)
-            if (deleted)
-              logger.info(s"Cleaning up file at $leftOverFile")
-          } catch {
-            case _: DirectoryNotEmptyException =>
-              FileUtils.deleteDirectory(leftOverFile.toFile)
-              logger.info(s"Cleaning up non-empty directory at $leftOverFile")
-          }
-        } catch {
-          case e: Throwable =>
-            logger.warn(s"Could not clean up file at $leftOverFile", e)
-        }
-      }
-    }
-  }
-  Runtime.getRuntime.addShutdownHook(cleanupThread)
 
   private def getS3Object(key: String) =
     s3config.service.getObject(s3config.bucket, key).getObjectContent
@@ -96,20 +68,20 @@ class Datastore(val s3config: S3Config) extends Logging {
         // someone else started creating this in the meantime
         filePath(locator)
       } else {
-        leftOverFiles.add(locator.lockfilePath)
+        TempCleanup.remember(locator.lockfilePath)
         try {
           // We're downloading to a temp file first. If we were downloading into
           // the file directly, and we died half-way through the download, we'd
           // leave half a file, and that's not good.
           val tempFile =
             Files.createTempFile("ai2-datastore-" + locator.flatLocalCacheKey, ".tmp")
-          leftOverFiles.add(tempFile)
+          TempCleanup.remember(tempFile)
           Resource.using(getS3Object(locator.s3key))(Files.copy(_, tempFile))
           Files.move(tempFile, locator.localCachePath)
-          leftOverFiles.remove(tempFile)
+          TempCleanup.forget(tempFile)
         } finally {
           Files.delete(locator.lockfilePath)
-          leftOverFiles.remove(locator.lockfilePath)
+          TempCleanup.forget(locator.lockfilePath)
         }
         locator.localCachePath
       }
@@ -130,11 +102,11 @@ class Datastore(val s3config: S3Config) extends Logging {
       if (!created) {
         directoryPath(locator)
       } else {
-        leftOverFiles.add(locator.lockfilePath)
+        TempCleanup.remember(locator.lockfilePath)
         try {
           val tempDir =
             Files.createTempDirectory("ai2-datastore-" + locator.flatLocalCacheKey)
-          leftOverFiles.add(tempDir)
+          TempCleanup.remember(tempDir)
 
           // download and extract the zip file to the directory
           Resource.using(new ZipFile(filePath(locator.zipLocator).toFile)) { zipFile =>
@@ -149,10 +121,10 @@ class Datastore(val s3config: S3Config) extends Logging {
 
           // move the directory where it belongs
           Files.move(tempDir, locator.localCachePath)
-          leftOverFiles.remove(tempDir)
+          TempCleanup.forget(tempDir)
         } finally {
           Files.delete(locator.lockfilePath)
-          leftOverFiles.remove(locator.lockfilePath)
+          TempCleanup.forget(locator.lockfilePath)
         }
 
         locator.localCachePath
@@ -175,7 +147,7 @@ class Datastore(val s3config: S3Config) extends Logging {
       Files.createTempFile(
         locator.flatLocalCacheKey,
         ".ai2-datastore.upload.zip")
-    leftOverFiles.add(zipFile)
+    TempCleanup.remember(zipFile)
     try {
       Resource.using(new ZipOutputStream(Files.newOutputStream(zipFile))) { zip =>
         Files.walkFileTree(path, new SimpleFileVisitor[Path] {
@@ -190,11 +162,11 @@ class Datastore(val s3config: S3Config) extends Logging {
       publishFile(zipFile, locator.zipLocator)
     } finally {
       Files.deleteIfExists(zipFile)
-      leftOverFiles.remove(zipFile)
+      TempCleanup.forget(zipFile)
     }
   }
 }
 
-object Datastore extends Datastore(S3Config()) {
+object Datastore extends Datastore(new S3Config) {
 
 }

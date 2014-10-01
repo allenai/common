@@ -45,8 +45,10 @@ object CommonBuild extends Build {
   lazy val datastore = Project(
     id = "datastore",
     base = file("datastore"),
-    settings = buildSettings
-  ).dependsOn(core).enablePlugins(AllenaiReleasePlugin)
+    settings = buildSettings ++ Defaults.itSettings
+  ).dependsOn(core, testkit % "test,it").
+    enablePlugins(AllenaiReleasePlugin).
+    configs(IntegrationTest)
 
   lazy val root = Project(id = "common", base = file(".")).settings(
     // Don't publish a jar for the root project.
