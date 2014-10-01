@@ -19,6 +19,8 @@ class Datastore(val s3config: S3Config) extends Logging {
 
   /** Identifies a single version of a file or directory in the datastore */
   case class Locator(group: String, name: String, version: Int) {
+    require(version > 0)
+
     def nameWithVersion = {
       val lastDotIndex = name.lastIndexOf('.')
       if (lastDotIndex < 0) {
