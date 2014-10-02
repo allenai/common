@@ -31,8 +31,8 @@ object GitVersion {
     * @returns  a URL to a GitHub repo, or None if no allenai remotes exist
     */
   def projectUrl(remotes: Seq[String], user: String): Option[String] = {
-    val sshRegex = """git@github.com:(\w+)/(\w+).git""".r
-    val httpsRegex = """https://github.com/(\w+)/(\w+).git""".r
+    val sshRegex = """git@github.com:([\w-]+)/([\w-]+).git""".r
+    val httpsRegex = """https://github.com/([\w-]+)/([\w-]+).git""".r
 
     remotes.collect {
       case sshRegex(u, repo) if u == user => s"http://github.com/$user/$repo"
