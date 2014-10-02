@@ -4,14 +4,43 @@ import org.allenai.common.Config._
 
 import com.typesafe.config.ConfigFactory
 
+import scala.collection.JavaConverters._
+
 /** Represents the version of this component. Should be built with the `fromResources` method on the
   * companion object.
   *
-  * @param  git  the output of `git sha1` in the repository.
-  * @param  artifact  the version of the artifact in the build.
+  * @param  gitSha1  the output of `git sha1` in the repository.
+  * @param  gitRemotes  the urls of all the remotes
   * @param  commitDate commit date in milliseconds
+  * @param  artifactVersion  the version of the artifact in the build.
   */
-case class Version(git: String, artifact: String, commitDate: Long)
+case class Version(
+    val gitSha1: String,
+    val commitDate: Long,
+    val gitRemotes: Seq[String],
+    val artifactVersion: String) {
+  @deprecated("Use gitSha1 instead.", "2014.09.09-1-SNAPSHOT")
+  def git = gitSha1
+
+  @deprecated("Use artifactVersion instead.", "2014.09.09-1-SNAPSHOT")
+  def artifact = artifactVersion
+
+  def githubProjectUrl(user: String): Option[String] = {
+    val sshRegex = """git@github.com:(\w+)/(\w+).git""".r
+    val httpsRegex = """https://github.com/(\w+)/(\w+).git""".r
+
+    gitRemotes.collect {
+      case sshRegex(u, repo) if u == user => s"http://github.com/$user/$repo"
+      case httpsRegex(u, repo) if u == user => s"http://github.com/$user/$repo"
+    }.headOption
+  }
+
+  def githubCommitUrl(user: String): Option[String] = {
+    githubProjectUrl(user).map { base =>
+      base + "/commit/" + gitSha1
+    }
+  }
+}
 
 object Version {
   /** Load Version from resources injected by the in-house Version sbt plugin.
@@ -36,10 +65,11 @@ object Version {
     val artifactVersion = artifactConf[String]("version")
     val gitVersion = gitConf[String]("sha1")
     val gitCommitDate = gitConf[Long]("date")
+    val gitRemotes = gitConf.getStringList("remotes").asScala
 
-    Version(gitVersion, artifactVersion, gitCommitDate)
+    Version(gitVersion, gitCommitDate, gitRemotes, artifactVersion)
   }
 
   import spray.json.DefaultJsonProtocol._
-  implicit val versionJsonFormat = jsonFormat3(Version.apply)
+  implicit val versionJsonFormat = jsonFormat4(Version.apply)
 }
