@@ -7,13 +7,12 @@ import com.typesafe.config.ConfigFactory
 import scala.collection.JavaConverters._
 
 /** Represents a git version.
-  * @param  sha1  the output of `git sha1` in the repository.
+  * @param  sha1  the output of `git sha1` in the repository
   * @param  commitDate commit date in milliseconds
   * @param  repoUrl  the url of the git repo
   */
 case class GitVersion(sha1: String, commitDate: Long, repoUrl: Option[String]) {
-
-  /** The GitHub commit URL for the remote that matches the specific GitHub user. */
+  /** A URL pointing to the specific commit on GitHub. */
   def commitUrl: Option[String] = {
     repoUrl.map { base =>
       base + "/commit/" + sha1
@@ -25,7 +24,12 @@ object GitVersion {
   import spray.json.DefaultJsonProtocol._
   implicit val gitVersionFormat = jsonFormat3(GitVersion.apply)
 
-  /** The GitHub project URL for the remote that matches the specific GitHub user. */
+  /** The GitHub project URL.
+    * The remotes are searched for one with user "allenai" and then it's
+    * transformed into a valid GitHub project URL.
+    *
+    * @returns  a URL to a GitHub repo, or None if no allenai remotes exist
+    */
   def projectUrl(remotes: Seq[String], user: String): Option[String] = {
     val sshRegex = """git@github.com:(\w+)/(\w+).git""".r
     val httpsRegex = """https://github.com/(\w+)/(\w+).git""".r
@@ -48,8 +52,8 @@ object GitVersion {
   * @param  artifactVersion  the version of the artifact in the build.
   */
 case class Version(
-    val git: GitVersion,
-    val artifactVersion: String) {
+    git: GitVersion,
+    artifactVersion: String) {
   @deprecated("Use artifactVersion instead.", "2014.09.09-1-SNAPSHOT")
   def artifact = artifactVersion
 }
