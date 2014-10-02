@@ -4,6 +4,7 @@ import org.allenai.common.Resource
 import org.allenai.common.testkit.UnitSpec
 
 import org.apache.commons.io.FileUtils
+import org.apache.commons.io.filefilter.TrueFileFilter
 
 import scala.collection.JavaConversions._
 import scala.concurrent._
@@ -11,7 +12,7 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
-import java.nio.file.{StandardCopyOption, Path, Files}
+import java.nio.file.{Paths, StandardCopyOption, Path, Files}
 import java.util.UUID
 import java.util.zip.ZipFile
 
@@ -180,4 +181,27 @@ class DatastoreSpec extends UnitSpec {
     }
   }
 
+  it should "upload and download a directory" in {
+    def listOfFiles(dir: Path) =
+      FileUtils.listFilesAndDirs(
+        dir.toFile,
+        TrueFileFilter.INSTANCE,
+        TrueFileFilter.INSTANCE).toList.sorted.map { p =>
+          dir.relativize(p.toPath)
+        }
+
+    val testfilesDir = copyTestFiles
+    val testfiles = listOfFiles(testfilesDir)
+    val datastore = makeTestDatastore
+    try {
+      datastore.publishDirectory(testfilesDir, group, "TestfilesDir", 11)
+
+      val datastoreDir = datastore.directoryPath(group, "TestfilesDir", 11)
+      val datastoreFiles = listOfFiles(datastoreDir)
+
+      assert(testfiles === datastoreFiles)
+    } finally {
+      deleteDatastore(datastore)
+    }
+  }
 }

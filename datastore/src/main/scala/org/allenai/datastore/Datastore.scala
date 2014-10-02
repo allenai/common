@@ -24,7 +24,7 @@ class Datastore(val s3config: S3Config) extends Logging {
     def nameWithVersion = {
       val lastDotIndex = name.lastIndexOf('.')
       if (lastDotIndex < 0) {
-        s"name-v$version"
+        s"$name-v$version"
       } else {
         name.substring(0, lastDotIndex) + s"-v$version" + name.substring(lastDotIndex)
       }
@@ -113,6 +113,7 @@ class Datastore(val s3config: S3Config) extends Logging {
   def directoryPath(group: String, name: String, version: Int): Path =
     directoryPath(Locator(group, name, version))
   def directoryPath(locator: Locator): Path = {
+    Files.createDirectories(locator.lockfilePath.getParent)
     waitForLockfile(locator.lockfilePath)
 
     if (Files.isDirectory(locator.localCachePath)) {
@@ -133,9 +134,15 @@ class Datastore(val s3config: S3Config) extends Logging {
             val entries = zipFile.entries()
             while (entries.hasMoreElements) {
               val entry = entries.nextElement()
-              val pathForEntry = tempDir.resolve(entry.getName)
-              Files.createDirectories(pathForEntry.getParent)
-              Resource.using(zipFile.getInputStream(entry))(Files.copy(_, pathForEntry))
+              if (entry.getName != "/") {
+                val pathForEntry = tempDir.resolve(entry.getName)
+                if (entry.isDirectory) {
+                  Files.createDirectories(pathForEntry)
+                } else {
+                  Files.createDirectories(pathForEntry.getParent)
+                  Resource.using(zipFile.getInputStream(entry))(Files.copy(_, pathForEntry))
+                }
+              }
             }
           }
 
@@ -174,6 +181,12 @@ class Datastore(val s3config: S3Config) extends Logging {
           override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
             zip.putNextEntry(new ZipEntry(path.relativize(file).toString))
             Files.copy(file, zip)
+            FileVisitResult.CONTINUE
+          }
+
+          override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
+            if (dir != path)
+              zip.putNextEntry(new ZipEntry(path.relativize(dir).toString + "/"))
             FileVisitResult.CONTINUE
           }
         })
