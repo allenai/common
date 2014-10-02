@@ -6,40 +6,52 @@ import com.typesafe.config.ConfigFactory
 
 import scala.collection.JavaConverters._
 
-/** Represents the version of this component. Should be built with the `fromResources` method on the
-  * companion object.
-  *
-  * @param  gitSha1  the output of `git sha1` in the repository.
-  * @param  gitRemotes  the urls of all the remotes
+/** Represents a git version.
+  * @param  sha1  the output of `git sha1` in the repository.
   * @param  commitDate commit date in milliseconds
-  * @param  artifactVersion  the version of the artifact in the build.
+  * @param  repoUrl  the url of the git repo
   */
-case class Version(
-    val gitSha1: String,
-    val commitDate: Long,
-    val gitRemotes: Seq[String],
-    val artifactVersion: String) {
-  @deprecated("Use gitSha1 instead.", "2014.09.09-1-SNAPSHOT")
-  def git = gitSha1
+case class GitVersion(sha1: String, commitDate: Long, repoUrl: Option[String]) {
 
-  @deprecated("Use artifactVersion instead.", "2014.09.09-1-SNAPSHOT")
-  def artifact = artifactVersion
+  /** The GitHub commit URL for the remote that matches the specific GitHub user. */
+  def commitUrl: Option[String] = {
+    repoUrl.map { base =>
+      base + "/commit/" + sha1
+    }
+  }
+}
 
-  def githubProjectUrl(user: String): Option[String] = {
+object GitVersion {
+  import spray.json.DefaultJsonProtocol._
+  implicit val gitVersionFormat = jsonFormat3(GitVersion.apply)
+
+  /** The GitHub project URL for the remote that matches the specific GitHub user. */
+  def projectUrl(remotes: Seq[String], user: String): Option[String] = {
     val sshRegex = """git@github.com:(\w+)/(\w+).git""".r
     val httpsRegex = """https://github.com/(\w+)/(\w+).git""".r
 
-    gitRemotes.collect {
+    remotes.collect {
       case sshRegex(u, repo) if u == user => s"http://github.com/$user/$repo"
       case httpsRegex(u, repo) if u == user => s"http://github.com/$user/$repo"
     }.headOption
   }
 
-  def githubCommitUrl(user: String): Option[String] = {
-    githubProjectUrl(user).map { base =>
-      base + "/commit/" + gitSha1
-    }
+  def create(sha1: String, commitDate: Long, remotes: Seq[String]) = {
+    GitVersion(sha1, commitDate, projectUrl(remotes, "allenai"))
   }
+}
+
+/** Represents the version of this component. Should be built with the `fromResources` method on the
+  * companion object.
+  *
+  * @param  git  the git version (commit information) of the build.
+  * @param  artifactVersion  the version of the artifact in the build.
+  */
+case class Version(
+    val git: GitVersion,
+    val artifactVersion: String) {
+  @deprecated("Use artifactVersion instead.", "2014.09.09-1-SNAPSHOT")
+  def artifact = artifactVersion
 }
 
 object Version {
@@ -63,13 +75,13 @@ object Version {
     val gitConf = ConfigFactory.parseURL(gitConfUrl)
 
     val artifactVersion = artifactConf[String]("version")
-    val gitVersion = gitConf[String]("sha1")
-    val gitCommitDate = gitConf[Long]("date")
-    val gitRemotes = gitConf.getStringList("remotes").asScala
+    val sha1 = gitConf[String]("sha1")
+    val commitDate = gitConf[Long]("date")
+    val remotes = gitConf.getStringList("remotes").asScala
 
-    Version(gitVersion, gitCommitDate, gitRemotes, artifactVersion)
+    Version(GitVersion.create(sha1, commitDate, remotes), artifactVersion)
   }
 
   import spray.json.DefaultJsonProtocol._
-  implicit val versionJsonFormat = jsonFormat4(Version.apply)
+  implicit val versionJsonFormat = jsonFormat2(Version.apply)
 }
