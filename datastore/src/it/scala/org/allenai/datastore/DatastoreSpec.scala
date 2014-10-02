@@ -6,6 +6,10 @@ import org.allenai.common.testkit.UnitSpec
 import org.apache.commons.io.FileUtils
 
 import scala.collection.JavaConversions._
+import scala.concurrent._
+import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
 
 import java.nio.file.{StandardCopyOption, Path, Files}
 import java.util.UUID
@@ -143,4 +147,37 @@ class DatastoreSpec extends UnitSpec {
       deleteDatastore(datastore)
     }
   }
+
+  it should "download the same file only once even if requested twice in parallel" in {
+    val testfile = "big_file_at_root.bin"
+    val testfilesDir = copyTestFiles
+    val datastore = makeTestDatastore
+    try {
+      val testfilePath = testfilesDir.resolve(testfile)
+      datastore.publishFile(testfilePath, group, testfile, 83)
+
+      def downloadAndCheckFile(): Unit = {
+        val path = datastore.filePath(group, testfile, 83)
+        assert(path.toFile.length() === testfilePath.toFile.length())
+      }
+
+      def time(f: => Unit) = {
+        val start = System.nanoTime()
+        f
+        System.nanoTime() - start
+      }
+
+      val delayInMs: Long = 250
+      val firstTime = future { time(downloadAndCheckFile) }
+      Thread.sleep(delayInMs)
+      val secondTime = future { time(downloadAndCheckFile) }
+
+      // The second one has to wait for the first one to finish before it can
+      // finish, so it should be slower.
+      assert(Await.result(firstTime, 10 minutes) < Await.result(secondTime, 10 minutes) + delayInMs * 1000000)
+    } finally {
+      deleteDatastore(datastore)
+    }
+  }
+
 }
