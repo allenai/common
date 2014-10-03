@@ -3,6 +3,8 @@ package org.allenai.common.webapp
 import org.allenai.common.Version
 
 import spray.http.StatusCodes
+import spray.json._
+import spray.json.DefaultJsonProtocol._
 import spray.routing.Directives._
 import spray.routing.Route
 
@@ -24,7 +26,7 @@ class InfoRoute(val info: Map[String, String] = Map.empty) {
     pathPrefix("info") {
       pathEndOrSingleSlash {
         complete {
-          info.keys mkString "\n"
+          info.toJson.prettyPrint
         }
       }
     } ~
