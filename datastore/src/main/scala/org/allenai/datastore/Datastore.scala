@@ -173,7 +173,7 @@ class Datastore(val s3config: S3Config) extends Logging {
   def publishFile(file: Path, group: String, name: String, version: Int, overwrite: Boolean): Unit =
     publishFile(file, Locator(group, name, version), overwrite)
   def publishFile(file: Path, locator: Locator, overwrite: Boolean): Unit = {
-    if(!overwrite && fileExists(locator))
+    if (!overwrite && fileExists(locator))
       throw new AlreadyExistsException(locator)
     s3config.service.putObject(s3config.bucket, locator.s3key, file.toFile)
   }
