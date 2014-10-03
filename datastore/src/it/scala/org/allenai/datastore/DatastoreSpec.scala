@@ -87,7 +87,7 @@ class DatastoreSpec extends UnitSpec {
     try {
       for (filename <- filenames) {
         val fullFilenameString = testfilesDir.toString + "/" + filename
-        datastore.publishFile(fullFilenameString, group, filename, 13)
+        datastore.publishFile(fullFilenameString, group, filename, 13, false)
       }
 
       for(filename <- filenames) {
@@ -104,7 +104,7 @@ class DatastoreSpec extends UnitSpec {
     val testfilesDir = copyTestFiles
     val datastore = makeTestDatastore
     try {
-      datastore.publishFile(testfilesDir.resolve(testfile), group, testfile, 83)
+      datastore.publishFile(testfilesDir.resolve(testfile), group, testfile, 83, false)
 
       intercept[Datastore.DoesNotExistException] {
         datastore.filePath(group, testfile, 13)
@@ -128,7 +128,7 @@ class DatastoreSpec extends UnitSpec {
     val datastore = makeTestDatastore
     try {
       val testfilePath = testfilesDir.resolve(testfile)
-      datastore.publishFile(testfilePath, group, testfile, 83)
+      datastore.publishFile(testfilePath, group, testfile, 83, false)
 
       def downloadAndCheckFile(): Unit = {
         val path = datastore.filePath(group, testfile, 83)
@@ -155,7 +155,7 @@ class DatastoreSpec extends UnitSpec {
     val datastore = makeTestDatastore
     try {
       val testfilePath = testfilesDir.resolve(testfile)
-      datastore.publishFile(testfilePath, group, testfile, 83)
+      datastore.publishFile(testfilePath, group, testfile, 83, false)
 
       def downloadAndCheckFile(): Unit = {
         val path = datastore.filePath(group, testfile, 83)
@@ -194,7 +194,7 @@ class DatastoreSpec extends UnitSpec {
     val testfiles = listOfFiles(testfilesDir)
     val datastore = makeTestDatastore
     try {
-      datastore.publishDirectory(testfilesDir, group, "TestfilesDir", 11)
+      datastore.publishDirectory(testfilesDir, group, "TestfilesDir", 11, false)
 
       val datastoreDir = datastore.directoryPath(group, "TestfilesDir", 11)
       val datastoreFiles = listOfFiles(datastoreDir)

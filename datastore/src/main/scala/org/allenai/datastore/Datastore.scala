@@ -3,6 +3,7 @@ package org.allenai.datastore
 import org.allenai.common.Resource
 import org.allenai.common.Logging
 
+import com.amazonaws.AmazonServiceException
 import com.amazonaws.services.s3.model.AmazonS3Exception
 import org.apache.commons.io.FileUtils
 
@@ -41,8 +42,14 @@ class Datastore(val s3config: S3Config) extends Logging {
 
   class DoesNotExistException(
     locator: Locator,
-    cause: Throwable) extends Exception(
+    cause: Throwable = null) extends Exception(
     s"${locator.s3key} does not exist in the $name datastore",
+    cause)
+
+  class AlreadyExistsException(
+    locator: Locator,
+    cause: Throwable = null) extends Exception(
+    s"${locator.s3key} already exists in the $name datastore",
     cause)
 
   private def getS3Object(key: String) =
@@ -161,17 +168,19 @@ class Datastore(val s3config: S3Config) extends Logging {
     }
   }
 
-  def publishFile(file: String, group: String, name: String, version: Int): Unit =
-    publishFile(Paths.get(file), group, name, version)
-  def publishFile(file: Path, group: String, name: String, version: Int): Unit =
-    publishFile(file, Locator(group, name, version))
-  def publishFile(file: Path, locator: Locator): Unit = {
+  def publishFile(file: String, group: String, name: String, version: Int, overwrite: Boolean): Unit =
+    publishFile(Paths.get(file), group, name, version, overwrite)
+  def publishFile(file: Path, group: String, name: String, version: Int, overwrite: Boolean): Unit =
+    publishFile(file, Locator(group, name, version), overwrite)
+  def publishFile(file: Path, locator: Locator, overwrite: Boolean): Unit = {
+    if(!overwrite && fileExists(locator))
+      throw new AlreadyExistsException(locator)
     s3config.service.putObject(s3config.bucket, locator.s3key, file.toFile)
   }
 
-  def publishDirectory(path: Path, group: String, name: String, version: Int): Unit =
-    publishDirectory(path, Locator(group, name, version))
-  def publishDirectory(path: Path, locator: Locator): Unit = {
+  def publishDirectory(path: Path, group: String, name: String, version: Int, overwrite: Boolean): Unit =
+    publishDirectory(path, Locator(group, name, version), overwrite)
+  def publishDirectory(path: Path, locator: Locator, overwrite: Boolean): Unit = {
     val zipFile =
       Files.createTempFile(
         locator.flatLocalCacheKey,
@@ -194,12 +203,29 @@ class Datastore(val s3config: S3Config) extends Logging {
         })
       }
 
-      publishFile(zipFile, locator.zipLocator)
+      publishFile(zipFile, locator.zipLocator, overwrite)
     } finally {
       Files.deleteIfExists(zipFile)
       TempCleanup.forget(zipFile)
     }
   }
+
+  def fileExists(group: String, name: String, version: Int): Boolean =
+    fileExists(Locator(group, name, version))
+  def fileExists(locator: Locator): Boolean = {
+    try {
+      s3config.service.getObjectMetadata(s3config.bucket, locator.s3key)
+      true
+    } catch {
+      case e: AmazonServiceException if e.getStatusCode == 404 =>
+        false
+    }
+  }
+
+  def directoryExists(group: String, name: String, version: Int): Boolean =
+    directoryExists(Locator(group, name, version))
+  def directoryExists(locator: Locator): Boolean =
+    fileExists(locator.zipLocator)
 
   def wipeCache(): Unit = {
     FileUtils.deleteDirectory(cacheDir.toFile)
