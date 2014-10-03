@@ -29,8 +29,9 @@ object TempCleanup extends Logging {
         try {
           try {
             val deleted = Files.deleteIfExists(rememberedPath)
-            if (deleted)
+            if (deleted) {
               logger.info(s"Cleaning up file at $rememberedPath")
+            }
           } catch {
             case _: DirectoryNotEmptyException =>
               FileUtils.deleteDirectory(rememberedPath.toFile)

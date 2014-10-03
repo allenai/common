@@ -18,13 +18,13 @@ class Datastore(val s3config: S3Config) extends Logging {
   private val cacheDir = systemTempDir.resolve("ai2-datastore-cache").resolve(s3config.bucket)
   Files.createDirectories(cacheDir)
 
-  def name = s3config.bucket
+  def name: String = s3config.bucket
 
   /** Identifies a single version of a file or directory in the datastore */
   case class Locator(group: String, name: String, version: Int) {
     require(version > 0)
 
-    def nameWithVersion = {
+    def nameWithVersion: String = {
       val lastDotIndex = name.lastIndexOf('.')
       if (lastDotIndex < 0) {
         s"$name-v$version"
@@ -32,12 +32,12 @@ class Datastore(val s3config: S3Config) extends Logging {
         name.substring(0, lastDotIndex) + s"-v$version" + name.substring(lastDotIndex)
       }
     }
-    def s3key = s"$group/$nameWithVersion"
-    def localCacheKey = s3key
-    def flatLocalCacheKey = localCacheKey.replace('/', '%')
-    def localCachePath = cacheDir.resolve(localCacheKey)
-    def lockfilePath = cacheDir.resolve(localCacheKey + ".lock")
-    def zipLocator = copy(name = name + ".zip")
+    def s3key: String = s"$group/$nameWithVersion"
+    def localCacheKey: String = s3key
+    def flatLocalCacheKey: String = localCacheKey.replace('/', '%')
+    def localCachePath: Path = cacheDir.resolve(localCacheKey)
+    def lockfilePath: Path = cacheDir.resolve(localCacheKey + ".lock")
+    def zipLocator: Locator = copy(name = name + ".zip")
   }
 
   class DoesNotExistException(
@@ -60,11 +60,13 @@ class Datastore(val s3config: S3Config) extends Logging {
     val start = System.currentTimeMillis()
     while (Files.exists(lockfile)) {
       val message = s"Waiting for lockfile at $lockfile}"
-      if (System.currentTimeMillis() - start > 60 * 1000)
+      if (System.currentTimeMillis() - start > 60 * 1000) {
         logger.warn(message)
-      else
+      } else {
         logger.info(message)
-      Thread.sleep(1000)
+      }
+      val oneSecond = 1000
+      Thread.sleep(oneSecond)
     }
   }
 
@@ -168,17 +170,33 @@ class Datastore(val s3config: S3Config) extends Logging {
     }
   }
 
-  def publishFile(file: String, group: String, name: String, version: Int, overwrite: Boolean): Unit =
+  def publishFile(
+    file: String,
+    group: String,
+    name: String,
+    version: Int,
+    overwrite: Boolean): Unit =
     publishFile(Paths.get(file), group, name, version, overwrite)
-  def publishFile(file: Path, group: String, name: String, version: Int, overwrite: Boolean): Unit =
+  def publishFile(
+    file: Path,
+    group: String,
+    name: String,
+    version: Int,
+    overwrite: Boolean): Unit =
     publishFile(file, Locator(group, name, version), overwrite)
   def publishFile(file: Path, locator: Locator, overwrite: Boolean): Unit = {
-    if (!overwrite && fileExists(locator))
+    if (!overwrite && fileExists(locator)) {
       throw new AlreadyExistsException(locator)
+    }
     s3config.service.putObject(s3config.bucket, locator.s3key, file.toFile)
   }
 
-  def publishDirectory(path: Path, group: String, name: String, version: Int, overwrite: Boolean): Unit =
+  def publishDirectory(
+    path: Path,
+    group: String,
+    name: String,
+    version: Int,
+    overwrite: Boolean): Unit =
     publishDirectory(path, Locator(group, name, version), overwrite)
   def publishDirectory(path: Path, locator: Locator, overwrite: Boolean): Unit = {
     val zipFile =
@@ -196,8 +214,9 @@ class Datastore(val s3config: S3Config) extends Logging {
           }
 
           override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
-            if (dir != path)
+            if (dir != path) {
               zip.putNextEntry(new ZipEntry(path.relativize(dir).toString + "/"))
+            }
             FileVisitResult.CONTINUE
           }
         })
