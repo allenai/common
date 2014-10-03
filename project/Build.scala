@@ -48,8 +48,15 @@ object CommonBuild extends Build {
     enablePlugins(AllenaiReleasePlugin).
     configs(IntegrationTest)
 
+  lazy val datastoreCli = Project(
+    id = "datastore-cli",
+    base = file("datastore-cli"),
+    settings = buildSettings
+  ).dependsOn(datastore).
+    enablePlugins(AllenaiReleasePlugin)
+
   lazy val common = Project(id = "common", base = file(".")).settings(
     // Don't publish a jar for the root project.
     publishTo := None, publish := { }, publishLocal := { }
-  ).aggregate(webapp, core, testkit, pipeline, datastore).enablePlugins(AllenaiReleasePlugin)
+  ).aggregate(webapp, core, testkit, pipeline, datastore, datastoreCli).enablePlugins(AllenaiReleasePlugin)
 }

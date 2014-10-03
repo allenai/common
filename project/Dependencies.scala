@@ -26,4 +26,5 @@ object Dependencies {
   val typesafeConfig = "com.typesafe" % "config" % "1.2.0"
   val awsJavaSdk = "com.amazonaws" % "aws-java-sdk" % "1.8.9.1"
   val commonsIO = "commons-io" % "commons-io" % "2.4"
+  val scopt = "com.github.scopt" %% "scopt" % "3.2.0"
 }
