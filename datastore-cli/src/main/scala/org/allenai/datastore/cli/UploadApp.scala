@@ -7,11 +7,11 @@ import java.io.File
 object UploadApp extends App {
   case class Config(
     path: File = null,
-    group: String = null,
-    name: String = null,
-    version: Int = -1,
-    datastore: Datastore = Datastore,
-    overwrite: Boolean = false)
+    override val group: String = null,
+    override val name: String = null,
+    override val version: Int = -1,
+    override val datastore: Datastore = Datastore,
+    overwrite: Boolean = false) extends LocatorConfig
 
   val parser = new scopt.OptionParser[Config]("scopt") {
     opt[File]('p', "path") required () action { (p, c) =>
@@ -45,16 +45,12 @@ object UploadApp extends App {
     if (config.path.isDirectory) {
       config.datastore.publishDirectory(
         config.path.toPath,
-        config.group,
-        config.name,
-        config.version,
+        config.locator,
         config.overwrite)
     } else {
       config.datastore.publishFile(
         config.path.toPath,
-        config.group,
-        config.name,
-        config.version,
+        config.locator,
         config.overwrite)
     }
   }
