@@ -11,6 +11,8 @@ import java.nio.file.attribute.BasicFileAttributes
 import java.util.zip.{ ZipEntry, ZipOutputStream, ZipFile }
 
 class Datastore(val s3config: S3Config) extends Logging {
+  def this(datastore: String) = this(new S3Config(datastore))
+
   private val systemTempDir = Paths.get(System.getProperty("java.io.tmpdir"))
   private val cacheDir = systemTempDir.resolve("ai2-datastore-cache").resolve(s3config.bucket)
   Files.createDirectories(cacheDir)
