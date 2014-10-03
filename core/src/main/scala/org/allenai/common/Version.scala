@@ -1,10 +1,12 @@
 package org.allenai.common
 
 import org.allenai.common.Config._
+import org.allenai.common.json._
 
 import com.typesafe.config.ConfigFactory
 
 import scala.collection.JavaConverters._
+import spray.json._
 
 /** Represents a git version.
   * @param  sha1  the output of `git sha1` in the repository
@@ -87,5 +89,32 @@ object Version {
   }
 
   import spray.json.DefaultJsonProtocol._
-  implicit val versionJsonFormat = jsonFormat2(Version.apply)
+  implicit val versionJsonFormat = new RootJsonFormat[Version] {
+    override def write(version: Version): JsValue = {
+      val baseJson = JsObject(
+          "git" -> JsString(version.git.sha1),
+          "commitDate" -> JsNumber(version.git.commitDate),
+          "artifact" -> JsString(version.artifactVersion))
+      version.git.repoUrl match {
+        case Some(repoUrl) => baseJson.pack("repoUrl" -> repoUrl)
+        case _ => baseJson
+      }
+    }
+
+    override def read(json: JsValue): Version = {
+      val jsObject = json.asJsObject
+      val gitSha1 = jsObject.get[String]("git").getOrElse {
+        throw new SerializationException("No git field")
+      }
+      val commitDate = jsObject.get[Long]("commitDate").getOrElse {
+        throw new SerializationException("No commitDate field")
+      }
+      val artifactVersion = jsObject.get[String]("artifact").getOrElse {
+        throw new SerializationException("No artifact field")
+      }
+      val repoUrl = jsObject.get[String]("repoUrl")
+
+       Version(GitVersion(gitSha1, commitDate, repoUrl), artifactVersion)
+    }
+  }
 }
