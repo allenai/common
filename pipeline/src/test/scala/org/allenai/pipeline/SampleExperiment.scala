@@ -1,6 +1,6 @@
 package org.allenai.pipeline
 
-import org.allenai.common.testkit.UnitSpec
+import org.allenai.common.testkit.{ScratchDirectory, UnitSpec}
 import org.allenai.pipeline.IoHelpers._
 
 import org.apache.commons.io.FileUtils
@@ -12,7 +12,8 @@ import scala.util.Random
 import java.io.{InputStream, File}
 
 /** Test PipelineRunner functionality */
-class SampleExperiment extends UnitSpec with BeforeAndAfterEach with BeforeAndAfterAll {
+class SampleExperiment extends UnitSpec
+with BeforeAndAfterEach with BeforeAndAfterAll with ScratchDirectory {
 
   case class TrainedModel(info: String)
 
@@ -38,7 +39,7 @@ class SampleExperiment extends UnitSpec with BeforeAndAfterEach with BeforeAndAf
   }
 
   case class TrainModel(trainingData: Producer[Iterable[TrainingPoint]])
-      extends Producer[TrainedModel] with Ai2CodeInfo {
+      extends Producer[TrainedModel] with Ai2Signature {
     def create: TrainedModel = {
       val dataRows = trainingData.get
       train(dataRows) // Run training algorithm on training data
@@ -47,7 +48,7 @@ class SampleExperiment extends UnitSpec with BeforeAndAfterEach with BeforeAndAf
     def train(data: Iterable[TrainingPoint]): TrainedModel =
       TrainedModel(s"Trained model with ${data.size} rows")
 
-    override def signature: Signature = Signature.fromObject(this)
+    override def signature = Signature.fromObject(this)
   }
 
   type PRMeasurement = Iterable[(Double, Double, Double)]
@@ -55,7 +56,7 @@ class SampleExperiment extends UnitSpec with BeforeAndAfterEach with BeforeAndAf
   // Threshold, precision, recall
   case class MeasureModel(val model: Producer[TrainedModel],
     val testData: Producer[Iterable[TrainingPoint]])
-      extends Producer[PRMeasurement] with Ai2CodeInfo {
+      extends Producer[PRMeasurement] with Ai2Signature {
     def create: PRMeasurement = {
       model.get
       // Just generate some dummy data
@@ -70,14 +71,12 @@ class SampleExperiment extends UnitSpec with BeforeAndAfterEach with BeforeAndAf
         r
       }
     }
-
-    override def signature: Signature = Signature.fromObject(this)
   }
 
   case class ParsedDocument(info: String)
 
   case class FeaturizeDocuments(documents: Producer[Iterator[ParsedDocument]])
-      extends Producer[Iterable[Array[Double]]] with Ai2CodeInfo {
+      extends Producer[Iterable[Array[Double]]] with Ai2Signature {
     def create: Iterable[Array[Double]] = {
       val features = for (doc <- documents.get) yield {
         val rand = new Random
@@ -85,8 +84,6 @@ class SampleExperiment extends UnitSpec with BeforeAndAfterEach with BeforeAndAf
       }
       features.toList
     }
-
-    def signature: Signature = Signature.fromObject(this)
   }
 
   object ParseDocumentsFromXML extends ArtifactIo[Iterator[ParsedDocument], StructuredArtifact]
@@ -123,7 +120,6 @@ class SampleExperiment extends UnitSpec with BeforeAndAfterEach with BeforeAndAf
   }
 
 
-  val outputDir = new File("test-output-experiment")
   val inputDir = new File("pipeline/src/test/resources/pipeline")
   val featureFile = "features.txt"
   val labelFile = "labels.txt"
@@ -146,7 +142,7 @@ class SampleExperiment extends UnitSpec with BeforeAndAfterEach with BeforeAndAf
     implicit val featureFormat = columnArrayFormat[Double](',')
     implicit val labelFeatureFormat = tuple2ColumnFormat[Boolean, Array[Double]]('\t')
 
-    implicit val runner = PipelineRunner.writeToDirectory(outputDir)
+    implicit val runner = PipelineRunner.writeToDirectory(scratchDir)
 
     val docDir = new DirectoryArtifact(new File(inputDir, "xml"))
     val docs = Read.fromArtifact(ParseDocumentsFromXML, docDir)
@@ -162,10 +158,10 @@ class SampleExperiment extends UnitSpec with BeforeAndAfterEach with BeforeAndAf
       new MeasureModel(model, testData))
     runner.run(measure)
 
-    assert(findFile(outputDir, "JoinAndSplitData_1", ".txt"), "Training data file created")
-    assert(findFile(outputDir, "TrainModel", ".json"), "Json file created")
-    assert(findFile(outputDir, "MeasureModel", ".txt"), "P/R file created")
-    assert(findFile(outputDir, "experiment", ".html"), "Experiment summary created")
+    assert(findFile(scratchDir, "JoinAndSplitData_1", ".txt"), "Training data file created")
+    assert(findFile(scratchDir, "TrainModel", ".json"), "Json file created")
+    assert(findFile(scratchDir, "MeasureModel", ".txt"), "P/R file created")
+    assert(findFile(scratchDir, "experiment", ".html"), "Experiment summary created")
   }
 
   "Subsequent Experiment" should "re-use existing data" in {
@@ -173,7 +169,7 @@ class SampleExperiment extends UnitSpec with BeforeAndAfterEach with BeforeAndAf
     implicit val featureFormat = columnArrayFormat[Double](',')
     implicit val labelFeatureFormat = tuple2ColumnFormat[Boolean, Array[Double]]('\t')
 
-    implicit val runner = PipelineRunner.writeToDirectory(outputDir)
+    implicit val runner = PipelineRunner.writeToDirectory(scratchDir)
 
     val docDir = new DirectoryArtifact(new File(inputDir, "xml"))
     val docs = Read.fromArtifact(ParseDocumentsFromXML, docDir)
@@ -183,6 +179,10 @@ class SampleExperiment extends UnitSpec with BeforeAndAfterEach with BeforeAndAf
       Read.Collection.fromText[Boolean](input.flatArtifact(labelFile))
     val Producer2(trainData, testData) = new JoinAndSplitData(docFeatures, labelData, 0.2)
     val trainDataPersisted = Persist.Collection.asText(trainData)
+    // Another way of persisting
+    val trainDataPersistedAlt = runner.persist(trainData, LineCollectionIo.text[(Boolean,
+        Array[Double])], "txt")
+    trainDataPersistedAlt.artifact.url should equal(trainDataPersisted.artifact.url)
     val model = Persist.Singleton.asJson(new TrainModel(trainDataPersisted))
     val measure: PersistedProducer[PRMeasurement, FlatArtifact] =
       Persist.Collection.asText(new MeasureModel(model, testData))
@@ -223,17 +223,8 @@ class SampleExperiment extends UnitSpec with BeforeAndAfterEach with BeforeAndAf
 
   }
 
-  override def beforeEach: Unit = {
-    require((outputDir.exists && outputDir.isDirectory) ||
-        outputDir.mkdirs, s"Unable to create test output directory $outputDir")
-  }
-
   override def afterEach: Unit = {
-    FileUtils.cleanDirectory(outputDir)
-  }
-
-  override def afterAll: Unit = {
-    FileUtils.deleteDirectory(outputDir)
+    FileUtils.cleanDirectory(scratchDir)
   }
 
   def findFile(dir: File, prefix: String, suffix: String): Boolean =
