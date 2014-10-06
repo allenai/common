@@ -7,6 +7,7 @@ import spray.json.DefaultJsonProtocol._
 
 import scala.util.{ Try, Success, Failure }
 
+// scalastyle:off magic.number
 class RichJsObjectSpec extends UnitSpec {
 
   case class Foo(name: String)

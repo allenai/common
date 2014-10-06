@@ -11,8 +11,7 @@ import org.scalatest._
   * By extending [[akka.testkit.TestKit]] and [[akka.testkit.ImplicitSender]],
   * we get many helpers for testing Actors against a live actor system.
   *
-  * For more information on Akka TestKit, see:
-  * http://doc.akka.io/docs/akka/2.2.4/scala/testing.html#Asynchronous_Integration_Testing_with_TestKit
+  * For more information on Akka TestKit, see: http://goo.gl/3SE4zz
   */
 abstract class ActorSpec(actorSystem: ActorSystem)
     extends TestKit(actorSystem)

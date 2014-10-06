@@ -12,6 +12,7 @@ import scala.concurrent.duration._
 
 import java.net.URI
 
+// scalastyle:off magic.number
 class ConfigSpec extends UnitSpec {
 
   def createConfig(map: Map[String, Any]): TypesafeConfig = {
