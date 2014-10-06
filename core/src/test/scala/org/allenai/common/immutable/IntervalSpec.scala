@@ -43,6 +43,7 @@ import org.scalacheck.Prop.propBoolean
 import org.scalatest.prop.Checkers
 import spray.json._
 
+// scalastyle:off magic.number
 class IntervalSpec extends UnitSpec with Checkers {
   they should "border each other" in {
     assert((Interval.open(0, 4) borders Interval.open(4, 8)) == true)
@@ -146,7 +147,9 @@ class IntervalSpec extends UnitSpec with Checkers {
 
       // for all points in one of the new intervals
       // no other interval may contain the same point
-      min.forall(interval => !min.exists(other => !(other eq interval) && (other intersects interval)))
+      min.forall { interval =>
+        !min.exists { other => !(other eq interval) && (other intersects interval) }
+      }
 
       // result is sorted
       min.sorted == min

@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory
 trait Logging {
   val internalLogger = LoggerFactory.getLogger(this.getClass)
 
-  object logger {
+  object logger { // scalastyle:ignore
     def trace(message: => String): Unit =
       if (internalLogger.isTraceEnabled) {
         internalLogger.trace(message)

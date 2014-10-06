@@ -28,11 +28,12 @@ object JsonFormats {
   }
 
   /** Handle any subclass of Throwable */
-  implicit def exceptionWriter[E <: Throwable] = throwableWriter.asInstanceOf[RootJsonWriter[E]]
+  implicit def exceptionWriter[E <: Throwable]: RootJsonWriter[E] =
+    throwableWriter.asInstanceOf[RootJsonWriter[E]]
 
   /** Writer for an Try[T] where T has an implicit JsonWriter[T] */
   implicit def tryWriter[R: JsonWriter]: RootJsonWriter[Try[R]] = new RootJsonWriter[Try[R]] {
-    override def write(responseTry: Try[R]) = {
+    override def write(responseTry: Try[R]): JsValue = {
       responseTry match {
         case Success(r) => JsObject("success" -> r.toJson)
         case Failure(t) => JsObject("failure" -> t.toJson)
@@ -41,5 +42,6 @@ object JsonFormats {
   }
 
   /** Default JsonFormat for com.typesafe.config.Config */
-  implicit val typesafeConfigFormat: RootJsonFormat[TypesafeConfig] = Config.DefaultTypesafeConfigFormat
+  implicit val typesafeConfigFormat: RootJsonFormat[TypesafeConfig] =
+    Config.DefaultTypesafeConfigFormat
 }

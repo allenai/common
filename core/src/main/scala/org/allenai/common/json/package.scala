@@ -51,7 +51,8 @@ package object json {
       */
     def unpackWith[T](packedFormats: PackedJsonFormat[_ <: T] *): T = {
       unpackOptWith[T](packedFormats: _*) getOrElse {
-        deserializationError(s"Invalid JSON. Expected a JsObject with a valid packed field, but got ${jsObj.toString}")
+        deserializationError(
+          s"Invalid JSON. Expected a JsObject with a valid packed field, but got ${jsObj.toString}")
       }
     }
 
@@ -63,7 +64,8 @@ package object json {
       */
     def unpackAs[T](implicit unpackers: Seq[PackedJsonFormat[_ <: T]]): T = {
       unpackOptWith[T](unpackers: _*) getOrElse {
-        deserializationError(s"Invalid JSON. Expected a JsObject with a valid packed field, but got ${jsObj.toString}")
+        deserializationError(
+          s"Invalid JSON. Expected a JsObject with a valid packed field, but got ${jsObj.toString}")
       }
     }
 

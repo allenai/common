@@ -23,7 +23,8 @@ object Config {
       case _ => deserializationError("Expected JsObject for Config deserialization")
     }
 
-    override def write(config: TypesafeConfig): JsValue = JsonParser(config.root.render(RenderOptions))
+    override def write(config: TypesafeConfig): JsValue =
+      JsonParser(config.root.render(RenderOptions))
   }
 
   /** Renders JSON formatted */
@@ -54,8 +55,8 @@ object Config {
 
   object ConfigReader {
     /** Factory for creating a new ConfigReader[T] type class instance */
-    def apply[T](f: (TypesafeConfig, String) => T) = new ConfigReader[T] {
-      def read(config: TypesafeConfig, key: String) = f(config, key)
+    def apply[T](f: (TypesafeConfig, String) => T): ConfigReader[T] = new ConfigReader[T] {
+      def read(config: TypesafeConfig, key: String): T = f(config, key)
     }
 
     // ConfigReader wrappers for built-in Typesafe Config extractors that may return null
@@ -66,7 +67,9 @@ object Config {
     implicit val boolReader = apply[Boolean] { (config, key) => config.getBoolean(key) }
     implicit val configValueReader = apply[ConfigValue] { (config, key) => config.getValue(key) }
 
-    implicit val stringListReader = apply[Seq[String]] { (config, key) => config.getStringList(key).asScala }
+    implicit val stringListReader = apply[Seq[String]] { (config, key) =>
+      config.getStringList(key).asScala
+    }
     implicit val intListReader = apply[Seq[Int]] { (config, key) =>
       config.getIntList(key).asScala.toList.map(_.intValue)
     }
@@ -138,7 +141,8 @@ object Config {
       *
       * @throws com.typesafe.config.ConfigException
       */
-    def get[T](key: String)(implicit reader: ConfigReader[T]): Option[T] = optional { apply[T](key) }
+    def get[T](key: String)(implicit reader: ConfigReader[T]): Option[T] =
+      optional { apply[T](key) }
 
     /** Required JSON parse
       *
@@ -148,10 +152,10 @@ object Config {
       ConfigReader.jsonReader.read(config, key).convertTo[T]
 
     /** Optional JSON parse */
-    def getFromJson[T](key: String)(implicit reader: JsonReader[T]): Option[T] = optional { fromJson[T](key) }
+    def getFromJson[T](key: String)(implicit reader: JsonReader[T]): Option[T] =
+      optional { fromJson[T](key) }
 
-    def getScalaDuration(key: String, timeUnit: TimeUnit): Option[Duration] = optional {
-      Duration(config.getDuration(key, timeUnit), timeUnit)
-    }
+    def getScalaDuration(key: String, timeUnit: TimeUnit): Option[Duration] =
+      optional { Duration(config.getDuration(key, timeUnit), timeUnit) }
   }
 }

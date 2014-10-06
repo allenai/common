@@ -22,7 +22,7 @@ object Version {
     * @param  org  the sbt organization, or group id, the calling code is in
     * @param  name  the sbt name, or artifact id, the calling code is in
     */
-  def fromResources(org: String, name: String) = {
+  def fromResources(org: String, name: String): Version = {
     val pkg = "/" + org + "/" + name.replaceAll("-", "")
     val artifactConfUrl = this.getClass.getResource(pkg + "/artifact.conf")
     val gitConfUrl = this.getClass.getResource(pkg + "/git.conf")
