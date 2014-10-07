@@ -16,7 +16,11 @@ import spray.routing.Route
   */
 class InfoRoute(val info: Map[String, String] = Map.empty) {
   def withVersion(version: Version): InfoRoute = {
-    new InfoRoute(info + ("gitversion" -> version.git) + ("artifactversion" -> version.artifact))
+    new InfoRoute(
+      info +
+        ("gitVersion" -> version.git.sha1) +
+        ("artifactVersion" -> version.artifactVersion) ++
+        version.git.commitUrl.map("githubUrl" -> _))
   }
 
   def withName(name: String): InfoRoute = new InfoRoute(info + ("name" -> name))
