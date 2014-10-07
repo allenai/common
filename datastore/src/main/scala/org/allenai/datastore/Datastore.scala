@@ -16,7 +16,6 @@ class Datastore(val s3config: S3Config) extends Logging {
 
   private val systemTempDir = Paths.get(System.getProperty("java.io.tmpdir"))
   private val cacheDir = systemTempDir.resolve("ai2-datastore-cache").resolve(s3config.bucket)
-  Files.createDirectories(cacheDir)
 
   def name: String = s3config.bucket
 
@@ -82,6 +81,8 @@ class Datastore(val s3config: S3Config) extends Logging {
   def filePath(group: String, name: String, version: Int): Path =
     filePath(Locator(group, name, version))
   def filePath(locator: Locator): Path = {
+    Files.createDirectories(cacheDir)
+
     waitForLockfile(locator.lockfilePath)
 
     if (!Files.isRegularFile(locator.localCachePath)) {
@@ -124,6 +125,8 @@ class Datastore(val s3config: S3Config) extends Logging {
   def directoryPath(group: String, name: String, version: Int): Path =
     directoryPath(Locator(group, name, version))
   def directoryPath(locator: Locator): Path = {
+    Files.createDirectories(cacheDir)
+
     Files.createDirectories(locator.lockfilePath.getParent)
     waitForLockfile(locator.lockfilePath)
 
