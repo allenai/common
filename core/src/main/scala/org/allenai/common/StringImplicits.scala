@@ -13,7 +13,7 @@ object StringImplicits {
 
   object NLPSanitizedString {
     /** Maps weird unicode characters to ASCII equivalents
-      * This list comes from http://lexsrv3.nlm.nih.gov/LexSysGroup/Projects/lvg/current/docs/designDoc/UDF/unicode/DefaultTables/symbolTable.html
+      * This list comes from http://goo.gl/qYCpw1
       */
     val unicodeCharMap = Map(
       '\u00AB' -> "\"",

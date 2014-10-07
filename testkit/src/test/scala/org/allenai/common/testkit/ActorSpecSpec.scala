@@ -28,9 +28,10 @@ class ActorSpecSpec(actorSystem: ActorSystem) extends ActorSpec(actorSystem) {
 
   it should "test for N expected messages" in {
     val echo = system.actorOf(Props[EchoActor])
-    echo ! Message("hi", 10)
+    val messageCount = 10
+    echo ! Message("hi", messageCount)
 
     // receiveN is a helper provided by the Akka TestKit
-    receiveN(10)
+    receiveN(messageCount)
   }
 }

@@ -9,7 +9,7 @@ import scala.concurrent.duration._
 trait FutureHelpers { self: AllenAiBaseSpec =>
 
   /** Default Timout for awaiting results from futures */
-  def defaultTimeout = 5.seconds
+  def defaultTimeout: Duration = 5.seconds
 
   /** Block for result with the defaultTimeout */
   def await[A](f: => Future[A]): A = Await.result(f, defaultTimeout)
