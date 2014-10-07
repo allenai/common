@@ -103,18 +103,12 @@ object Version {
 
     override def read(json: JsValue): Version = {
       val jsObject = json.asJsObject
-      val gitSha1 = jsObject.get[String]("git").getOrElse {
-        throw new SerializationException("No git field")
-      }
-      val commitDate = jsObject.get[Long]("commitDate").getOrElse {
-        throw new SerializationException("No commitDate field")
-      }
-      val artifactVersion = jsObject.get[String]("artifact").getOrElse {
-        throw new SerializationException("No artifact field")
-      }
+      val gitSha1 = jsObject.apply[String]("git")
+      val commitDate = jsObject.apply[Long]("commitDate")
+      val artifactVersion = jsObject.apply[String]("artifact")
       val repoUrl = jsObject.get[String]("repoUrl")
 
-       Version(GitVersion(gitSha1, commitDate, repoUrl), artifactVersion)
+      Version(GitVersion(gitSha1, commitDate, repoUrl), artifactVersion)
     }
   }
 }
