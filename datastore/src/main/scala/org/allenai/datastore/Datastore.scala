@@ -4,8 +4,10 @@ import org.allenai.common.Resource
 import org.allenai.common.Logging
 
 import com.amazonaws.AmazonServiceException
-import com.amazonaws.services.s3.model.AmazonS3Exception
+import com.amazonaws.services.s3.model.{ListObjectsRequest, ObjectListing, AmazonS3Exception}
 import org.apache.commons.io.FileUtils
+
+import scala.collection.JavaConversions._
 
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
@@ -248,6 +250,22 @@ class Datastore(val s3config: S3Config) extends Logging {
     directoryExists(Locator(group, name, version))
   def directoryExists(locator: Locator): Boolean =
     fileExists(locator.zipLocator)
+
+  def listGroups: Set[String] = {
+    def getAllListings(listing: ObjectListing): Set[String] = {
+      val prefixes = listing.getCommonPrefixes.map(s => s.stripSuffix("/"))
+      prefixes.toSet ++ (if (listing.isTruncated) {
+        getAllListings(s3config.service.listNextBatchOfObjects(listing))
+      } else {
+        Set.empty
+      })
+    }
+
+    val listObjectsRequest =
+      new ListObjectsRequest().withBucketName(s3config.bucket).withPrefix("").withDelimiter("/")
+    val firstListing = s3config.service.listObjects(listObjectsRequest)
+    getAllListings(firstListing)
+  }
 
   def wipeCache(): Unit = {
     FileUtils.deleteDirectory(cacheDir.toFile)
