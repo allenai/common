@@ -34,11 +34,11 @@ class Datastore(val s3config: S3Config) extends Logging {
       }
     }
     def s3key: String = s"$group/$nameWithVersion"
-    def localCacheKey: String = s3key
-    def flatLocalCacheKey: String = localCacheKey.replace('/', '%')
-    def localCachePath: Path = cacheDir.resolve(localCacheKey)
-    def lockfilePath: Path = cacheDir.resolve(localCacheKey + ".lock")
-    def zipLocator: Locator = copy(name = name + ".zip")
+    private[Datastore] def localCacheKey: String = s3key
+    private[Datastore] def flatLocalCacheKey: String = localCacheKey.replace('/', '%')
+    private[Datastore] def localCachePath: Path = cacheDir.resolve(localCacheKey)
+    private[Datastore] def lockfilePath: Path = cacheDir.resolve(localCacheKey + ".lock")
+    private[Datastore] def zipLocator: Locator = copy(name = name + ".zip")
   }
 
   class DoesNotExistException(
