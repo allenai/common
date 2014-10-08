@@ -4,7 +4,7 @@ import AssemblyKeys._
 
 name := "common-datastore-cli"
 
-libraryDependencies ++= Seq(sl4j, scopt)
+libraryDependencies ++= Seq(slf4j, scopt)
 
 assemblySettings
 

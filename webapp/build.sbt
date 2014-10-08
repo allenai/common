@@ -4,7 +4,7 @@ name := "common-webapp"
 
 libraryDependencies ++= Seq(
   akkaModule("actor"),
-  sl4j,
+  slf4j,
   sprayJson,
   sprayRouting,
   typesafeConfig)
