@@ -90,7 +90,7 @@ class DatastoreSpec extends UnitSpec {
         datastore.publishFile(fullFilenameString, group, filename, 13, false)
       }
 
-      for(filename <- filenames) {
+      for (filename <- filenames) {
         val path = datastore.filePath(group, filename, 13)
         assert(FileUtils.contentEquals(path.toFile, testfilesDir.resolve(filename).toFile))
       }
