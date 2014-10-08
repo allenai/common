@@ -44,8 +44,8 @@ object DownloadApp extends App {
     } text ("Version number of the object in the datastore")
 
     opt[String]('d', "datastore") action { (d, c) =>
-      c.copy(datastore = new Datastore(d))
-    } text (s"Datastore to use. Default is ${Datastore.name}")
+      c.copy(datastore = Datastore(d))
+    } text (s"Datastore to use. Default is ${Datastore.defaultName}")
 
     help("help")
   }

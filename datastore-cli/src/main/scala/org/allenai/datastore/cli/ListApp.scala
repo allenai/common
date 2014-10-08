@@ -9,8 +9,8 @@ object ListApp extends App {
 
   val parser = new scopt.OptionParser[Config]("scopt") {
     opt[String]('d', "datastore") action { (d, c) =>
-      c.copy(datastore = new Datastore(d))
-    } text (s"Datastore to use. Default is ${Datastore.name}")
+      c.copy(datastore = Datastore(d))
+    } text (s"Datastore to use. Default is ${Datastore.defaultName}")
 
     opt[String]('g', "group") action { (g, c) =>
       c.copy(group = Some(g))

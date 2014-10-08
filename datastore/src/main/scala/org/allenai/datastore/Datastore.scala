@@ -4,6 +4,8 @@ import org.allenai.common.Resource
 import org.allenai.common.Logging
 
 import com.amazonaws.AmazonServiceException
+import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.services.s3.AmazonS3Client
 import com.amazonaws.services.s3.model.{ ListObjectsRequest, ObjectListing, AmazonS3Exception }
 import org.apache.commons.io.FileUtils
 
@@ -13,13 +15,11 @@ import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.zip.{ ZipEntry, ZipOutputStream, ZipFile }
 
-class Datastore(val s3config: S3Config) extends Logging {
-  def this(datastore: String) = this(new S3Config(datastore))
-
+class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
   private val systemTempDir = Paths.get(System.getProperty("java.io.tmpdir"))
-  private val cacheDir = systemTempDir.resolve("ai2-datastore-cache").resolve(s3config.bucket)
+  private val cacheDir = systemTempDir.resolve("ai2-datastore-cache").resolve(name)
 
-  def name: String = s3config.bucket
+  def bucketName: String = s"ai2-datastore-$name"
 
   /** Identifies a single version of a file or directory in the datastore */
   case class Locator(group: String, name: String, version: Int) {
@@ -81,7 +81,7 @@ class Datastore(val s3config: S3Config) extends Logging {
     cause)
 
   private def getS3Object(key: String) =
-    s3config.service.getObject(s3config.bucket, key).getObjectContent
+    s3.getObject(bucketName, key).getObjectContent
 
   private def waitForLockfile(lockfile: Path): Unit = {
     // TODO: Use watch interfaces instead of busy wait
@@ -220,7 +220,7 @@ class Datastore(val s3config: S3Config) extends Logging {
     if (!overwrite && fileExists(locator)) {
       throw new AlreadyExistsException(locator)
     }
-    s3config.service.putObject(s3config.bucket, locator.s3key, file.toFile)
+    s3.putObject(bucketName, locator.s3key, file.toFile)
   }
 
   def publishDirectory(
@@ -265,7 +265,7 @@ class Datastore(val s3config: S3Config) extends Logging {
     fileExists(Locator(group, name, version))
   def fileExists(locator: Locator): Boolean = {
     try {
-      s3config.service.getObjectMetadata(s3config.bucket, locator.s3key)
+      s3.getObjectMetadata(bucketName, locator.s3key)
       true
     } catch {
       case e: AmazonServiceException if e.getStatusCode == 404 =>
@@ -284,19 +284,19 @@ class Datastore(val s3config: S3Config) extends Logging {
       newListing: ObjectListing): Seq[ObjectListing] = {
       val concatenation = listings :+ newListing
       if (newListing.isTruncated) {
-        concatenateListings(concatenation, s3config.service.listNextBatchOfObjects(newListing))
+        concatenateListings(concatenation, s3.listNextBatchOfObjects(newListing))
       } else {
         concatenation
       }
     }
 
-    concatenateListings(Seq.empty, s3config.service.listObjects(request))
+    concatenateListings(Seq.empty, s3.listObjects(request))
   }
 
   def listGroups: Set[String] = {
     val listObjectsRequest =
       new ListObjectsRequest().
-        withBucketName(s3config.bucket).
+        withBucketName(bucketName).
         withPrefix("").
         withDelimiter("/")
     getAllListings(listObjectsRequest).flatMap(_.getCommonPrefixes).map(_.stripSuffix("/")).toSet
@@ -305,7 +305,7 @@ class Datastore(val s3config: S3Config) extends Logging {
   def listGroupContents(group: String): Set[Locator] = {
     val listObjectsRequest =
       new ListObjectsRequest().
-        withBucketName(s3config.bucket).
+        withBucketName(bucketName).
         withPrefix(group + "/").
         withDelimiter("/")
     getAllListings(listObjectsRequest).flatMap(_.getObjectSummaries).map { os =>
@@ -316,8 +316,22 @@ class Datastore(val s3config: S3Config) extends Logging {
   def wipeCache(): Unit = {
     FileUtils.deleteDirectory(cacheDir.toFile)
   }
+
+  def createBucketIfNotExists(): Unit = {
+    s3.createBucket(bucketName)
+  }
 }
 
-object Datastore extends Datastore(new S3Config) {
+object Datastore extends Datastore("public", new AmazonS3Client()) {
+  val defaultName = Datastore.name
 
+  def apply(): Datastore = Datastore(defaultName)
+  def apply(name: String): Datastore = new Datastore(name, new AmazonS3Client())
+
+  def apply(accessKey: String, secretAccessKey: String): Datastore =
+    Datastore(defaultName, accessKey, secretAccessKey)
+  def apply(name: String, accessKey: String, secretAccessKey: String): Datastore =
+    new Datastore(
+      name,
+      new AmazonS3Client(new BasicAWSCredentials(accessKey, secretAccessKey)))
 }

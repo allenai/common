@@ -31,8 +31,8 @@ object UploadApp extends App {
     } text ("Version number to store the file or directory under")
 
     opt[String]('d', "datastore") action { (d, c) =>
-      c.copy(datastore = new Datastore(d))
-    } text (s"Datastore to use. Default is ${Datastore.name}")
+      c.copy(datastore = Datastore(d))
+    } text (s"Datastore to use. Default is ${Datastore.defaultName}")
 
     opt[Boolean]("overwrite") action { (_, c) =>
       c.copy(overwrite = true)

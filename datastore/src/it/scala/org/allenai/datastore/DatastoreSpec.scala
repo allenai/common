@@ -12,7 +12,7 @@ import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
 
-import java.nio.file.{Paths, StandardCopyOption, Path, Files}
+import java.nio.file.{StandardCopyOption, Path, Files}
 import java.util.UUID
 import java.util.zip.ZipFile
 
@@ -51,14 +51,14 @@ class DatastoreSpec extends UnitSpec {
   }
 
   def makeTestDatastore: Datastore = {
-    val bucketname = "ai2-datastore-test-" + UUID.randomUUID().toString
-    val config = new S3Config(bucketname)
-    config.service.createBucket(bucketname)
+    val storename = "test-" + UUID.randomUUID().toString
+    val datastore = Datastore(storename)
+    datastore.createBucketIfNotExists()
 
     // Wait 20 seconds, because bucket creation is not instantaneous in S3
     Thread.sleep(20000)
 
-    new Datastore(config)
+    datastore
   }
 
   def deleteDatastore(datastore: Datastore): Unit = {
@@ -66,8 +66,8 @@ class DatastoreSpec extends UnitSpec {
     datastore.wipeCache()
 
     // delete everything in the bucket
-    val s3 = datastore.s3config.service
-    val bucket = datastore.s3config.bucket
+    val s3 = datastore.s3
+    val bucket = datastore.bucketName
     var listing = s3.listObjects(bucket)
     while(listing != null) {
       listing.getObjectSummaries.toList.foreach(summary =>
@@ -106,15 +106,15 @@ class DatastoreSpec extends UnitSpec {
     try {
       datastore.publishFile(testfilesDir.resolve(testfile), group, testfile, 83, false)
 
-      intercept[Datastore.DoesNotExistException] {
+      intercept[datastore.DoesNotExistException] {
         datastore.filePath(group, testfile, 13)
       }
 
-      intercept[Datastore.DoesNotExistException] {
+      intercept[datastore.DoesNotExistException] {
         datastore.filePath(group, testfile + ".does_not_exist", 83)
       }
 
-      intercept[Datastore.DoesNotExistException] {
+      intercept[datastore.DoesNotExistException] {
         datastore.filePath(group + ".does_not_exist", testfile, 83)
       }
     } finally {
