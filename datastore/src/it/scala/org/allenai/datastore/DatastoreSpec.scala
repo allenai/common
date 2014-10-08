@@ -1,6 +1,6 @@
 package org.allenai.datastore
 
-import org.allenai.common.Resource
+import org.allenai.common.{Timing, Resource}
 import org.allenai.common.testkit.UnitSpec
 
 import org.apache.commons.io.FileUtils
@@ -162,20 +162,14 @@ class DatastoreSpec extends UnitSpec {
         assert(path.toFile.length() === testfilePath.toFile.length())
       }
 
-      def time(f: => Unit) = {
-        val start = System.nanoTime()
-        f
-        System.nanoTime() - start
-      }
-
       val delayInMs: Long = 250
-      val firstTime = future { time(downloadAndCheckFile) }
+      val firstTime = future { Timing.time(downloadAndCheckFile) }
       Thread.sleep(delayInMs)
-      val secondTime = future { time(downloadAndCheckFile) }
+      val secondTime = future { Timing.time(downloadAndCheckFile) }
 
       // The second one has to wait for the first one to finish before it can
       // finish, so it should be slower.
-      assert(Await.result(firstTime, 10 minutes) < Await.result(secondTime, 10 minutes) + delayInMs * 1000000)
+      assert(Await.result(firstTime, 10 minutes) < Await.result(secondTime, 10 minutes) + delayInMs.milliseconds)
     } finally {
       deleteDatastore(datastore)
     }
