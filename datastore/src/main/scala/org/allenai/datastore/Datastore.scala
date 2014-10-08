@@ -4,7 +4,7 @@ import org.allenai.common.Resource
 import org.allenai.common.Logging
 
 import com.amazonaws.AmazonServiceException
-import com.amazonaws.services.s3.model.{ListObjectsRequest, ObjectListing, AmazonS3Exception}
+import com.amazonaws.services.s3.model.{ ListObjectsRequest, ObjectListing, AmazonS3Exception }
 import org.apache.commons.io.FileUtils
 
 import scala.collection.JavaConversions._
