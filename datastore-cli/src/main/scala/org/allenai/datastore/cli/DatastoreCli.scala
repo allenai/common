@@ -8,8 +8,10 @@ object DatastoreCli extends App {
       DownloadApp.main(args.drop(1))
     case Some("list") | Some("ls") =>
       ListApp.main(args.drop(1))
+    case Some("wipeCache") =>
+      WipeCacheApp.main(args.drop(1))
     case _ =>
       println(s"Usage: ${this.getClass.getName} <command>")
-      println("<command> is one of {upload, download, list}")
+      println("<command> is one of {upload, download, list, wipeCache}")
   }
 }
