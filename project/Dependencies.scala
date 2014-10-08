@@ -27,4 +27,6 @@ object Dependencies {
   val awsJavaSdk = "com.amazonaws" % "aws-java-sdk" % "1.8.9.1"
   val commonsIO = "commons-io" % "commons-io" % "2.4"
   val scopt = "com.github.scopt" %% "scopt" % "3.2.0"
+  val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.1.2"
+  val logbackCore = "ch.qos.logback" % "logback-core" % "1.1.2"
 }
