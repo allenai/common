@@ -28,8 +28,8 @@ object DownloadApp extends App {
       }
     }
 
-    note("If you specify neither assumeDirectory nor assumeFile, the tool will autodetect whether " +
-      "object in the datastore is a file or a directory.")
+    note("If you specify neither assumeDirectory nor assumeFile, the tool will autodetect " +
+      "whether the object in the datastore is a file or a directory.")
 
     opt[String]('g', "group") required () action { (g, c) =>
       c.copy(group = g)
