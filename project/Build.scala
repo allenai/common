@@ -13,7 +13,7 @@ object CommonBuild extends Build {
     conflictManager := ConflictManager.strict,
     dependencyOverrides ++= Dependencies.Overrides,
     resolvers ++= Dependencies.Resolvers
-  ) ++ 
+  ) ++
     Publish.settings ++
     releaseSettings
 
@@ -42,6 +42,6 @@ object CommonBuild extends Build {
 
   lazy val root = Project(id = "root", base = file(".")).settings(
     // Don't publish a jar for the root project.
-    publishTo := None, publish := { }, publishLocal := { }
+    publishTo := Some("dummy" at "nowhere"), publish := { }, publishLocal := { }
   ).aggregate(webapp, common, testkit, pipeline).enablePlugins(AllenaiReleasePlugin)
 }
