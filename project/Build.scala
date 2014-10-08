@@ -57,6 +57,6 @@ object CommonBuild extends Build {
 
   lazy val common = Project(id = "common", base = file(".")).settings(
     // Don't publish a jar for the root project.
-    publishTo := None, publish := { }, publishLocal := { }
-  ).aggregate(webapp, core, testkit, pipeline, datastore, datastoreCli).enablePlugins(AllenaiReleasePlugin)
+    publishTo := Some("dummy" at "nowhere"), publish := { }, publishLocal := { }
+  ).aggregate(webapp, core, testkit, pipeline).enablePlugins(AllenaiReleasePlugin)
 }
