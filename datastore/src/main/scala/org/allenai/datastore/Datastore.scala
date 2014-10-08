@@ -23,6 +23,8 @@ class Datastore(val s3config: S3Config) extends Logging {
 
   /** Identifies a single version of a file or directory in the datastore */
   case class Locator(group: String, name: String, version: Int) {
+    require(!group.contains("/"))
+    require(!name.contains("/"))
     require(version > 0)
 
     def nameWithVersion: String = {
@@ -39,6 +41,31 @@ class Datastore(val s3config: S3Config) extends Logging {
     private[Datastore] def localCachePath: Path = cacheDir.resolve(localCacheKey)
     private[Datastore] def lockfilePath: Path = cacheDir.resolve(localCacheKey + ".lock")
     private[Datastore] def zipLocator: Locator = copy(name = name + ".zip")
+  }
+
+  object Locator {
+    private[Datastore] def fromKey(key: String) = {
+      val withExtension = """([^/]*)/(.*)-v(\d*)\.(.*)""".r
+      val withoutExtension = """([^/]*)/(.*)-v(\d*)""".r
+
+      // pattern matching on Int
+      object Int {
+        def unapply(s: String): Option[Int] = try {
+          Some(s.toInt)
+        } catch {
+          case _: java.lang.NumberFormatException => None
+        }
+      }
+
+      key match {
+        case withExtension(group, name, Int(version), ext) =>
+          Locator(group, s"$name.$ext", version)
+        case withoutExtension(group, name, Int(version)) =>
+          Locator(group, name, version)
+        case _ =>
+          throw new IllegalArgumentException(s"$key cannot be parsed as a datastore key")
+      }
+    }
   }
 
   class DoesNotExistException(
@@ -251,20 +278,39 @@ class Datastore(val s3config: S3Config) extends Logging {
   def directoryExists(locator: Locator): Boolean =
     fileExists(locator.zipLocator)
 
-  def listGroups: Set[String] = {
-    def getAllListings(listing: ObjectListing): Set[String] = {
-      val prefixes = listing.getCommonPrefixes.map(s => s.stripSuffix("/"))
-      prefixes.toSet ++ (if (listing.isTruncated) {
-        getAllListings(s3config.service.listNextBatchOfObjects(listing))
+  private def getAllListings(request: ListObjectsRequest) = {
+    def concatenateListings(
+      listings: Seq[ObjectListing],
+      newListing: ObjectListing): Seq[ObjectListing] = {
+      val concatenation = listings :+ newListing
+      if (newListing.isTruncated) {
+        concatenateListings(concatenation, s3config.service.listNextBatchOfObjects(newListing))
       } else {
-        Set.empty
-      })
+        concatenation
+      }
     }
 
+    concatenateListings(Seq.empty, s3config.service.listObjects(request))
+  }
+
+  def listGroups: Set[String] = {
     val listObjectsRequest =
-      new ListObjectsRequest().withBucketName(s3config.bucket).withPrefix("").withDelimiter("/")
-    val firstListing = s3config.service.listObjects(listObjectsRequest)
-    getAllListings(firstListing)
+      new ListObjectsRequest().
+        withBucketName(s3config.bucket).
+        withPrefix("").
+        withDelimiter("/")
+    getAllListings(listObjectsRequest).flatMap(_.getCommonPrefixes).map(_.stripSuffix("/")).toSet
+  }
+
+  def listGroupContents(group: String): Set[Locator] = {
+    val listObjectsRequest =
+      new ListObjectsRequest().
+        withBucketName(s3config.bucket).
+        withPrefix(group + "/").
+        withDelimiter("/")
+    getAllListings(listObjectsRequest).flatMap(_.getObjectSummaries).map { os =>
+      Locator.fromKey(os.getKey)
+    }.toSet
   }
 
   def wipeCache(): Unit = {
