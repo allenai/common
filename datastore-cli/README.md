@@ -36,13 +36,15 @@ The download command does not copy the file into your current directory or anyth
 
 ### List
 
+The list command is for exploring a datastore.
+
 ```
 # List all groups in the private datastore
 > java -jar DatastoreCLI.jar ls -d private
 org.allenai.parsers.poly-parser
 org.allenai.otter
 cc.factorie.apps.nlp
-org.allenai.corport
+org.allenai.corpora
 
 # List all items in the org.allenai.corpora group in the private datastore
 > java -jar DatastoreCli.jar ls -d private -g org.allenai.corpora
@@ -54,3 +56,25 @@ McGrawHill-Science/	1
 ```
 
 When listing the contents of a group, the result is a table. The first column contains the name of the item. The second column contains the version. All versions are shown at once. Directories are indicated by a name that ends in a slash. In this example, all items in the group are directories.
+
+### Url
+
+Datastores can be set up to make their contents available through HTTP. This is a setting on the S3 bucket. Configuring this is not exposed through the API or the CLI. However, when it is set up, it expects the items to appear at the domain `<storename>.store.dev.allenai.org`. Using this assumption, the `url` command produces the URLs that items would be found at.
+
+```
+# Get the URL of the file from the upload example
+> java -jar DatastoreCLI.jar url -n GreedyParserModel.poly.json -g org.allenai.parsers.poly-parser -v 5
+http://public.store.dev.allenai.org/org.allenai.parsers.poly-parser/GreedyParserModel.poly-v5.json
+```
+
+### Wipe cache
+
+Inevitably, sometimes the cache will get screwed up. The datastore is written to avoid this as much as possible, but it can still happen. For those cases, we have a command to wipe the cache.
+
+```
+# Wipe the cache of the default datastore 
+java -jar DatastoreCLI.jar wipeCache
+
+# Wipe the cache of the private datastore 
+java -jar DatastoreCLI.jar wipeCache -d private
+```
