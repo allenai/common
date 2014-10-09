@@ -269,6 +269,7 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
     }
   }
 
+
   //
   // Putting data into the datastore
   //
@@ -381,6 +382,7 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
       s3.putObject(bucketName, locator.s3key, path.toFile)
     }
   }
+
 
   //
   // Checking what's in the datastore
