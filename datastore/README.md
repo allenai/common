@@ -8,6 +8,8 @@ When you request an item from the datastore, it will download the item from S3 a
 
 Datastores have names. Currently, we have the `public` datastore, and the `private` one. `public` is world-accessible, while `private` is limited to AI2. This is not a feature of the datastore, just a result of the bucket configuration in S3. The default datastore is `public`.
 
+[The Datastore has a command line tool. Click to go to its documentation.](../datastore-cli/README.md)
+
 ## Getting started
 
 ### Reading from the datastore
