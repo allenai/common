@@ -516,7 +516,9 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
     FileUtils.deleteDirectory(cacheDir.toFile)
   }
 
-  /** Creates the buckey backing this datastore if necessary
+  /** Creates the bucket backing this datastore if necessary
+    *
+    * You only need to call this if you're setting up a new datastore.
     */
   def createBucketIfNotExists(): Unit = {
     s3.createBucket(bucketName)
