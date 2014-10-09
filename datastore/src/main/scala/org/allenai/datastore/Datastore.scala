@@ -11,6 +11,7 @@ import org.apache.commons.io.FileUtils
 
 import scala.collection.JavaConversions._
 
+import java.net.URL
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.zip.{ ZipEntry, ZipOutputStream, ZipFile }
@@ -309,6 +310,15 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
       Locator.fromKey(os.getKey)
     }.toSet
   }
+
+  def fileUrl(group: String, name: String, version: Int): URL =
+    url(Locator(group, name, version, false))
+
+  def directoryUrl(group: String, name: String, version: Int): URL =
+    url(Locator(group, name, version, true))
+
+  def url(locator: Locator): URL =
+    new URL("http", bucketName, locator.s3key)
 
   def wipeCache(): Unit = {
     FileUtils.deleteDirectory(cacheDir.toFile)
