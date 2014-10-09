@@ -152,7 +152,7 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
     *
     * @param file path to the file to be created
     *
-    * @return true if the file was created. false otherwise.
+    * @return true if the file was created, false if it already exists
     */
   private def tryCreateFile(file: Path): Boolean = {
     try {
