@@ -19,7 +19,7 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
   private val systemTempDir = Paths.get(System.getProperty("java.io.tmpdir"))
   private val cacheDir = systemTempDir.resolve("ai2-datastore-cache").resolve(name)
 
-  def bucketName: String = s"ai2-datastore-$name"
+  def bucketName: String = s"$name.store.dev.allenai.org"
 
   /** Identifies a single version of a file or directory in the datastore */
   case class Locator(group: String, name: String, version: Int, directory: Boolean) {
