@@ -8,7 +8,7 @@ The datastore CLI can do everything the API can do, but from the command line. T
 
 When you're in the root of the `common` project, run `sbt datastore/assembly`. After a few seconds, it will produce an executable jar file named `DatastoreCLI.jar`, and print the path where it put it. To run the CLI, you have to refer to this jar file. If you want to run the CLI a lot, it might make sense to copy it somewhere safe, and set up an alias.
 
-## Some common actions
+## The five command(ment)s
 
 The CLI has five commands, `upload`, `download`, `list`, `url`, and `wipeCache`. Here are some examples:
 
