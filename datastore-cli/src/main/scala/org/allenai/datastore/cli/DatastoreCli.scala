@@ -1,6 +1,7 @@
 package org.allenai.datastore.cli
 
 object DatastoreCli extends App {
+  // TODO: Use scopt's support for commands instead?
   args.headOption match {
     case Some("upload") | Some("up") =>
       UploadApp.main(args.drop(1))
