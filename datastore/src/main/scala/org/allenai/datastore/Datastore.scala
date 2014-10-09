@@ -34,8 +34,10 @@ import java.util.zip.{ ZipEntry, ZipOutputStream, ZipFile }
   * @param s3   properly authenticated S3 client.
   */
 class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
-  private val systemTempDir = Paths.get(System.getProperty("java.io.tmpdir"))
-  private val cacheDir = systemTempDir.resolve("ai2-datastore-cache").resolve(name)
+  private val cacheDir =
+    Paths.get(System.getProperty("java.io.tmpdir")).
+    resolve("ai2-datastore-cache").
+    resolve(name)
 
   /** Returns the name of the bucket backing this datastore
     */
