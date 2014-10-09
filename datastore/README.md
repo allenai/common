@@ -10,21 +10,61 @@ Datastores have names. Currently, we have the `public` datastore, and the `priva
 
 ## Getting started
 
+### Reading from the datastore
+
 To get a file from the default datastore, simply call this:
 ```scala
-val path = Datastore.filePath("org.allenai.store", "ExampleFile", 1)
+// Get version 4 of GreedyParserModel.json in the
+// group org.allenai.parsers.poly-parser
+val path = Datastore.filePath(
+  "org.allenai.parsers.poly-parser",
+  "GreedyParserModel.json",
+  4)
 ```
 
 To get a directory, call this:
 ```scala
-val path = Datastore.directoryPath("org.allenai.store", "ExampleDirectory", 1)
+// Get version 1 of the WordNet directory in the
+// group org.allenai.otter
+val path = Datastore.directoryPath(
+  "org.allenai.otter",
+  "WordNet",
+  1)
 ```
 
 You can do anything with the resulting path except write to it.
 
 To access a non-default datastore, for example the `private` one, call it like this:
 ```scala
-val path = Datastore("private").filePath("org.allenai.store", "ExampleFile", 1)
+val path = Datastore("private").directoryPath(
+  "org.allenai.otter",
+  "WordNet",
+  1)
+```
+
+There is no way to automatically get the latest version from the datastore. This is by design. If you depend on the "latest" version of an item, your results are not reproducible, because someone might publish a new version and thus change what your code does.
+
+### Publishing to the datastore
+
+There are two main ways to write to the datastore, one for files, and one for directories:
+```scala
+// publish BigModel.json under the name
+// "GreedyParserModel.json", version 4
+Datastore.publishFile(
+  "BigModel.json",
+  "org.allenai.parsers.poly-parser",
+  "GreedyParserModel.json",
+  4,
+  false)
+
+// publish the wordnet directory under the
+// name "WordNet", version 1, and do so privately
+Datastore("private").publishDirectory(
+  "wordnet",
+  "org.allenai.otter",
+  "WordNet",
+  1,
+  false)
 ```
 
 ## Authentication
