@@ -137,7 +137,7 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
     // TODO: Use watch interfaces instead of busy wait
     val start = System.currentTimeMillis()
     while (Files.exists(lockfile)) {
-      val message = s"Waiting for lockfile at $lockfile}"
+      val message = s"Waiting for lockfile at $lockfile"
       if (System.currentTimeMillis() - start > 60 * 1000) {
         logger.warn(message)
       } else {
