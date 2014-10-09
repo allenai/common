@@ -17,10 +17,28 @@ import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.zip.{ ZipEntry, ZipOutputStream, ZipFile }
 
+/** Represents a datastore
+  *
+  * This is a thin layer over an S3 bucket that stores the data. Data is identified by group
+  * ("org.allenai.something"), name ("WordNet"), and version (an integer). It supports files as well
+  * as directories.
+  *
+  * Items are published to the datastore, and then referred to with the *path() methods. All data is
+  * cached, so access to all items should be very fast, except for the first time.
+  *
+  * It might make more sense to get Datastore objects from the companion object, rather than
+  * creating them here.
+  *
+  * @param name name of the datastore. Corresponds to the name of the bucket in S3. Currently we
+  *            have "public" and "private".
+  * @param s3   properly authenticated S3 client.
+  */
 class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
   private val systemTempDir = Paths.get(System.getProperty("java.io.tmpdir"))
   private val cacheDir = systemTempDir.resolve("ai2-datastore-cache").resolve(name)
 
+  /** Returns the name of the bucket backing this datastore
+    */
   def bucketName: String = s"$name.store.dev.allenai.org"
 
   /** Identifies a single version of a file or directory in the datastore */
@@ -441,7 +459,7 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
   /** Lists all items in a group
     * @param group group to search over
     * @return a set of locators, one for each item in the group. Multiple versions are multiple
-    *        locators.
+    *       locators.
     */
   def listGroupContents(group: String): Set[Locator] = {
     val listObjectsRequest =
@@ -472,7 +490,7 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
     * @param name    name of the directory
     * @param version version of the directory
     * @return URL pointing to the directory. This URL will always point to a zip file containing the
-    *        directory's contents.
+    *       directory's contents.
     */
   def directoryUrl(group: String, name: String, version: Int): URL =
     url(Locator(group, name, version, true))
