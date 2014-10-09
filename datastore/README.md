@@ -18,30 +18,33 @@ To get a file from the default datastore, simply call this:
 ```scala
 // Get version 4 of GreedyParserModel.json in the
 // group org.allenai.parsers.poly-parser
-val path = Datastore.filePath(
-  "org.allenai.parsers.poly-parser",
-  "GreedyParserModel.json",
-  4)
+val path: java.nio.file.Path =
+  Datastore.filePath(
+    "org.allenai.parsers.poly-parser",
+    "GreedyParserModel.json",
+    4)
 ```
 
 To get a directory, call this:
 ```scala
 // Get version 1 of the WordNet directory in the
 // group org.allenai.otter
-val path = Datastore.directoryPath(
-  "org.allenai.otter",
-  "WordNet",
-  1)
+val path: java.nio.file.Path =
+  Datastore.directoryPath(
+    "org.allenai.otter",
+    "WordNet",
+    1)
 ```
 
 You can do anything with the resulting path except write to it.
 
 To access a non-default datastore, for example the `private` one, call it like this:
 ```scala
-val path = Datastore("private").directoryPath(
-  "org.allenai.otter",
-  "WordNet",
-  1)
+val path: java.nio.file.Path =
+  Datastore("private").directoryPath(
+    "org.allenai.otter",
+    "WordNet",
+    1)
 ```
 
 There is no way to automatically get the latest version from the datastore. This is by design. If you depend on the "latest" version of an item, your results are not reproducible, because someone might publish a new version and thus change what your code does.
