@@ -15,6 +15,6 @@ object DatastoreCli extends App {
       UrlApp.main(args.drop(1))
     case _ =>
       println(s"Usage: ${this.getClass.getName} <command>")
-      println("<command> is one of {upload, download, list, wipeCache}")
+      println("<command> is one of {upload, download, list, url, wipeCache}")
   }
 }
