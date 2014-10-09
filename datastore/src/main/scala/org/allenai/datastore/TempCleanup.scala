@@ -5,14 +5,14 @@ import org.allenai.common.Logging
 import org.apache.commons.io.FileUtils
 
 import java.nio.file.{ DirectoryNotEmptyException, Files, Path }
+import java.util.concurrent.ConcurrentSkipListSet
 
 /** Remembers temporary files and directories that have to be cleaned up before
   * the JVM exits. As opposed to Java's File.deleteonexit(), this can clean up
   * non-empty directories.
   */
 object TempCleanup extends Logging {
-  private val rememberedPaths =
-    new java.util.concurrent.ConcurrentSkipListSet[Path]
+  private val rememberedPaths = new ConcurrentSkipListSet[Path]
 
   def remember(path: Path): Unit = {
     rememberedPaths.add(path)
