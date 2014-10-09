@@ -12,11 +12,11 @@ object DownloadApp extends App {
     datastore: Datastore = Datastore)
 
   val parser = new scopt.OptionParser[Config]("scopt") {
-    opt[Boolean]('f', "assumeFile") action { (f, c) =>
+    opt[Boolean]("assumeFile") action { (f, c) =>
       c.copy(assumeFile = f)
     } text ("Assumes that the object in the datastore is a file.")
 
-    opt[Boolean]('d', "assumeDirectory") action { (d, c) =>
+    opt[Boolean]("assumeDirectory") action { (d, c) =>
       c.copy(assumeDirectory = d)
     } text ("Assumes that the object in the datastore is a directory.")
 
@@ -52,15 +52,15 @@ object DownloadApp extends App {
 
   parser.parse(args, Config()) foreach { config =>
     val datastore = config.datastore
-    val locator = datastore.Locator(config.group, config.name, config.version)
-    val fileMode = if (config.assumeDirectory) {
-      false
-    } else if (config.assumeFile) {
+    val directory = if (config.assumeDirectory) {
       true
+    } else if (config.assumeFile) {
+      false
     } else {
-      !datastore.directoryExists(locator)
+      datastore.exists(datastore.Locator(config.group, config.name, config.version, true))
     }
 
-    println(if (fileMode) datastore.filePath(locator) else datastore.directoryPath(locator))
+    val locator = datastore.Locator(config.group, config.name, config.version, directory)
+    println(datastore.path(locator))
   }
 }

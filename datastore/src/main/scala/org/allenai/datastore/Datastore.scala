@@ -22,31 +22,35 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
   def bucketName: String = s"ai2-datastore-$name"
 
   /** Identifies a single version of a file or directory in the datastore */
-  case class Locator(group: String, name: String, version: Int) {
+  case class Locator(group: String, name: String, version: Int, directory: Boolean) {
     require(!group.contains("/"))
     require(!name.contains("/"))
     require(version > 0)
 
-    def nameWithVersion: String = {
-      val lastDotIndex = name.lastIndexOf('.')
-      if (lastDotIndex < 0) {
-        s"$name-v$version"
+    private[Datastore] def nameWithVersion: String = {
+      if (directory) {
+        s"$name-d$version.zip"
       } else {
-        name.substring(0, lastDotIndex) + s"-v$version" + name.substring(lastDotIndex)
+        val lastDotIndex = name.lastIndexOf('.')
+        if (lastDotIndex < 0) {
+          s"$name-v$version"
+        } else {
+          name.substring(0, lastDotIndex) + s"-v$version" + name.substring(lastDotIndex)
+        }
       }
     }
-    def s3key: String = s"$group/$nameWithVersion"
-    private[Datastore] def localCacheKey: String = s3key
+    private[Datastore] def s3key: String = s"$group/$nameWithVersion"
+    private[Datastore] def localCacheKey: String =
+      if (directory) s3key.stripSuffix(".zip") else s3key
     private[Datastore] def flatLocalCacheKey: String = localCacheKey.replace('/', '%')
     private[Datastore] def localCachePath: Path = cacheDir.resolve(localCacheKey)
     private[Datastore] def lockfilePath: Path = cacheDir.resolve(localCacheKey + ".lock")
-    private[Datastore] def zipLocator: Locator = copy(name = name + ".zip")
   }
 
   object Locator {
     private[Datastore] def fromKey(key: String) = {
-      val withExtension = """([^/]*)/(.*)-v(\d*)\.(.*)""".r
-      val withoutExtension = """([^/]*)/(.*)-v(\d*)""".r
+      val withExtension = """([^/]*)/(.*)-(.)(\d*)\.(.*)""".r
+      val withoutExtension = """([^/]*)/(.*)-(.)(\d*)""".r
 
       // pattern matching on Int
       object Int {
@@ -58,10 +62,12 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
       }
 
       key match {
-        case withExtension(group, name, Int(version), ext) =>
-          Locator(group, s"$name.$ext", version)
-        case withoutExtension(group, name, Int(version)) =>
-          Locator(group, name, version)
+        case withExtension(group, name, "v", Int(version), ext) =>
+          Locator(group, s"$name.$ext", version, false)
+        case withoutExtension(group, name, "v", Int(version)) =>
+          Locator(group, name, version, false)
+        case withExtension(group, name, "d", Int(version), "zip") =>
+          Locator(group, name, version, true)
         case _ =>
           throw new IllegalArgumentException(s"$key cannot be parsed as a datastore key")
       }
@@ -108,21 +114,26 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
   }
 
   def filePath(group: String, name: String, version: Int): Path =
-    filePath(Locator(group, name, version))
-  def filePath(locator: Locator): Path = {
-    Files.createDirectories(cacheDir)
+    path(Locator(group, name, version, false))
+  def directoryPath(group: String, name: String, version: Int): Path =
+    path(Locator(group, name, version, true))
 
+  def path(locator: Locator): Path = {
+    Files.createDirectories(cacheDir)
+    Files.createDirectories(locator.lockfilePath.getParent)
     waitForLockfile(locator.lockfilePath)
 
-    if (!Files.isRegularFile(locator.localCachePath)) {
-      Files.createDirectories(locator.lockfilePath.getParent)
+    if ((locator.directory && Files.isDirectory(locator.localCachePath)) ||
+      (!locator.directory && Files.isRegularFile(locator.localCachePath))) {
+      locator.localCachePath
+    } else {
       val created = tryCreateFile(locator.lockfilePath)
       if (!created) {
-        // someone else started creating this in the meantime
-        filePath(locator)
+        path(locator)
       } else {
         TempCleanup.remember(locator.lockfilePath)
         try {
+
           // We're downloading to a temp file first. If we were downloading into
           // the file directly, and we died half-way through the download, we'd
           // leave half a file, and that's not good.
@@ -137,67 +148,45 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
             case e: AmazonS3Exception if e.getErrorCode == "NoSuchKey" =>
               throw new DoesNotExistException(locator, e)
           }
-          Files.createDirectories(locator.localCachePath.getParent)
-          Files.move(tempFile, locator.localCachePath)
-          TempCleanup.forget(tempFile)
-        } finally {
-          Files.delete(locator.lockfilePath)
-          TempCleanup.forget(locator.lockfilePath)
-        }
-        locator.localCachePath
-      }
-    } else {
-      locator.localCachePath
-    }
-  }
 
-  def directoryPath(group: String, name: String, version: Int): Path =
-    directoryPath(Locator(group, name, version))
-  def directoryPath(locator: Locator): Path = {
-    Files.createDirectories(cacheDir)
+          if (locator.directory) {
+            val tempDir =
+              Files.createTempDirectory("ai2-datastore-" + locator.flatLocalCacheKey)
+            TempCleanup.remember(tempDir)
 
-    Files.createDirectories(locator.lockfilePath.getParent)
-    waitForLockfile(locator.lockfilePath)
-
-    if (Files.isDirectory(locator.localCachePath)) {
-      locator.localCachePath
-    } else {
-      val created = tryCreateFile(locator.lockfilePath)
-      if (!created) {
-        directoryPath(locator)
-      } else {
-        TempCleanup.remember(locator.lockfilePath)
-        try {
-          val tempDir =
-            Files.createTempDirectory("ai2-datastore-" + locator.flatLocalCacheKey)
-          TempCleanup.remember(tempDir)
-
-          // download and extract the zip file to the directory
-          Resource.using(new ZipFile(filePath(locator.zipLocator).toFile)) { zipFile =>
-            val entries = zipFile.entries()
-            while (entries.hasMoreElements) {
-              val entry = entries.nextElement()
-              if (entry.getName != "/") {
-                val pathForEntry = tempDir.resolve(entry.getName)
-                if (entry.isDirectory) {
-                  Files.createDirectories(pathForEntry)
-                } else {
-                  Files.createDirectories(pathForEntry.getParent)
-                  Resource.using(zipFile.getInputStream(entry))(Files.copy(_, pathForEntry))
+            // download and extract the zip file to the directory
+            Resource.using(new ZipFile(tempFile.toFile)) { zipFile =>
+              val entries = zipFile.entries()
+              while (entries.hasMoreElements) {
+                val entry = entries.nextElement()
+                if (entry.getName != "/") {
+                  val pathForEntry = tempDir.resolve(entry.getName)
+                  if (entry.isDirectory) {
+                    Files.createDirectories(pathForEntry)
+                  } else {
+                    Files.createDirectories(pathForEntry.getParent)
+                    Resource.using(zipFile.getInputStream(entry))(Files.copy(_, pathForEntry))
+                  }
                 }
               }
             }
+            Files.delete(tempFile)
+            TempCleanup.forget(tempFile)
+
+            // move the directory where it belongs
+            Files.move(tempDir, locator.localCachePath)
+            TempCleanup.forget(tempDir)
+          } else {
+            Files.createDirectories(locator.localCachePath.getParent)
+            Files.move(tempFile, locator.localCachePath)
+            TempCleanup.forget(tempFile)
           }
 
-          // move the directory where it belongs
-          Files.move(tempDir, locator.localCachePath)
-          TempCleanup.forget(tempDir)
+          locator.localCachePath
         } finally {
           Files.delete(locator.lockfilePath)
           TempCleanup.forget(locator.lockfilePath)
         }
-
-        locator.localCachePath
       }
     }
   }
@@ -215,55 +204,68 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
     name: String,
     version: Int,
     overwrite: Boolean): Unit =
-    publishFile(file, Locator(group, name, version), overwrite)
-  def publishFile(file: Path, locator: Locator, overwrite: Boolean): Unit = {
-    if (!overwrite && fileExists(locator)) {
-      throw new AlreadyExistsException(locator)
-    }
-    s3.putObject(bucketName, locator.s3key, file.toFile)
-  }
+    publish(file, Locator(group, name, version, false), overwrite)
 
+  def publishDirectory(
+    path: String,
+    group: String,
+    name: String,
+    version: Int,
+    overwrite: Boolean): Unit =
+    publishDirectory(Paths.get(path), group, name, version, overwrite)
   def publishDirectory(
     path: Path,
     group: String,
     name: String,
     version: Int,
     overwrite: Boolean): Unit =
-    publishDirectory(path, Locator(group, name, version), overwrite)
-  def publishDirectory(path: Path, locator: Locator, overwrite: Boolean): Unit = {
-    val zipFile =
-      Files.createTempFile(
-        locator.flatLocalCacheKey,
-        ".ai2-datastore.upload.zip")
-    TempCleanup.remember(zipFile)
-    try {
-      Resource.using(new ZipOutputStream(Files.newOutputStream(zipFile))) { zip =>
-        Files.walkFileTree(path, new SimpleFileVisitor[Path] {
-          override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
-            zip.putNextEntry(new ZipEntry(path.relativize(file).toString))
-            Files.copy(file, zip)
-            FileVisitResult.CONTINUE
-          }
+    publish(path, Locator(group, name, version, true), overwrite)
 
-          override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
-            if (dir != path) {
-              zip.putNextEntry(new ZipEntry(path.relativize(dir).toString + "/"))
+  def publish(path: Path, locator: Locator, overwrite: Boolean): Unit = {
+    if (!overwrite && exists(locator)) {
+      throw new AlreadyExistsException(locator)
+    }
+
+    if (locator.directory) {
+      val zipFile =
+        Files.createTempFile(
+          locator.flatLocalCacheKey,
+          ".ai2-datastore.upload.zip")
+      TempCleanup.remember(zipFile)
+      try {
+        Resource.using(new ZipOutputStream(Files.newOutputStream(zipFile))) { zip =>
+          Files.walkFileTree(path, new SimpleFileVisitor[Path] {
+            override def visitFile(file: Path, attrs: BasicFileAttributes): FileVisitResult = {
+              zip.putNextEntry(new ZipEntry(path.relativize(file).toString))
+              Files.copy(file, zip)
+              FileVisitResult.CONTINUE
             }
-            FileVisitResult.CONTINUE
-          }
-        })
-      }
 
-      publishFile(zipFile, locator.zipLocator, overwrite)
-    } finally {
-      Files.deleteIfExists(zipFile)
-      TempCleanup.forget(zipFile)
+            override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
+              if (dir != path) {
+                zip.putNextEntry(new ZipEntry(path.relativize(dir).toString + "/"))
+              }
+              FileVisitResult.CONTINUE
+            }
+          })
+        }
+
+        s3.putObject(bucketName, locator.s3key, zipFile.toFile)
+      } finally {
+        Files.deleteIfExists(zipFile)
+        TempCleanup.forget(zipFile)
+      }
+    } else {
+      s3.putObject(bucketName, locator.s3key, path.toFile)
     }
   }
 
   def fileExists(group: String, name: String, version: Int): Boolean =
-    fileExists(Locator(group, name, version))
-  def fileExists(locator: Locator): Boolean = {
+    exists(Locator(group, name, version, false))
+  def directoryExists(group: String, name: String, version: Int): Boolean =
+    exists(Locator(group, name, version, true))
+
+  def exists(locator: Locator): Boolean = {
     try {
       s3.getObjectMetadata(bucketName, locator.s3key)
       true
@@ -272,11 +274,6 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
         false
     }
   }
-
-  def directoryExists(group: String, name: String, version: Int): Boolean =
-    directoryExists(Locator(group, name, version))
-  def directoryExists(locator: Locator): Boolean =
-    fileExists(locator.zipLocator)
 
   private def getAllListings(request: ListObjectsRequest) = {
     def concatenateListings(

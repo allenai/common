@@ -22,7 +22,10 @@ object ListApp extends App {
       case None =>
         config.datastore.listGroups.foreach(println)
       case Some(group) =>
-        config.datastore.listGroupContents(group).foreach(l => println(l.s3key))
+        config.datastore.listGroupContents(group).foreach { l =>
+          val nameSuffix = if (l.directory) "/" else ""
+          println(s"${l.name}$nameSuffix\t${l.version}")
+        }
     }
   }
 }

@@ -42,17 +42,11 @@ object UploadApp extends App {
   }
 
   parser.parse(args, Config()) foreach { config =>
-    val locator = config.datastore.Locator(config.group, config.name, config.version)
-    if (config.path.isDirectory) {
-      config.datastore.publishDirectory(
-        config.path.toPath,
-        locator,
-        config.overwrite)
-    } else {
-      config.datastore.publishFile(
-        config.path.toPath,
-        locator,
-        config.overwrite)
-    }
+    val locator = config.datastore.Locator(
+      config.group,
+      config.name,
+      config.version,
+      config.path.isDirectory)
+    config.datastore.publish(config.path.toPath, locator, config.overwrite)
   }
 }
