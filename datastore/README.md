@@ -29,6 +29,35 @@ val path = Datastore("private").filePath("org.allenai.store", "ExampleFile", 1)
 
 ## Authentication
 
+The datastore client needs to be authenticated with AWS. This happens using Amazon's default methods. In detail, this is what that means:
+
+### On your Mac
+
+Create a file in `~/.aws/credentials`, with the following content:
+
+```
+[default]
+aws_access_key_id = <MYACCESSKEY>
+aws_secret_access_key = <mysecretaccesskey>
+```
+
+Please replace `<MYACCESSKEY>` and `<mysecretaccesskey>` as appropriate. You can get these credentials in the [AWS Console, under IAM/Users](https://console.aws.amazon.com/iam/home?region=us-west-2#users). Click on your username, and then "Manage Credentials". You should be able to add a key pair there.
+
+### In EC2
+
+In EC2, Amazon promises that the credentials will be fetched from the Amazon EC2 Metadata Service, which should be completely transparent and need no intervention by an admin. If that doesn't work, we can still use the approach that works for the Mac.
+
+### Other options
+
+Since the datastore is just delegating authentication to the Amazon SDK, [all the possibilities from the SDK work](http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/services/s3/AmazonS3Client.html#AmazonS3Client()).
+
+You can also go completely manual and create the datastore with a access key and secret key pair. To do this, create a datastore like this:
+```scala
+val datastore = Datastore("<myaccesskey>", "<mysecretkey>")
+val privateDatastore = Datastore("private", "<myaccesskey>", "<mysecretkey>")
+```
+
+
 ## Cache location
 
 The cache lives in the directory pointed to by the system property `java.io.tempdir`. On Linux, this is `/tmp`. On Mac, this is somewhere in `/var/folders`. Losing the cache is not harmful, but it means that everything has to be downloaded again.
