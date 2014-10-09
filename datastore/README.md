@@ -6,9 +6,26 @@ The datastore stores *items*, which can be files or directories. Every item belo
 
 When you request an item from the datastore, it will download the item from S3 and put it into the cache, which is a file or directory on the local file system. The path it returns is a path to that file or directory. If it's already there, it skips the download and simply returns the path.
 
-Datastores have names. Currently, we have the `public` datastore, and the `private` one. `public` is world-accessible, while `private` is limited to AI2. This is not a feature of the datastore, just a result of the bucket configuration in S3.
+Datastores have names. Currently, we have the `public` datastore, and the `private` one. `public` is world-accessible, while `private` is limited to AI2. This is not a feature of the datastore, just a result of the bucket configuration in S3. The default datastore is `public`.
 
 ## Getting started
+
+To get a file from the default datastore, simply call this:
+```scala
+val path = Datastore.filePath("org.allenai.store", "ExampleFile", 1)
+```
+
+To get a directory, call this:
+```scala
+val path = Datastore.directoryPath("org.allenai.store", "ExampleDirectory", 1)
+```
+
+You can do anything with the resulting path except write to it.
+
+To access a non-default datastore, for example the `private` one, call it like this:
+```scala
+val path = Datastore("private").filePath("org.allenai.store", "ExampleFile", 1)
+```
 
 ## Authentication
 
