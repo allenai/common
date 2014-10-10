@@ -540,3 +540,5 @@ object Datastore extends Datastore("public", DefaultS3) {
       name,
       new AmazonS3Client(new BasicAWSCredentials(accessKey, secretAccessKey)))
 }
+
+object PrivateDatastore extends Datastore("private", DefaultS3)
