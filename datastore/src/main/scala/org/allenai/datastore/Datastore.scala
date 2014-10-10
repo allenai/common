@@ -30,14 +30,14 @@ import java.util.zip.{ ZipEntry, ZipOutputStream, ZipFile }
   * creating them here.
   *
   * @param name name of the datastore. Corresponds to the name of the bucket in S3. Currently we
-  *            have "public" and "private".
+  *           have "public" and "private".
   * @param s3   properly authenticated S3 client.
   */
 class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
   private val cacheDir =
     Paths.get(System.getProperty("java.io.tmpdir")).
-    resolve("ai2-datastore-cache").
-    resolve(name)
+      resolve("ai2-datastore-cache").
+      resolve(name)
 
   /** Returns the name of the bucket backing this datastore
     */
@@ -271,7 +271,6 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
     }
   }
 
-
   //
   // Putting data into the datastore
   //
@@ -366,7 +365,9 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
               FileVisitResult.CONTINUE
             }
 
-            override def preVisitDirectory(dir: Path, attrs: BasicFileAttributes): FileVisitResult = {
+            override def preVisitDirectory(
+              dir: Path,
+              attrs: BasicFileAttributes): FileVisitResult = {
               if (dir != path) {
                 zip.putNextEntry(new ZipEntry(path.relativize(dir).toString + "/"))
               }
@@ -384,7 +385,6 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
       s3.putObject(bucketName, locator.s3key, path.toFile)
     }
   }
-
 
   //
   // Checking what's in the datastore
@@ -463,7 +463,7 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
   /** Lists all items in a group
     * @param group group to search over
     * @return a set of locators, one for each item in the group. Multiple versions are multiple
-    *       locators.
+    *      locators.
     */
   def listGroupContents(group: String): Set[Locator] = {
     val listObjectsRequest =
@@ -494,7 +494,7 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
     * @param name    name of the directory
     * @param version version of the directory
     * @return URL pointing to the directory. This URL will always point to a zip file containing the
-    *       directory's contents.
+    *      directory's contents.
     */
   def directoryUrl(group: String, name: String, version: Int): URL =
     url(Locator(group, name, version, true))
@@ -506,7 +506,6 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
   def url(locator: Locator): URL =
     new URL("http", bucketName, locator.s3key)
 
-  
   //
   // Assorted stuff
   //

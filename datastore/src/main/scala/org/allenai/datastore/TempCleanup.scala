@@ -14,24 +14,22 @@ import java.util.concurrent.ConcurrentSkipListSet
 object TempCleanup extends Logging {
   private val rememberedPaths = new ConcurrentSkipListSet[Path]
 
-  /**
-   * Add a path to the list of things to clean up.
-   *
-   * Adding the same path twice has no effect.
-   *
-   * @param path the path to clean up
-   */
+  /** Add a path to the list of things to clean up.
+    *
+    * Adding the same path twice has no effect.
+    *
+    * @param path the path to clean up
+    */
   def remember(path: Path): Unit = {
     rememberedPaths.add(path)
   }
 
-  /**
-   * Removes a path from the list of things to clean up.
-   *
-   * Removing a path that's not there has no effect.
-   *
-   * @param path the path to no longer clean up
-   */
+  /** Removes a path from the list of things to clean up.
+    *
+    * Removing a path that's not there has no effect.
+    *
+    * @param path the path to no longer clean up
+    */
   def forget(path: Path): Unit = {
     rememberedPaths.remove(path)
   }
