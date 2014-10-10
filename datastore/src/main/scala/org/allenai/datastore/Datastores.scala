@@ -1,5 +1,6 @@
 package org.allenai.datastore
 
+import java.io.InputStream
 import java.nio.file.{ Files, Path }
 
 /** A collection of convenience methods for accessing the datastore from a class
@@ -22,9 +23,9 @@ trait Datastores {
   def publicFile(name: String, version: Int): Path =
     publicDatastore.filePath(datastoreGroup, name, version)
 
-  def privateStream(name: String, version: Int) =
+  def privateStream(name: String, version: Int): InputStream =
     Files.newInputStream(privateFile(name, version))
-  def publicStream(name: String, version: Int) =
+  def publicStream(name: String, version: Int): InputStream =
     Files.newInputStream(publicFile(name, version))
 
   def privateDirectory(name: String, version: Int): Path =
