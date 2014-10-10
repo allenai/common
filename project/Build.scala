@@ -13,7 +13,7 @@ object CommonBuild extends Build {
     conflictManager := ConflictManager.strict,
     dependencyOverrides ++= Dependencies.Overrides,
     resolvers ++= Dependencies.Resolvers
-  ) ++
+  ) ++ 
     Publish.settings ++
     releaseSettings
 
@@ -22,7 +22,7 @@ object CommonBuild extends Build {
     base = file("testkit"),
     settings = buildSettings).enablePlugins(AllenaiReleasePlugin)
 
-  lazy val common = Project(
+  lazy val core = Project(
     id = "core",
     base = file("core"),
     settings = buildSettings
@@ -32,16 +32,31 @@ object CommonBuild extends Build {
     id = "webapp",
     base = file("webapp"),
     settings = buildSettings
-  ).enablePlugins(AllenaiReleasePlugin).dependsOn(common)
+  ).enablePlugins(AllenaiReleasePlugin).dependsOn(core)
 
   lazy val pipeline = Project(
     id = "pipeline",
     base = file("pipeline"),
     settings = buildSettings
-  ).dependsOn(testkit % "test->compile", common).enablePlugins(AllenaiReleasePlugin)
+  ).dependsOn(testkit % "test->compile", core).enablePlugins(AllenaiReleasePlugin)
 
-  lazy val root = Project(id = "root", base = file(".")).settings(
+  lazy val datastore = Project(
+    id = "datastore",
+    base = file("datastore"),
+    settings = buildSettings ++ Defaults.itSettings
+  ).dependsOn(core, testkit % "test,it").
+    enablePlugins(AllenaiReleasePlugin).
+    configs(IntegrationTest)
+
+  lazy val datastoreCli = Project(
+    id = "datastore-cli",
+    base = file("datastore-cli"),
+    settings = buildSettings
+  ).dependsOn(datastore).
+    enablePlugins(AllenaiReleasePlugin)
+
+  lazy val common = Project(id = "common", base = file(".")).settings(
     // Don't publish a jar for the root project.
     publishTo := Some("dummy" at "nowhere"), publish := { }, publishLocal := { }
-  ).aggregate(webapp, common, testkit, pipeline).enablePlugins(AllenaiReleasePlugin)
+  ).aggregate(webapp, core, testkit, pipeline, datastore, datastoreCli).enablePlugins(AllenaiReleasePlugin)
 }
