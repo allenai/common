@@ -526,11 +526,13 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
   }
 }
 
-object Datastore extends Datastore("public", new AmazonS3Client()) {
+private object DefaultS3 extends AmazonS3Client()
+
+object Datastore extends Datastore("public", DefaultS3) {
   val defaultName = Datastore.name
 
   def apply(): Datastore = Datastore(defaultName)
-  def apply(name: String): Datastore = new Datastore(name, new AmazonS3Client())
+  def apply(name: String): Datastore = new Datastore(name, DefaultS3)
 
   def apply(accessKey: String, secretAccessKey: String): Datastore =
     Datastore(defaultName, accessKey, secretAccessKey)
