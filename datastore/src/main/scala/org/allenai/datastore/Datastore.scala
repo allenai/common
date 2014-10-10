@@ -506,6 +506,7 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
   def url(locator: Locator): URL =
     new URL("http", bucketName, locator.s3key)
 
+  
   //
   // Assorted stuff
   //
