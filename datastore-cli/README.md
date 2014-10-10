@@ -6,7 +6,14 @@ The datastore CLI can do everything the API can do, but from the command line. T
 
 ## Building and installation
 
-When you're in the root of the `common` project, run `sbt datastore/assembly`. After a few seconds, it will produce an executable jar file named `DatastoreCLI.jar`, and print the path where it put it. To run the CLI, you have to refer to this jar file. If you want to run the CLI a lot, it might make sense to copy it somewhere safe, and set up an alias.
+When you're in the root of the `common` project, run `sbt datastore/assembly`. After a few seconds, it will produce an executable jar file named `DatastoreCLI.jar`, and print the path where it put it. To run the CLI, you have to refer to this jar file: `java -jar <path>/DatastoreCLI.jar <options>`
+
+If you want to run the CLI a lot, it might make sense to copy it somewhere safe, and set up an alias. I copy the jar into my `~/bin` folder, and add an alias to my `~/.bash_profile` that looks like this:
+```
+alias ai2datastore="java -jar ~/bin/DatastoreCLI.jar"
+```
+
+Now, I can just type `ai2datastore list`, and it shows the list of groups in the public datastore.
 
 ## The five command(ment)s
 
