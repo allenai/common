@@ -113,6 +113,10 @@ The datastore is completely thread-safe. Similarly, two processes (and by extens
 
 To achieve this, it assumes that temporary files are created on the same file system where the cache lives. This is the case in virtuall all instances. However, if that is not the case, due to a change in cache location, or by virtue of a really quirky setup, it will no longer be safe.
 
+## Blocking calls and Akka
+
+When the requested file or directory is in the cache, the datastore calls return immediately. When they're not, the call blocks while it receives the file. This may cause problems with Akka, if Akka decides to kill a thread that doesn't return within a timeout. The workaround is to warm up the cache, and request all files you ever want to request before initializing the Actor system.
+
 ## Layout in S3
 
 It's entirely possibly, encouraged even, to look at the bucket in S3. The bucket name is always `<datastorename>.store.dev.allenai.org`. The S3 keys are of the schema `<group>/<name>-v<version>` for files without extensions, `<group>/<name>-v<version>.<ext>` for files with extensions, and `<group>/<name>-d<version>.zip` for directories. 
