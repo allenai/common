@@ -11,8 +11,10 @@ import org.apache.commons.io.FileUtils
 
 import scala.collection.JavaConversions._
 
-import java.io.InputStream
+import java.io.{ OutputStream, InputStream }
 import java.net.URL
+import java.nio.ByteBuffer
+import java.nio.channels.{ ReadableByteChannel, WritableByteChannel, Channels }
 import java.nio.file._
 import java.nio.file.attribute.BasicFileAttributes
 import java.util.zip.{ ZipEntry, ZipOutputStream, ZipFile }
@@ -170,6 +172,63 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
     }
   }
 
+  private def formatBytes(bytes: Int) = {
+    val orderOfMagnitude =
+      Math.floor(Math.log(Math.max(1, bytes)) / Math.log(1024))
+
+    val bytesInUnit = bytes / Math.pow(1024, orderOfMagnitude)
+    val formattedNumber = if (bytesInUnit < 10) {
+      "%.2f" format bytesInUnit
+    } else if (bytesInUnit < 100) {
+      "%.1f" format bytesInUnit
+    } else {
+      "%.0f" format bytesInUnit
+    }
+
+    val units = Array("B", "KB", "MB", "GB", "TB", "PB")
+    val unit = units(Math.min(orderOfMagnitude.toInt, units.length))
+    s"$formattedNumber $unit"
+  }
+
+  private def copyStreams(
+    ic: ReadableByteChannel,
+    oc: WritableByteChannel,
+    filename: String): Unit = {
+    val buffer = ByteBuffer.allocateDirect(1024 * 1024)
+
+    val loggingDelay = 1000 // milliseconds
+    val startTime = System.currentTimeMillis
+    var lastLogMessage = startTime
+    def shouldLog = System.currentTimeMillis - lastLogMessage >= loggingDelay
+    var bytesCopied = 0
+
+    while (ic.read(buffer) >= 0) {
+      bytesCopied += buffer.position
+      buffer.flip()
+      oc.write(buffer)
+      buffer.compact()
+      bytesCopied -= buffer.position
+
+      if (shouldLog) {
+        logger.info(
+          s"Downloading $filename from the $name datastore. " +
+            s"${formatBytes(bytesCopied)} bytes read.")
+        lastLogMessage = System.currentTimeMillis
+      }
+    }
+
+    buffer.flip()
+    bytesCopied += buffer.remaining()
+    while (buffer.hasRemaining)
+      oc.write(buffer)
+
+    if (System.currentTimeMillis - startTime >= loggingDelay) {
+      logger.info(
+        s"Downloaded $filename from the $name datastore. " +
+          s"${formatBytes(bytesCopied)} bytes read.")
+    }
+  }
+
   //
   // Getting data out of the datastore
   //
@@ -228,9 +287,12 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
             Files.createTempFile("ai2-datastore-" + locator.flatLocalCacheKey, ".tmp")
           TempCleanup.remember(tempFile)
           try {
-            Resource.using(getS3Object(locator.s3key)) { s3object =>
-              Files.copy(s3object, tempFile, StandardCopyOption.REPLACE_EXISTING)
-            }
+            Resource.using2(
+              Channels.newChannel(getS3Object(locator.s3key)),
+              Files.newByteChannel(
+                tempFile,
+                StandardOpenOption.WRITE,
+                StandardOpenOption.TRUNCATE_EXISTING)) { case (input, output) => copyStreams(input, output, locator.s3key) }
           } catch {
             case e: AmazonS3Exception if e.getErrorCode == "NoSuchKey" =>
               throw new DoesNotExistException(locator, e)
@@ -252,7 +314,12 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
                     Files.createDirectories(pathForEntry)
                   } else {
                     Files.createDirectories(pathForEntry.getParent)
-                    Resource.using(zipFile.getInputStream(entry))(Files.copy(_, pathForEntry))
+                    Resource.using2(
+                      Channels.newChannel(zipFile.getInputStream(entry)),
+                      Files.newByteChannel(pathForEntry,
+                        StandardOpenOption.WRITE,
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING)) { case (input, output) => copyStreams(input, output, locator.s3key) }
                   }
                 }
               }
