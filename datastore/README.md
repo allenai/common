@@ -112,3 +112,7 @@ The cache lives in the directory pointed to by the system property `java.io.temp
 The datastore is completely thread-safe. Similarly, two processes (not threads) requesting the same item at the same time will not fall over each other, and will not download the same file twice.
 
 To achieve this, it assumes that temporary files are created on the same file system where the cache lives. This is the case in virtuall all instances. However, if that is not the case, due to a change in cache location, or by virtue of a really quirky setup, it will no longer be safe.
+
+## Layout in S3
+
+It's entirely possibly, encouraged even, to look at the bucket in S3. The bucket name is always `<datastorename>.store.dev.allenai.org`. The S3 keys are of the schema `<group>/<name>-v<version>` for files without extensions, `<group>/<name>-v<version>.<ext>` for files with extensions, and `<group>/<name>-d<version>.zip` for directories. 
