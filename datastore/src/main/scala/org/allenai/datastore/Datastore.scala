@@ -172,7 +172,7 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
     }
   }
 
-  private def formatBytes(bytes: Int) = {
+  private def formatBytes(bytes: Long) = {
     val orderOfMagnitude =
       Math.floor(Math.log(Math.max(1, bytes)) / Math.log(1024))
 
@@ -200,7 +200,7 @@ class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
     val startTime = System.currentTimeMillis
     var lastLogMessage = startTime
     def shouldLog = System.currentTimeMillis - lastLogMessage >= loggingDelay
-    var bytesCopied = 0
+    var bytesCopied: Long = 0
 
     while (ic.read(buffer) >= 0) {
       bytesCopied += buffer.position
