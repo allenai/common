@@ -86,7 +86,7 @@ aws_access_key_id = <MYACCESSKEY>
 aws_secret_access_key = <mysecretaccesskey>
 ```
 
-Please replace `<MYACCESSKEY>` and `<mysecretaccesskey>` as appropriate. You can get these credentials in the [AWS Console, under IAM/Users](https://console.aws.amazon.com/iam/home?region=us-west-2#users). Click on your username, and then "Manage Credentials". You should be able to add a key pair there.
+Please replace `<MYACCESSKEY>` and `<mysecretaccesskey>` as appropriate. You can get these credentials in the [AWS Console, under IAM/Users](https://console.aws.amazon.com/iam/home?region=us-west-2#users). Click on your username in the list of users, and then "Manage Access Keys" in the Security Credentials -> Access Credentials section. You should be able to add a key pair there.
 
 ### In EC2
 
