@@ -105,7 +105,9 @@ val privateDatastore = Datastore("private", "<myaccesskey>", "<mysecretkey>")
 
 ## Cache location
 
-The cache lives in the directory pointed to by the system property `java.io.tempdir`. On Linux, this is `/tmp`. On Mac, this is somewhere in `/var/folders`. Losing the cache is not harmful, but it means that everything has to be downloaded again.
+The cache location depends on the operating system. On the Mac, it's in `~/Library/Caches/org.allenai.datastore/`. Everywhere else, it's in `~/.ai2/datastore`. There are two ways to override this. In order of precedence:
+ 1. The `AI2_DATASTORE_DIR` environment variable.
+ 2. The `org.allenai.datastore.dir` Java system property.
 
 ## Concurrency
 
