@@ -36,16 +36,27 @@ import java.util.zip.{ ZipEntry, ZipOutputStream, ZipFile }
   * @param s3   properly authenticated S3 client.
   */
 class Datastore(val name: String, val s3: AmazonS3Client) extends Logging {
-  private val cacheDir = if (System.getProperty("os.name").contains("Mac OS X")) {
-    Paths.get(System.getProperty("user.home")).
-      resolve("Library").
-      resolve("Caches").
-      resolve("org.allenai.datastore").
-      resolve(name)
-  } else {
-    Paths.get(System.getProperty("java.io.tmpdir")).
-      resolve("ai2-datastore-cache").
-      resolve(name)
+  private val cacheDir = {
+    val defaultCacheDir = if (System.getProperty("os.name").contains("Mac OS X")) {
+      Paths.get(System.getProperty("user.home")).
+        resolve("Library").
+        resolve("Caches").
+        resolve("org.allenai.datastore")
+    } else {
+      Paths.get(System.getProperty("user.home")).
+        resolve(".ai2").
+        resolve("datastore")
+    }
+
+    val envCacheDir = System.getenv("AI2_DATASTORE_DIR")
+    val propCacheDir = System.getProperty("org.allenai.datastore.dir")
+
+    val baseDir = Seq(envCacheDir, propCacheDir).
+      filter(_ != null).
+      map(Paths.get(_)).
+      headOption.getOrElse(defaultCacheDir)
+    
+    baseDir.resolve(name)
   }
 
   /** Returns the name of the bucket backing this datastore
