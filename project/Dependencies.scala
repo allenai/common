@@ -24,9 +24,12 @@ object Dependencies {
   val sprayJson = "io.spray" %% "spray-json" % "1.2.6"
   val sprayRouting = "io.spray" % "spray-routing" % "1.3.1"
   val typesafeConfig = "com.typesafe" % "config" % "1.2.0"
-  val awsJavaSdk = "com.amazonaws" % "aws-java-sdk" % "1.8.9.1"
+  val awsJavaSdk = "com.amazonaws" % "aws-java-sdk" % "1.8.9.1" exclude("commons-logging", "commons-logging")
   val commonsIO = "commons-io" % "commons-io" % "2.4"
   val scopt = "com.github.scopt" %% "scopt" % "3.2.0"
   val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.1.2"
   val logbackCore = "ch.qos.logback" % "logback-core" % "1.1.2"
+
+  // Bridge jcl to slf4j (needed to bridge logging from awsJavaSdk to slf4j)
+  val jclOverSlf4j = "org.slf4j" % "jcl-over-slf4j" % "1.7.7"
 }
