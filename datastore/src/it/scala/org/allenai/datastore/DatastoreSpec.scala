@@ -1,6 +1,6 @@
 package org.allenai.datastore
 
-import org.allenai.common.{Timing, Resource}
+import org.allenai.common.{Timing, Resource, Logging}
 import org.allenai.common.testkit.UnitSpec
 
 import org.apache.commons.io.FileUtils
@@ -16,7 +16,7 @@ import java.nio.file.{StandardCopyOption, Path, Files}
 import java.util.UUID
 import java.util.zip.ZipFile
 
-class DatastoreSpec extends UnitSpec {
+class DatastoreSpec extends UnitSpec with Logging {
   private val group = "org.allenai.datastore.test"
 
   private def copyTestFiles: Path = {
@@ -56,6 +56,7 @@ class DatastoreSpec extends UnitSpec {
     datastore.createBucketIfNotExists()
 
     // Wait 20 seconds, because bucket creation is not instantaneous in S3
+    log.info("Waiting 20 seconds for bucket creation...")
     Thread.sleep(20000)
 
     datastore

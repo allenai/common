@@ -2,4 +2,4 @@ import Dependencies._
 
 name := "common-datastore"
 
-libraryDependencies ++= Seq(slf4j, awsJavaSdk, commonsIO)
+libraryDependencies ++= Seq(jclOverSlf4j, slf4j, awsJavaSdk, commonsIO)
