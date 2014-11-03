@@ -1,4 +1,5 @@
 import org.allenai.sbt.release.AllenaiReleasePlugin
+import org.allenai.sbt.core.CoreSettings
 import sbtrelease.ReleasePlugin._
 
 import sbt._
@@ -12,9 +13,12 @@ object CommonBuild extends Build {
     scalacOptions ++= Seq("-Xlint", "-deprecation", "-unchecked", "-feature"),
     conflictManager := ConflictManager.strict,
     dependencyOverrides ++= Dependencies.Overrides,
-    resolvers ++= Dependencies.Resolvers
+    resolvers ++= Dependencies.Resolvers,
+    licenses := Seq(
+      "Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")
+    )
   ) ++ 
-    Publish.settings ++
+    CoreSettings.publishToRepos.ai2 ++
     releaseSettings
 
   lazy val testkit = Project(
