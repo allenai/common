@@ -18,7 +18,7 @@ object CommonBuild extends Build {
       "Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")
     )
   ) ++ 
-    CoreSettings.publishToRepos.ai2 ++
+    CoreSettings.publishToRepos.ai2.publicRepo ++
     releaseSettings
 
   lazy val testkit = Project(
