@@ -4,7 +4,7 @@ import spray.json._
 
 import scala.io.Source
 
-import java.io.{ OutputStream, PrintWriter }
+import java.io.{ OutputStream, PrintWriter, Writer }
 
 /** Helpers for streaming lists of JSON objects to and from disk. */
 object JsonIo {
@@ -15,13 +15,19 @@ object JsonIo {
     for (line <- source.getLines().toStream) yield line.parseJson.convertTo[T]
   }
 
+  /** Writes the given objects to the given writer, as one-per-line JSON values. */
+  def writeJson[T](values: Iterable[T], writer: Writer)(implicit format: JsonFormat[T]): Unit = {
+    for (value <- values) {
+      writer.write(value.toJson.compactPrint)
+      writer.write('\n')
+    }
+  }
+
   /** Writes the given objects to the given output stream, as one-per-line JSON values. */
   def writeJson[T](values: Iterable[T], outputStream: OutputStream)(
     implicit format: JsonFormat[T]): Unit = {
-    Resource.using(new PrintWriter(outputStream)) { writer =>
-      for (value <- values) {
-        writer.println(value.toJson.compactPrint)
-      }
-    }
+    val writer = new PrintWriter(outputStream)
+    writeJson(values, writer)
+    writer.flush
   }
 }
