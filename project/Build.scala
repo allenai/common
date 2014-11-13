@@ -13,11 +13,12 @@ object CommonBuild extends Build {
     scalacOptions ++= Seq("-Xlint", "-deprecation", "-unchecked", "-feature"),
     conflictManager := ConflictManager.strict,
     dependencyOverrides ++= Dependencies.Overrides,
-    licenses := Seq(
-      "Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")
-    )
+    publishMavenStyle := true,
+    publishArtifact in Test := false,
+    licenses := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+    homepage := Some(url("https://github.com/allenai/common"))
   ) ++ 
-    CoreRepositories.PublishTo.ai2Public ++
+    CoreRepositories.PublishTo.sonatype ++
     releaseSettings
 
   lazy val testkit = Project(
