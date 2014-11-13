@@ -46,6 +46,6 @@ object CommonBuild extends Build {
 
   lazy val common = Project(id = "common", base = file(".")).settings(
     // Don't publish a jar for the root project.
-    publishTo := Some("dummy" at "nowhere"), publish := { }, publishLocal := { }
+    publishArtifact := false, publishTo := Some("dummy" at "nowhere"), publish := { }, publishLocal := { }
   ).aggregate(webapp, core, testkit, pipeline).enablePlugins(ReleasePlugin)
 }
