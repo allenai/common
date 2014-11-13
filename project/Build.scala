@@ -17,7 +17,18 @@ object CommonBuild extends Build {
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },
     licenses := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
-    homepage := Some(url("https://github.com/allenai/common"))
+    homepage := Some(url("https://github.com/allenai/common")),
+    scmInfo := Some(ScmInfo(
+      url("https://github.com/allenai/common"),
+      "https://github.com/allenai/common.git")),
+    pomExtra := (
+      <developers>
+        <developer>
+          <id>dirkgr</id>
+          <name>Dirk Groeneveld</name>
+          <email>dirkg@allenai.org</email>
+        </developer>
+      </developers>)
   ) ++ 
     CoreRepositories.PublishTo.sonatype ++
     releaseSettings
