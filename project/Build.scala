@@ -1,6 +1,7 @@
 import org.allenai.plugins.ReleasePlugin
 import org.allenai.plugins.CoreRepositories
 import sbtrelease.ReleasePlugin._
+import com.typesafe.sbt.pgp.PgpKeys._
 
 import sbt._
 import Keys._
@@ -21,6 +22,7 @@ object CommonBuild extends Build {
     scmInfo := Some(ScmInfo(
       url("https://github.com/allenai/common"),
       "https://github.com/allenai/common.git")),
+    ReleaseKeys.publishArtifactsAction := publishSigned.value,
     pomExtra := (
       <developers>
         <developer>
