@@ -7,7 +7,7 @@ import sbt._
 import Keys._
 
 object CommonBuild extends Build {
-  val buildSettings = Seq(
+  val buildSettings = releaseSettings ++ Seq(
     organization := "org.allenai.common",
     crossScalaVersions := Seq("2.10.4"),
     scalaVersion <<= crossScalaVersions { (vs: Seq[String]) => vs.head },
@@ -31,9 +31,7 @@ object CommonBuild extends Build {
           <email>dev-role@allenai.org</email>
         </developer>
       </developers>)
-  ) ++ 
-    CoreRepositories.PublishTo.sonatype ++
-    releaseSettings
+  ) ++ CoreRepositories.PublishTo.sonatype
 
   lazy val testkit = Project(
     id = "testkit",
