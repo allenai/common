@@ -23,6 +23,7 @@ object Dependencies {
   val slf4j = "org.slf4j" % "slf4j-api" % "1.7.6"
   val sprayJson = "io.spray" %% "spray-json" % "1.2.6"
   val sprayRouting = "io.spray" % "spray-routing" % "1.3.1"
+  val sprayTestkit = "io.spray" % "spray-testkit" % "1.3.1"
   val typesafeConfig = "com.typesafe" % "config" % "1.2.0"
   val awsJavaSdk = "com.amazonaws" % "aws-java-sdk" % "1.8.9.1" exclude("commons-logging", "commons-logging")
   val commonsIO = "commons-io" % "commons-io" % "2.4"

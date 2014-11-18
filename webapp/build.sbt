@@ -7,4 +7,7 @@ libraryDependencies ++= Seq(
   slf4j,
   sprayJson,
   sprayRouting,
+  sprayTestkit % "test",
   typesafeConfig)
+
+dependencyOverrides ++= Set(akkaModule("testkit"))
