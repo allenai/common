@@ -14,10 +14,10 @@ class DirectivesSpec extends UnitSpec with ScalatestRouteTest with HttpService {
   // format: OFF
   val testRoute =
     get { path("foo") { complete { "foo" } } } ~
-    Directives.jsonApi("localhost", "ari.dev.allenai.org", "ari.prod.allenai.org") {
+    Directives.allowHosts("localhost", "ari.dev.allenai.org", "ari.prod.allenai.org") {
       get { path("api") { complete { "api" } } }
     } ~
-    Directives.jsonApi("localhost2") {
+    Directives.allowHosts("localhost2") {
       get{ path("api2") { complete { "api2" } } }
     } ~
     get { path("bar") { complete { "bar" } } }
