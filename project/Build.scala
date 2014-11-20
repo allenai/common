@@ -48,7 +48,7 @@ object CommonBuild extends Build {
     id = "webapp",
     base = file("webapp"),
     settings = buildSettings
-  ).enablePlugins(ReleasePlugin).dependsOn(core)
+  ).enablePlugins(ReleasePlugin).dependsOn(core, testkit % "test->compile")
 
   lazy val pipeline = Project(
     id = "pipeline",
