@@ -92,9 +92,9 @@ object Version {
   implicit val versionJsonFormat = new RootJsonFormat[Version] {
     override def write(version: Version): JsValue = {
       val baseJson = JsObject(
-          "git" -> JsString(version.git.sha1),
-          "commitDate" -> JsNumber(version.git.commitDate),
-          "artifact" -> JsString(version.artifactVersion))
+        "git" -> JsString(version.git.sha1),
+        "commitDate" -> JsNumber(version.git.commitDate),
+        "artifact" -> JsString(version.artifactVersion))
       version.git.repoUrl match {
         case Some(repoUrl) => baseJson.pack("repoUrl" -> repoUrl)
         case _ => baseJson
