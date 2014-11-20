@@ -16,7 +16,7 @@ class JsonIoSpec extends UnitSpec {
   "parseJson" should "read a multi-line string as two instances" in {
     val input = s"""{"name": "value1"}\n{"name": "value2"}\n"""
     val result = JsonIo.parseJson[Foo](Source.fromString(input))(fooFormat).toSeq
-    result should have size(2)
+    result should have size (2)
     result(0) should be(Foo("value1"))
     result(1) should be(Foo("value2"))
   }
@@ -27,10 +27,10 @@ class JsonIoSpec extends UnitSpec {
     JsonIo.writeJson(input, output)
 
     val outputStrings = output.toString("UTF-8").split("\n")
-    outputStrings should have size(3)
-    outputStrings(0) should fullyMatch regex("""\{\s*"name":\s*"first"\s*\}""")
-    outputStrings(1) should fullyMatch regex("""\{\s*"name":\s*"second"\s*\}""")
-    outputStrings(2) should fullyMatch regex("""\{\s*"name":\s*"third"\s*\}""")
+    outputStrings should have size (3)
+    outputStrings(0) should fullyMatch regex ("""\{\s*"name":\s*"first"\s*\}""")
+    outputStrings(1) should fullyMatch regex ("""\{\s*"name":\s*"second"\s*\}""")
+    outputStrings(2) should fullyMatch regex ("""\{\s*"name":\s*"third"\s*\}""")
   }
 
   "parseJson and writeJson" should "pipe correctly to each other" in {
