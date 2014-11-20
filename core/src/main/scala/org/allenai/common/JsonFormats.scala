@@ -21,7 +21,8 @@ object JsonFormats {
           t.printStackTrace(printWriter)
           JsObject(
             "message" -> JsString(t.getMessage),
-            "stackTrace" -> JsString(stringWriter.toString))
+            "stackTrace" -> JsString(stringWriter.toString)
+          )
         }
       }
     }

@@ -24,16 +24,17 @@ object Directives {
           case HttpOrigin(_, HttpHeaders.Host(hostname, _)) => allowedHostnames.contains(hostname)
         }
       } map { goodOrigin =>
-        respondWithHeaders(Headers.AccessControlAllowHeadersAll,
+        respondWithHeaders(
+          Headers.AccessControlAllowHeadersAll,
           HttpHeaders.`Access-Control-Allow-Origin`(SomeOrigins(Seq(goodOrigin)))
         ) {
-          options {
-            complete {
-              ""
-            }
-          } ~
-          innerRoute
-        }
+            options {
+              complete {
+                ""
+              }
+            } ~
+              innerRoute
+          }
       } getOrElse {
         // Else, pass through without headers.
         innerRoute
