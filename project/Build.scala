@@ -9,7 +9,7 @@ import Keys._
 object CommonBuild extends Build {
   val buildSettings = releaseSettings ++ Seq(
     organization := "org.allenai.common",
-    crossScalaVersions := Seq("2.11.4"),
+    crossScalaVersions := Seq("2.11.4", "2.10.4"),
     scalaVersion <<= crossScalaVersions { (vs: Seq[String]) => vs.head },
     scalacOptions ++= Seq("-Xlint", "-deprecation", "-unchecked", "-feature"),
     conflictManager := ConflictManager.strict,

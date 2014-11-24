@@ -4,9 +4,10 @@ import sbt._
 object Dependencies {
   def akkaModule(id: String) = "com.typesafe.akka" %% s"akka-${id}" % "2.3.2"
 
+  def scalaReflection(scalaVersion: String) = "org.scala-lang" % "scala-reflect" % scalaVersion
+
   val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.11.4"
   val scalaTest = "org.scalatest" %% "scalatest" % "2.2.0"
-  val scalaReflection = "org.scala-lang" % "scala-reflect" % "2.11.4"
   val pegdown = "org.pegdown" % "pegdown" % "1.4.2"
   val slf4j = "org.slf4j" % "slf4j-api" % "1.7.6"
   val sprayJson = "io.spray" %% "spray-json" % "1.2.6"
