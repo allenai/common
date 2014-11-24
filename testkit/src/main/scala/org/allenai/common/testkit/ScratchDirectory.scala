@@ -15,8 +15,10 @@ trait ScratchDirectory extends BeforeAndAfterAll {
     dir
   }
 
-  override def beforeAll: Unit = require(scratchDir.exists && scratchDir.isDirectory,
-    s"Unable to create scratch directory $scratchDir")
+  override def beforeAll: Unit = require(
+    scratchDir.exists && scratchDir.isDirectory,
+    s"Unable to create scratch directory $scratchDir"
+  )
 
   override def afterAll: Unit = delete(scratchDir)
 

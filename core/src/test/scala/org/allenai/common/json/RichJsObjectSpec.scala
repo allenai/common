@@ -20,7 +20,8 @@ class RichJsObjectSpec extends UnitSpec {
     val packed = jsonObj.pack("age" -> 10.toJson)
     assert(packed === JsObject(
       "name" -> JsString("John"),
-      "age" -> JsNumber(10)))
+      "age" -> JsNumber(10)
+    ))
   }
 
   it should "handle types that are not JsValue but have a JsonWriter" in {
@@ -30,6 +31,7 @@ class RichJsObjectSpec extends UnitSpec {
     val packed = jsonObj.pack("age" -> 10)
     assert(packed === JsObject(
       "name" -> JsString("John"),
-      "age" -> JsNumber(10)))
+      "age" -> JsNumber(10)
+    ))
   }
 }

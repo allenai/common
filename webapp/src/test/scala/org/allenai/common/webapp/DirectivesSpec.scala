@@ -25,7 +25,8 @@ class DirectivesSpec extends UnitSpec with ScalatestRouteTest with HttpService {
 
   def allowOriginHeader(hostname: String): HttpHeader = {
     HttpHeaders.`Access-Control-Allow-Origin`(
-      SomeOrigins(Seq(HttpOrigin("http", HttpHeaders.Host(hostname)))))
+      SomeOrigins(Seq(HttpOrigin("http", HttpHeaders.Host(hostname))))
+    )
   }
 
   def addOriginHeader(origin: String): RequestTransformer = {
@@ -43,7 +44,7 @@ class DirectivesSpec extends UnitSpec with ScalatestRouteTest with HttpService {
     Get("/foo") ~> addOriginHeader("localhost") ~> testRoute ~> check {
       header[HttpHeaders.`Access-Control-Allow-Origin`] should be(None)
       header[HttpHeaders.`Access-Control-Allow-Headers`] should be(None)
-      responseAs[String] should be ("foo")
+      responseAs[String] should be("foo")
     }
   }
   it should "complete directives after the api directive" in {
@@ -56,9 +57,11 @@ class DirectivesSpec extends UnitSpec with ScalatestRouteTest with HttpService {
   it should "complete with CORS headers when given a matching origin" in {
     Get("/api") ~> addOriginHeader("localhost") ~> testRoute ~> check {
       header[HttpHeaders.`Access-Control-Allow-Origin`] should be(
-        Some(allowOriginHeader("localhost")))
+        Some(allowOriginHeader("localhost"))
+      )
       header[HttpHeaders.`Access-Control-Allow-Headers`] should be(
-        Some(Headers.AccessControlAllowHeadersAll))
+        Some(Headers.AccessControlAllowHeadersAll)
+      )
       responseAs[String] should be("api")
     }
   }
@@ -66,35 +69,43 @@ class DirectivesSpec extends UnitSpec with ScalatestRouteTest with HttpService {
     val origin = HttpOrigin("https", HttpHeaders.Host("ari.dev.allenai.org", 8081))
     Get("/api") ~> addHeader(HttpHeaders.Origin(Seq(origin))) ~> testRoute ~> check {
       header[HttpHeaders.`Access-Control-Allow-Origin`] should be(
-        Some(HttpHeaders.`Access-Control-Allow-Origin`(SomeOrigins(Seq(origin)))))
+        Some(HttpHeaders.`Access-Control-Allow-Origin`(SomeOrigins(Seq(origin))))
+      )
       header[HttpHeaders.`Access-Control-Allow-Headers`] should be(
-        Some(Headers.AccessControlAllowHeadersAll))
+        Some(Headers.AccessControlAllowHeadersAll)
+      )
       responseAs[String] should be("api")
     }
   }
   it should "complete an OPTIONS request" in {
     Options("/api") ~> addOriginHeader("localhost") ~> testRoute ~> check {
       header[HttpHeaders.`Access-Control-Allow-Origin`] should be(
-        Some(allowOriginHeader("localhost")))
+        Some(allowOriginHeader("localhost"))
+      )
       header[HttpHeaders.`Access-Control-Allow-Headers`] should be(
-        Some(Headers.AccessControlAllowHeadersAll))
+        Some(Headers.AccessControlAllowHeadersAll)
+      )
     }
   }
   it should "complete properly to a secondary api" in {
     Get("/api2") ~> addOriginHeader("localhost2") ~> testRoute ~> check {
       header[HttpHeaders.`Access-Control-Allow-Origin`] should be(
-        Some(allowOriginHeader("localhost2")))
+        Some(allowOriginHeader("localhost2"))
+      )
       header[HttpHeaders.`Access-Control-Allow-Headers`] should be(
-        Some(Headers.AccessControlAllowHeadersAll))
+        Some(Headers.AccessControlAllowHeadersAll)
+      )
       responseAs[String] should be("api2")
     }
   }
   it should "complete an OPTIONS request to a seconary api" in {
     Options("/api2") ~> addOriginHeader("localhost2") ~> testRoute ~> check {
       header[HttpHeaders.`Access-Control-Allow-Origin`] should be(
-        Some(allowOriginHeader("localhost2")))
+        Some(allowOriginHeader("localhost2"))
+      )
       header[HttpHeaders.`Access-Control-Allow-Headers`] should be(
-        Some(Headers.AccessControlAllowHeadersAll))
+        Some(Headers.AccessControlAllowHeadersAll)
+      )
     }
   }
 }

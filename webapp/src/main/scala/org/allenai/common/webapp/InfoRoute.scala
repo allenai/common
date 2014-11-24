@@ -20,7 +20,8 @@ class InfoRoute(val info: Map[String, String] = Map.empty) {
       info +
         ("gitVersion" -> version.git.sha1) +
         ("artifactVersion" -> version.artifactVersion) ++
-        version.git.commitUrl.map("githubUrl" -> _))
+        version.git.commitUrl.map("githubUrl" -> _)
+    )
   }
 
   def withName(name: String): InfoRoute = new InfoRoute(info + ("name" -> name))

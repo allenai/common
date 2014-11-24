@@ -4,6 +4,8 @@ name := "common-pipeline"
 
 libraryDependencies ++= Seq(sprayJson,
   awsJavaSdk,
-  commonsIO,
-  scalaReflection)
- 
+  commonsIO)
+
+libraryDependencies <+= scalaVersion (sv => scalaReflection(sv))
+
+dependencyOverrides <+= scalaVersion (sv => scalaReflection(sv))

@@ -13,7 +13,6 @@ object CommonBuild extends Build {
     scalaVersion <<= crossScalaVersions { (vs: Seq[String]) => vs.head },
     scalacOptions ++= Seq("-Xlint", "-deprecation", "-unchecked", "-feature"),
     conflictManager := ConflictManager.strict,
-    dependencyOverrides ++= Dependencies.Overrides,
     publishMavenStyle := true,
     publishArtifact in Test := false,
     pomIncludeRepository := { _ => false },

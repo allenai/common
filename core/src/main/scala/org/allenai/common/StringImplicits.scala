@@ -109,6 +109,7 @@ object StringImplicits {
       '\u301C' -> "~",
       '\u301D' -> "\"",
       '\u301E' -> "\"",
-      '\uFEFF' -> " ")
+      '\uFEFF' -> " "
+    )
   }
 }

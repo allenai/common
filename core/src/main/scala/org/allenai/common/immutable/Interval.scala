@@ -396,8 +396,10 @@ object Interval {
       val sorted = col.sorted
       val min = sorted.head
 
-      require(sorted.zipWithIndex.forall { case (x, i) => x == min + i },
-        "missing elements in collection: " + col)
+      require(
+        sorted.zipWithIndex.forall { case (x, i) => x == min + i },
+        "missing elements in collection: " + col
+      )
 
       Interval.closed(min, sorted.last)
     }

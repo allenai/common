@@ -55,7 +55,8 @@ object GitVersion {
   */
 case class Version(
     git: GitVersion,
-    artifactVersion: String) {
+    artifactVersion: String
+) {
   @deprecated("Use artifactVersion instead.", "2014.09.09-1-SNAPSHOT")
   def artifact = artifactVersion
 }
@@ -94,7 +95,8 @@ object Version {
       val baseJson = JsObject(
         "git" -> JsString(version.git.sha1),
         "commitDate" -> JsNumber(version.git.commitDate),
-        "artifact" -> JsString(version.artifactVersion))
+        "artifact" -> JsString(version.artifactVersion)
+      )
       version.git.repoUrl match {
         case Some(repoUrl) => baseJson.pack("repoUrl" -> repoUrl)
         case _ => baseJson
