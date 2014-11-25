@@ -14,11 +14,11 @@ lazy val buildSettings = Seq(
   pomExtra := (
     <developers>
       <developer>
-      <id>allenai-dev-role</id>
-      <name>Paul Allen Institute for Artificial Intelligence</name>
-      <email>dev-role@allenai.org</email>
+        <id>allenai-dev-role</id>
+        <name>Paul Allen Institute for Artificial Intelligence</name>
+        <email>dev-role@allenai.org</email>
       </developer>
-      </developers>)
+    </developers>)
 ) ++ PublishTo.sonatype
 
 lazy val testkit = Project(
