@@ -3,11 +3,12 @@ import Dependencies._
 name := "common-webapp"
 
 libraryDependencies ++= Seq(
-  akkaModule("actor"),
-  slf4j,
+  akkaActor,
   sprayJson,
   sprayRouting,
   sprayTestkit % "test",
-  typesafeConfig)
+  typesafeConfig
+)
 
-dependencyOverrides ++= Set(akkaModule("testkit"))
+// Override needed because spray testkit declares dependency on an older version of akka
+dependencyOverrides += akkaTestkit
