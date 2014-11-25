@@ -21,6 +21,23 @@ This project releases to Maven Central rather than to our own repository. To do 
  3. To use the passphrase, we have to enable the `sbt-pgp` plugin. Put the following line into `~/.sbt/0.13/plugins/gpg.sbt`: `addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.0.0")`
  4. We also need credentials to the sonatype repository. We get those with the following line in `~/.sbt/0.13/sonatypt.sbt`: `credentials += Credentials("Sonatype Nexus Repository Manager", "oss.sonatype.org", "allenai-role", "<password>")`. You find this password in the same `password.txt` file from above.
 
+Now, you need to register your GPG key.
+
+1. Start SBT in the common project
+2. At the SBT prompt, type:
+
+   ```bash
+   > pgp-cmd send-key [TAB]
+   Paul Allen Institute for Artificial Intelligence <account>
+   abcdefg
+   ```
+ 
+   When you hit [TAB], SBT should print out the available key and its ID on the second line (in the example above, `abcdefg`. Enter the id:
+ 
+   ```bash
+   > pgp-cmd send-key abcdefg [ENTER]
+   ```
+
 With this, you should be ready to run `sbt release` on the common project. When you do, it will upload the build artifacts to a staging repository on http://oss.sonatype.org. When it's done, you have to go there and first close, and then release, the staging repository. That initiates the upload to Maven Central, which will take about 10 minutes.
 
  1. Go to http://oss.sonatype.org.
