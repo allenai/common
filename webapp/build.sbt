@@ -9,5 +9,3 @@ libraryDependencies ++= Seq(
   sprayRouting,
   sprayTestkit % "test",
   typesafeConfig)
-
-dependencyOverrides ++= Set(akkaModule("testkit"))
