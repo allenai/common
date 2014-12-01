@@ -1,12 +1,11 @@
 package org.allenai.common.webapp
 
-import shapeless.HNil
 import spray.http.{ HttpHeaders, HttpOrigin, SomeOrigins }
 import spray.routing.Directive0
 import spray.routing.Directives._
 
 /** Helper spray directives. */
-object Directives {
+trait Directives {
   /** Directive providing CORS header support. This should be included in any application serving
     * a REST API that's queried cross-origin (from a different host than the one serving the API).
     * See http://www.w3.org/TR/cors/ for full specification.
@@ -44,3 +43,4 @@ object Directives {
 
   def allowHosts(allowedHostnames: String*): Directive0 = allowHosts(allowedHostnames.toSet)
 }
+object Directives extends Directives
