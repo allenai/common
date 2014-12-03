@@ -69,7 +69,7 @@ trait Ai2CodeInfo extends HasCodeInfo {
         // Commit sha
         val sha = config.getString("sha1")
         // The list of remote git repo's
-        val remotes = config.getStringList("remotes").asScala.map(new URI(_))
+        val remotes = config.getStringList("remotes").asScala.map(parseRemote)
         // The sbt-release plugin requires the git repo to be clean.
         // However, we don't know for sure whether the repo has been pushed to a remote repo
         // It may not have been pushed at the time of build, but might be pushed later
@@ -97,6 +97,16 @@ trait Ai2CodeInfo extends HasCodeInfo {
       }
     }
     info
+  }
+
+  private val sshRemotePattern = """([^@]+)@([^:]+):(.*)""".r
+  def parseRemote(remote: String): URI = {
+    remote match {
+      case sshRemotePattern(user, host, path) =>
+        val absPath = if (path.startsWith("/")) path else s"/$path"
+        new URI("https", host, absPath, null)
+      case x => new URI(x)
+    }
   }
 
   def unchangedSince: String = ("0" +: updateVersionHistory).last
