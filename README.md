@@ -44,8 +44,9 @@ With this, you should be ready to run `sbt release` on the common project. When 
  2. Log in with username `allenai-role`, and the password from the `password.txt` file. This is the same password you used in step 4 above.
  3. Click "staging repositories" on the left.
  4. Use the search bar at the top right to search for "allenai".
- 5. Find your staging repository and confirm that it has the contents you expect. Then, select it and click "close". Closing takes a few minutes. Then you can see how the closing process went under "Activity". It sends an email to `dev-role@allenai.org` when it's done.
- 6. When it is done, select the repository again and hit "close".
+ 5. Find your staging repository and confirm that it has the contents you expect. Then, select it and click "Close". Closing takes a few minutes. Then you can see how the closing process went under "Activity". It sends an email to `dev-role@allenai.org` when it's done.
+ 6. When it is done, select the repository again and hit "Release".
+ 7. You should see the new version appear under https://oss.sonatype.org/content/repositories/releases/org/allenai/common/
 
 You are done!
 
