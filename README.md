@@ -35,7 +35,7 @@ Now, you need to register your GPG key.
    When you hit [TAB], SBT should print out the available key and its ID on the second line (in the example above, `abcdefg`. Enter the id:
  
    ```bash
-   > pgp-cmd send-key abcdefg [ENTER]
+   > pgp-cmd send-key abcdefg hkp://keyserver.ubuntu.com [ENTER]
    ```
 
 With this, you should be ready to run `sbt release` on the common project. When you do, it will upload the build artifacts to a staging repository on http://oss.sonatype.org. When it's done, you have to go there and first close, and then release, the staging repository. That initiates the upload to Maven Central, which will take about 10 minutes.
