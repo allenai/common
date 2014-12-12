@@ -8,6 +8,8 @@ import spray.json.DefaultJsonProtocol._
 import spray.routing.Directives._
 import spray.routing.Route
 
+import java.util.Date
+
 /** Class providing a spray route with common information, handling requests to the /info path.
   * Requests to the root of the path return a string with all the info keys separated by newlines,
   * while requests to subpaths return the value of the given key, or a 404 for invalid keys.
@@ -19,7 +21,8 @@ class InfoRoute(val info: Map[String, String] = Map.empty) {
     new InfoRoute(
       info +
         ("gitVersion" -> version.git.sha1) +
-        ("artifactVersion" -> version.artifactVersion) ++
+        ("artifactVersion" -> version.artifactVersion) +
+        ("gitDate" -> String.format("$1%tF $1%tT GMT$1%tz", new Date(version.git.commitDate))) ++
         version.git.commitUrl.map("githubUrl" -> _)
     )
   }
