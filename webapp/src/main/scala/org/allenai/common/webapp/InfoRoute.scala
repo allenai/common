@@ -2,7 +2,7 @@ package org.allenai.common.webapp
 
 import org.allenai.common.Version
 
-import spray.http.StatusCodes
+import spray.http.{ MediaTypes, StatusCodes }
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 import spray.routing.Directives._
@@ -35,8 +35,10 @@ class InfoRoute(val info: Map[String, String] = Map.empty) {
   def route: Route = get {
     pathPrefix("info") {
       pathEndOrSingleSlash {
-        complete {
-          info.toJson.prettyPrint
+        respondWithMediaType(MediaTypes.`application/json`) {
+          complete {
+            info.toJson.prettyPrint
+          }
         }
       }
     } ~
