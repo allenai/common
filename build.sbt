@@ -15,7 +15,7 @@ lazy val buildSettings = Seq(
     <developers>
       <developer>
         <id>allenai-dev-role</id>
-        <name>Paul Allen Institute for Artificial Intelligence</name>
+        <name>Allen Institute for Artificial Intelligence</name>
         <email>dev-role@allenai.org</email>
       </developer>
     </developers>)
