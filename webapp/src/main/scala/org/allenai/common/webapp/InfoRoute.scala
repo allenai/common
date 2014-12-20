@@ -2,13 +2,11 @@ package org.allenai.common.webapp
 
 import org.allenai.common.Version
 
-import spray.http.StatusCodes
+import spray.http.{ MediaTypes, StatusCodes }
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 import spray.routing.Directives._
 import spray.routing.Route
-
-import java.util.Date
 
 /** Class providing a spray route with common information, handling requests to the /info path.
   * Requests to the root of the path return a string with all the info keys separated by newlines,
@@ -19,11 +17,15 @@ import java.util.Date
 class InfoRoute(val info: Map[String, String] = Map.empty) {
   def withVersion(version: Version): InfoRoute = {
     new InfoRoute(
-      info +
-        ("gitVersion" -> version.git.sha1) +
-        ("artifactVersion" -> version.artifactVersion) +
-        ("gitDate" -> String.format("$1%tF $1%tT GMT$1%tz", new Date(version.git.commitDate))) ++
-        version.git.commitUrl.map("githubUrl" -> _)
+      info ++
+        Map(
+          "artifactVersion" -> version.artifactVersion,
+          "gitVersion" -> version.git.sha1,
+          "gitDate" -> version.git.commitDate.toString,
+          "gitDatePretty" -> version.git.prettyCommitDate
+        ) ++
+          version.git.repoUrl.map("gitRepoUrl" -> _) ++
+          version.git.commitUrl.map("gitCommitUrl" -> _)
     )
   }
 
@@ -33,8 +35,10 @@ class InfoRoute(val info: Map[String, String] = Map.empty) {
   def route: Route = get {
     pathPrefix("info") {
       pathEndOrSingleSlash {
-        complete {
-          info.toJson.prettyPrint
+        respondWithMediaType(MediaTypes.`application/json`) {
+          complete {
+            info.toJson.prettyPrint
+          }
         }
       }
     } ~

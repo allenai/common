@@ -8,6 +8,8 @@ import com.typesafe.config.ConfigFactory
 import scala.collection.JavaConverters._
 import spray.json._
 
+import java.util.Date
+
 /** Represents a git version.
   * @param  sha1  the output of `git sha1` in the repository
   * @param  commitDate commit date in milliseconds
@@ -19,6 +21,11 @@ case class GitVersion(sha1: String, commitDate: Long, repoUrl: Option[String]) {
     repoUrl.map { base =>
       base + "/commit/" + sha1
     }
+  }
+
+  /** @return a formatted date string */
+  def prettyCommitDate: String = {
+    String.format("$1%tF $1%tT GMT$1%tz", new Date(commitDate))
   }
 }
 
