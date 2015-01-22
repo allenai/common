@@ -373,8 +373,8 @@ object Interval {
     }
 
     def read(value: JsValue): Interval = value match {
-      case JsArray(Nil) => empty
-      case JsArray(JsNumber(start) :: JsNumber(end) :: Nil) => Interval.open(start.toInt, end.toInt)
+      case JsArray(Vector()) => empty
+      case JsArray(Vector(JsNumber(start), JsNumber(end))) => Interval.open(start.toInt, end.toInt)
       case _ => deserializationError("Interval expected")
     }
   }

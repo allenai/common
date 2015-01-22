@@ -11,6 +11,6 @@ object Dependencies extends CoreDependencies {
   val commonsIO = "commons-io" % "commons-io" % "2.4"
 
   val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.11.4"
-  val scalaTest = "org.scalatest" %% "scalatest" % "2.2.0"
+  val scalaTest = "org.scalatest" %% "scalatest" % "2.2.1"
 
 }
