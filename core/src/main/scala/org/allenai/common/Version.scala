@@ -25,7 +25,7 @@ case class GitVersion(sha1: String, commitDate: Long, repoUrl: Option[String]) {
 
   /** @return a formatted date string */
   def prettyCommitDate: String = {
-    String.format("$1%tF $1%tT GMT$1%tz", new Date(commitDate))
+    String.format("%1$tF %1$tT GMT%1$tz", new Date(commitDate))
   }
 }
 
