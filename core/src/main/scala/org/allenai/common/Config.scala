@@ -148,8 +148,9 @@ object Config {
       *
       * @throws com.typesafe.config.ConfigException
       */
-    def fromJson[T](key: String)(implicit reader: JsonReader[T]): T =
+    def fromJson[T](key: String)(implicit reader: JsonReader[T]): T = {
       ConfigReader.jsonReader.read(config, key).convertTo[T]
+    }
 
     /** Optional JSON parse */
     def getFromJson[T](key: String)(implicit reader: JsonReader[T]): Option[T] =

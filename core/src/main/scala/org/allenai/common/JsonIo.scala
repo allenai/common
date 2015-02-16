@@ -24,7 +24,10 @@ object JsonIo {
   }
 
   /** Writes the given objects to the given output stream, as one-per-line JSON values. */
-  def writeJson[T](values: Iterable[T], outputStream: OutputStream)(implicit format: JsonFormat[T]): Unit = {
+  def writeJson[T](
+    values: Iterable[T],
+    outputStream: OutputStream
+  )(implicit format: JsonFormat[T]): Unit = {
     val writer = new PrintWriter(outputStream)
     writeJson(values, writer)
     writer.flush
