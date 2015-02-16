@@ -7,7 +7,7 @@ cache:
   directories:
   - $HOME/.ivy2/cache
 script:
-  - sbt test
+  - sbt test formatCheckStrict styleCheckStrict
 after_script:
   - mkdir -p shippable/testresults
   - cp */target/test-reports/*.xml shippable/testresults
