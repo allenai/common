@@ -4,7 +4,7 @@ import scala.concurrent.Future
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-/** Trait providing helpers for dealing with [[scala.concurrent.Future]]s duruing tests
+/** Trait providing helpers for dealing with scala.concurrent.Futures duruing tests
   */
 trait FutureHelpers { self: AllenAiBaseSpec =>
 

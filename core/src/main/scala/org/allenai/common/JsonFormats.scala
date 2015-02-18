@@ -9,7 +9,7 @@ import java.io.PrintWriter
 import java.io.StringWriter
 import scala.util.{ Try, Success, Failure }
 
-/** Common [[spray.json.JsonFormat]]s, [[spray.json.JsonReader]]s, and [[spray.json.JsonWriter]]s */
+/** Common spray.json.JsonFormats, spray.json.JsonReaders, and spray.json.JsonWriters */
 object JsonFormats {
 
   implicit val throwableWriter: RootJsonWriter[Throwable] = new RootJsonWriter[Throwable] {
