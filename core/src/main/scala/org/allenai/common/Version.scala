@@ -37,7 +37,7 @@ object GitVersion {
     * The remotes are searched for one with user "allenai" and then it's
     * transformed into a valid GitHub project URL.
     *
-    * @returns  a URL to a GitHub repo, or None if no allenai remotes exist
+    * @return  a URL to a GitHub repo, or None if no allenai remotes exist
     */
   def projectUrl(remotes: Seq[String], user: String): Option[String] = {
     val sshRegex = """git@github.com:([\w-]+)/([\w-]+).git""".r
