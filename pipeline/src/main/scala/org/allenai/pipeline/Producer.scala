@@ -6,6 +6,8 @@ import java.net.URI
 
 /** An individual step in a data processing pipeline.
   * A lazily evaluated calculation, with support for in-memory caching and persistence.
+  *
+  * @tparam  T  the type of data being produced
   */
 trait Producer[T] extends Logging with CachingEnabled with PipelineRunnerSupport {
   self =>
@@ -25,6 +27,10 @@ trait Producer[T] extends Logging with CachingEnabled with PipelineRunnerSupport
     * Once computed, write the result to the given artifact.
     * If the artifact we are using for persistence exists,
     * return the deserialized object rather than recomputing it.
+    *
+    * @tparam  A  the type of artifact being writen to (i.e. directory, file)
+    * @param  io  the serialization for data of type T
+    * @param  artifactSource  creation of the artifact to be written
     */
   def persisted[A <: Artifact](
     io: ArtifactIo[T, A],
@@ -33,6 +39,9 @@ trait Producer[T] extends Logging with CachingEnabled with PipelineRunnerSupport
     new PersistedProducer(this, io, artifactSource)
 
   /** Default caching policy is set by the implementing class but can be overridden dynamically.
+    *
+    * When caching is enabled, an in-memory reference is stored to the output object so
+    * subsequent calls to .get do not re-process.
     */
   def enableCaching: Producer[T] = {
     if (cachingEnabled) {
@@ -75,6 +84,20 @@ trait Producer[T] extends Logging with CachingEnabled with PipelineRunnerSupport
   }
 
   override def outputLocation: Option[URI] = None
+}
+
+object Producer {
+  /** A Pipeline step wrapper for in-memory data. */
+  def fromMemory[T](data: T): Producer[T] = new Producer[T] with UnknownCodeInfo {
+    override def create: T = data
+
+    override def signature: Signature = Signature(
+      data.getClass.getName,
+      data.hashCode.toHexString
+    )
+
+    override def outputLocation: Option[URI] = None
+  }
 }
 
 /** This information is used by PipelineRunner to construct and visualize the DAG for a pipeline */
