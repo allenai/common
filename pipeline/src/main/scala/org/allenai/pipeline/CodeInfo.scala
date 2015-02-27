@@ -16,6 +16,7 @@ import java.net.URI
   *            inputs
   * @param srcUrl Link to source (e.g. in GitHub)
   * @param binaryUrl Link to binaries (e.g. in Nexus)
+  * @param codeInfo a short human-readable description
   */
 case class CodeInfo(
   className: String,
