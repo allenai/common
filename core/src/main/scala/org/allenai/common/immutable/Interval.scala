@@ -387,7 +387,7 @@ object Interval {
 
   /** create an interval from a sequence of `Int`s.
     *
-    * @throws IllegalArgumentException  some x such that min < x < max is not in col
+    * @throws java.lang.IllegalArgumentException  some x such that min < x < max is not in col
     */
   def from(col: Seq[Int]): Interval = {
     if (col.isEmpty) {
@@ -408,7 +408,7 @@ object Interval {
   /** create an interval from a collection of intervals.  The intervals will be
     * sorted and unioned.
     *
-    * @throws IllegalArgumentException  gap in intervals
+    * @throws java.lang.IllegalArgumentException  gap in intervals
     */
   def union(col: Seq[Interval]): Interval = {
     val sorted = col.sorted
@@ -423,7 +423,7 @@ object Interval {
   /** create the smallest interval that spans a collection of intervals.
     * The intervals will be sorted and unioned.
     *
-    * @throws IllegalArgumentException  gap in intervals
+    * @throws java.lang.IllegalArgumentException  gap in intervals
     */
   def span(col: Iterable[Interval]): Interval = {
     if (col.isEmpty) {

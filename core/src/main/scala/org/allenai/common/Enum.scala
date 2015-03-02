@@ -37,7 +37,6 @@ abstract class EnumCompanion[E <: Enum[E]] {
 
   /** Lookup enum by ID
     * @param id
-    * @throws
     */
   def withId(id: String): E = registry(id)
 

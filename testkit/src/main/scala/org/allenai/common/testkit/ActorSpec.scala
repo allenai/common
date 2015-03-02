@@ -8,7 +8,7 @@ import org.scalatest._
 
 /** Base class for Akka Actor integration specs
   *
-  * By extending [[akka.testkit.TestKit]] and [[akka.testkit.ImplicitSender]],
+  * By extending akka.testkit.TestKit and akka.testkit.ImplicitSender,
   * we get many helpers for testing Actors against a live actor system.
   *
   * For more information on Akka TestKit, see: http://goo.gl/3SE4zz

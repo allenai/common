@@ -34,7 +34,7 @@ package object json {
       pack(newField._1 -> aJsValue)
     }
 
-    /** Optionally unpack json using the provided [[PackedJsonFormat]]s
+    /** Optionally unpack json using the provided PackedJsonFormats
       *
       * @param packedFormats
       */

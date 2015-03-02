@@ -8,7 +8,7 @@ import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 
 /** Import to provide enhancements via implicit class conversion for making working
-  * with [[com.typesafe.config.Config]] more Scala-friendly (no nulls!).
+  * with com.typesafe.config.Config more Scala-friendly (no nulls!).
   *
   * Also provides a Spray JSON RootJsonFormat[Config].
   */
@@ -110,7 +110,7 @@ object Config {
     val jsonReader: ConfigReader[JsValue] = configObjReader map { _.toConfig.toJson }
   }
 
-  /** Adds Scala-friendly methods to a [[com.typesafe.config.Config]] instance:
+  /** Adds Scala-friendly methods to a com.typesafe.config.Config instance:
     *
     * Examples:
     *
