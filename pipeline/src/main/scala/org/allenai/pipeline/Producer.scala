@@ -170,7 +170,7 @@ class PersistedProducer[T, A <: Artifact](step: Producer[T], io: ArtifactIo[T, A
 
   override def outputLocation: Option[URI] = Some(artifact.url)
 
-  override def description = Option(step).map(_.description)
+  override def description = Option(step).flatMap(_.description)
 }
 
 //
