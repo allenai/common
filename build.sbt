@@ -39,13 +39,7 @@ lazy val webapp = Project(
   settings = buildSettings
 ).enablePlugins(LibraryPlugin).dependsOn(core, testkit % "test->compile")
 
-lazy val pipeline = Project(
-  id = "pipeline",
-  base = file("pipeline"),
-  settings = buildSettings
-).dependsOn(testkit % "test->compile", core).enablePlugins(LibraryPlugin)
-
 lazy val common = Project(id = "common", base = file(".")).settings(
   // Don't publish a jar for the root project.
   publishArtifact := false, publishTo := Some("dummy" at "nowhere"), publish := { }, publishLocal := { }
-).aggregate(webapp, core, testkit, pipeline).enablePlugins(LibraryPlugin)
+).aggregate(webapp, core, testkit).enablePlugins(LibraryPlugin)
