@@ -16,13 +16,13 @@ class ParIteratorSpec extends UnitSpec {
     val iter = Iterator(3, 1, 2)
     val time = Timing.time {
       iter.parForeach { i =>
-        Thread.sleep(i * 1000)
+        Thread.sleep(i * 100)
         successes.add(i)
       }
     }
 
     assert(successes === Set(1, 2, 3))
-    assert(time < (3500 millis))
+    assert(time < (350 millis))
   }
 
   it should "do a great many things concurrently" in {
@@ -31,7 +31,7 @@ class ParIteratorSpec extends UnitSpec {
     val max = 2000
     val iter = Range(0, max).toIterator
     iter.parForeach { i =>
-      Thread.sleep((max - i) % 100)
+      Thread.sleep((max - i) % 10)
       successes += i
     }
     val expected = Range(0, max).toSet
@@ -49,7 +49,7 @@ class ParIteratorSpec extends UnitSpec {
 
         val iter = Range(0, max).toIterator
         iter.parForeach { i =>
-          Thread.sleep((i * max * max) % 100)
+          Thread.sleep((i * max * max) % 10)
           successes += i
           count.incrementAndGet()
         }
@@ -70,13 +70,13 @@ class ParIteratorSpec extends UnitSpec {
     val expected = values.map { i => s"$i" }
     val time = Timing.time {
       val result = iter.parMap { i =>
-        Thread.sleep(i * 1000)
+        Thread.sleep(i * 100)
         s"$i"
       }
       assert(expected === result.toSeq)
     }
 
-    assert(time < (max seconds) + (500 millis))
+    assert(time < ((max * 100) millis) + (50 millis))
   }
 
   it should "map lots of things concurrently" in {
