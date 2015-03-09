@@ -20,8 +20,11 @@ object ParIterator {
         val success = sema.tryAcquire()
         if (success)
           Future {
-            f(item)
-            sema.release()
+            try {
+              f(item)
+            } finally {
+              sema.release()
+            }
           }
         else
           f(item)
