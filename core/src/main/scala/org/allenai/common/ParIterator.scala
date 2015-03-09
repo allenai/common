@@ -18,7 +18,7 @@ object ParIterator {
         // Try to pass it off to a future. If no futures are available, do the work
         // in this thread.
         val success = sema.tryAcquire()
-        if (success)
+        if (success) {
           Future {
             try {
               f(item)
@@ -26,8 +26,9 @@ object ParIterator {
               sema.release()
             }
           }
-        else
+        } else {
           f(item)
+        }
       }
       // wait for all threads to be done
       blocking { sema.acquire(queueLimit) }
@@ -49,8 +50,7 @@ object ParIterator {
 
       override def next(): O = {
         // In Scala, this case is undefined, so we do what the Java spec says.
-        if (!hasNext)
-          throw new NoSuchElementException()
+        if (!hasNext) throw new NoSuchElementException()
         val result = q.dequeue()
         fillQueue()
         Await.result(result, Duration.Inf)
