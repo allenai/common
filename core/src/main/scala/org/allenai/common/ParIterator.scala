@@ -48,8 +48,9 @@ object ParIterator {
       fillQueue()
 
       override def next(): O = {
+        // In Scala, this case is undefined, so we do what the Java spec says.
         if (!hasNext)
-          throw new NoSuchElementException() // In Scala, this case is undefined, so we do what the Java spec says.
+          throw new NoSuchElementException()
         val result = q.dequeue()
         fillQueue()
         Await.result(result, Duration.Inf)
