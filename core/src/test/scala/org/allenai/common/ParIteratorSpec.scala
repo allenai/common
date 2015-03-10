@@ -15,7 +15,7 @@ class ParIteratorSpec extends UnitSpec {
   "ParForeachIterator" should "do things concurrently" in {
     val successes = new ConcurrentSkipListSet[Int]()
 
-    val scale = 200
+    val scale = 300
 
     val iter = Iterator(3, 1, 2)
     val time = Timing.time {
