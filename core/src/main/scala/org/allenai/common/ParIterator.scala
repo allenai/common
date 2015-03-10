@@ -1,6 +1,6 @@
 package org.allenai.common
 
-import java.util.concurrent.Semaphore
+import java.util.concurrent.{ TimeUnit, Semaphore }
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.concurrent._
@@ -19,9 +19,9 @@ object ParIterator {
       * function takes care not to overload the execution context with more requests than it can
       * handle.
       *
-      * If one or more of the function executions throw an exception, only the first exception is
-      * reported. The iterator is still exhausted, and all other executions are attempted. That's
-      * impractical, but consistent with the behavior of the parallel collections in Scala.
+      * If one or more of the function executions throw an exception, parForeach throws that same
+      * exception. It is undefined which exception gets thrown. The iterator is left in an
+      * undefined state in this case.
       *
       * @param f  the function to execute
       * @param ec the execution context to run the function executions in
@@ -34,51 +34,42 @@ object ParIterator {
       // so we limit the number of futures we create with this semaphore.
       val sema = new Semaphore(queueLimit)
 
-      val firstException = new AtomicReference[Option[(Int, Throwable)]](None)
-      def setException(index: Int, exception: Throwable): Unit = {
-        var success = false
-        while (!success) {
-          val current = firstException.get()
-          current match {
-            case None =>
-              success = firstException.compareAndSet(None, Some((index, exception)))
-            case Some((oldIndex: Int, _)) if index < oldIndex =>
-              success = firstException.compareAndSet(current, Some((index, exception)))
-            case _ =>
-              success = true
-          }
-        }
-      }
+      val firstException = new AtomicReference[Option[Throwable]](None)
 
-      input.zipWithIndex foreach {
-        case (item, index) =>
-          // Try to pass it off to a future. If no futures are available, do the work
-          // in this thread.
-          val success = sema.tryAcquire()
-          if (success) {
-            Future {
-              try {
-                f(item)
-              } catch {
-                case NonFatal(e) => setException(index, e)
-              } finally {
-                sema.release()
-              }
-            }
-          } else {
+      while (input.hasNext && firstException.get().isEmpty) {
+        val item = input.next()
+
+        // Try to pass it off to a future. If no futures are available, do the work in this thread.
+        val success = sema.tryAcquire()
+        if (success) {
+          Future {
             try {
               f(item)
             } catch {
-              case NonFatal(e) => setException(index, e)
+              case NonFatal(e) =>
+                val success = firstException.compareAndSet(None, Some(e))
+                // If we didn't set the exception, rethrow so that any potential uncaught
+                // exceptions handlers have a chance to get this one.
+                if (!success) throw e
+            } finally {
+              sema.release()
             }
           }
+        } else {
+          f(item)
+        }
       }
 
       // wait for all threads to be done
-      blocking { sema.acquire(queueLimit) }
+      var success = false
+      while (firstException.get().isEmpty && !success) {
+        blocking {
+          success = sema.tryAcquire(queueLimit, 1000, TimeUnit.MILLISECONDS)
+        }
+      }
 
       // throw first exception if there is one
-      firstException.get().foreach { case (_, e) => throw e }
+      firstException.get().foreach { e => throw e }
     }
 
     /** Maps an iterator to another iterator, performing the maps on the elements in parallel.
