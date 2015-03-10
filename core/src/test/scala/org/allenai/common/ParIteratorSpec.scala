@@ -87,4 +87,27 @@ class ParIteratorSpec extends UnitSpec {
     val result = iter.parMap { i => s"$i" }
     assert(expected === result.toSeq)
   }
+
+  it should "return exceptions from foreach functions" in {
+    val successes = synchronized(collection.mutable.Set[Int]())
+    intercept[ArithmeticException] {
+      Range(-20, 20).toIterator.parForeach { i => successes.add(10000 / i) }
+    }
+  }
+
+  it should "return the first exception from foreach functions" in {
+    intercept[NotImplementedError] {
+      Iterator(new NotImplementedError(), new ArithmeticException()).zipWithIndex.foreach {
+        case (e, index) =>
+          Thread.sleep((1 - index) * 1000)
+          throw e
+      }
+    }
+  }
+
+  it should "return exceptions from map" in {
+    intercept[ArithmeticException] {
+      Range(-20, 20).toIterator.map(10000 / _).toList
+    }
+  }
 }
