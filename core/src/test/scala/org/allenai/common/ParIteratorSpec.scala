@@ -13,16 +13,18 @@ class ParIteratorSpec extends UnitSpec {
   "ParForeachIterator" should "do things concurrently" in {
     val successes = synchronized(collection.mutable.Set[Int]())
 
+    val scale = 200
+
     val iter = Iterator(3, 1, 2)
     val time = Timing.time {
       iter.parForeach { i =>
-        Thread.sleep(i * 100)
+        Thread.sleep(i * scale)
         successes.add(i)
       }
     }
 
     assert(successes === Set(1, 2, 3))
-    assert(time < (350 millis))
+    assert(time < (((3 * scale) + (scale / 2)) millis))
   }
 
   it should "do a great many things concurrently" in {
