@@ -105,7 +105,7 @@ object ParIterator {
       private val q = new scala.collection.mutable.Queue[Future[O]]()
 
       private def fillQueue(): Unit = {
-        while (input.toIterator.hasNext && q.size < queueLimit) {
+        while (inner.hasNext && q.size < queueLimit) {
           val item = inner.next()
           q.enqueue(Future {
             f(item)
