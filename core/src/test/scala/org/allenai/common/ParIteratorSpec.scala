@@ -1,5 +1,6 @@
 package org.allenai.common
 
+import java.util.concurrent.ConcurrentSkipListSet
 import java.util.concurrent.atomic.AtomicInteger
 
 import org.allenai.common.testkit.UnitSpec
@@ -8,10 +9,11 @@ import org.allenai.common.ParIterator.ParIteratorEnrichment
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
+import scala.collection.JavaConverters._
 
 class ParIteratorSpec extends UnitSpec {
   "ParForeachIterator" should "do things concurrently" in {
-    val successes = synchronized(collection.mutable.Set[Int]())
+    val successes = new ConcurrentSkipListSet[Int]()
 
     val scale = 200
 
@@ -23,23 +25,30 @@ class ParIteratorSpec extends UnitSpec {
       }
     }
 
-    assert(successes === Set(1, 2, 3))
+    assert(successes.asScala === Set(1, 2, 3))
     assert(time < (((3 * scale) + (scale / 2)) millis))
   }
 
   it should "do a great many things concurrently" in {
-    val successes = synchronized(collection.mutable.Set[Int]())
+    Iterator.fill(10)(0).foreach { _ =>
+      val successes = new ConcurrentSkipListSet[Int]()
 
-    val max = 2000
-    val iter = Range(0, max).toIterator
-    iter.parForeach { i =>
-      Thread.sleep((max - i) % 10)
-      successes += i
+      val max = 2000
+      val iter = Range(0, max).toIterator
+      iter.parForeach { i =>
+        Thread.sleep((max - i) % 10)
+        successes.add(i)
+      }
+      val expected = Range(0, max).toSet
+
+      assert((successes.asScala -- expected) === Set.empty)
+      assert((expected -- successes.asScala) === Set.empty)
+
+      Thread.sleep(1000)
+
+      assert((successes.asScala -- expected) === Set.empty)
+      assert((expected -- successes.asScala) === Set.empty)
     }
-    val expected = Range(0, max).toSet
-
-    assert((successes -- expected) === Set.empty)
-    assert((expected -- successes) === Set.empty)
   }
 
   it should "nest properly" in {
@@ -47,18 +56,18 @@ class ParIteratorSpec extends UnitSpec {
     val max = 13
     Range(0, max).toIterator.parForeach { _ =>
       Range(0, max).toIterator.parForeach { _ =>
-        val successes = synchronized(collection.mutable.Set[Int]())
+        val successes = new ConcurrentSkipListSet[Int]()
 
         val iter = Range(0, max).toIterator
         iter.parForeach { i =>
           Thread.sleep((i * max * max) % 10)
-          successes += i
+          successes.add(i)
           count.incrementAndGet()
         }
         val expected = Range(0, max).toSet
 
-        assert((successes -- expected) === Set.empty)
-        assert((expected -- successes) === Set.empty)
+        assert((successes.asScala -- expected) === Set.empty)
+        assert((expected -- successes.asScala) === Set.empty)
       }
     }
 
@@ -98,8 +107,8 @@ class ParIteratorSpec extends UnitSpec {
   }
 
   it should "return the first exception from foreach functions" in {
-    intercept[NotImplementedError] {
-      Iterator(new NotImplementedError(), new ArithmeticException()).zipWithIndex.foreach {
+    intercept[ArithmeticException] {
+      Iterator(new NotImplementedError(), new ArithmeticException()).zipWithIndex.parForeach {
         case (e, index) =>
           Thread.sleep((1 - index) * 1000)
           throw e
@@ -109,7 +118,7 @@ class ParIteratorSpec extends UnitSpec {
 
   it should "return exceptions from map" in {
     intercept[ArithmeticException] {
-      Range(-20, 20).toIterator.map(10000 / _).toList
+      Range(-20, 20).toIterator.parMap(10000 / _).toList
     }
   }
 }
