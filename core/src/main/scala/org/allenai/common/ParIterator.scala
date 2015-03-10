@@ -8,7 +8,7 @@ import scala.concurrent.duration.Duration
 import scala.util.control.NonFatal
 
 object ParIterator {
-  val queueLimit = 1024
+  val defaultQueueLimit = 1024
 
   implicit class ParIteratorEnrichment[T](val input: Iterator[T]) extends AnyVal {
 
@@ -26,7 +26,7 @@ object ParIterator {
       * @param f  the function to execute
       * @param ec the execution context to run the function executions in
       */
-    def parForeach(f: T => Unit)(implicit ec: ExecutionContext): Unit = {
+    def parForeach(f: T => Unit, queueLimit: Int = defaultQueueLimit)(implicit ec: ExecutionContext): Unit = {
       // If there are a billion items in the iterator, we don't want to create a billion futures,
       // so we limit the number of futures we create with this semaphore.
       val sema = new Semaphore(queueLimit)
@@ -94,7 +94,7 @@ object ParIterator {
       * @tparam O the type of the output
       * @return   a new iterator with the mapped values from the old iterator
       */
-    def parMap[O](f: T => O)(implicit ec: ExecutionContext): TraversableOnce[O] = new Iterator[O] {
+    def parMap[O](f: T => O, queueLimit: Int = defaultQueueLimit)(implicit ec: ExecutionContext): TraversableOnce[O] = new Iterator[O] {
       private val inner = input.toIterator
       private val q = new scala.collection.mutable.Queue[Future[O]]()
 
