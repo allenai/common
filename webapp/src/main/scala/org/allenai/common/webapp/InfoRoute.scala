@@ -15,7 +15,7 @@ import spray.routing.Route
   * @param info the info to serve
   */
 class InfoRoute(val info: Map[String, String] = Map.empty) {
-  val infoWithTime = info.updated("startupTimestamp", (System.currentTimeMillis() / 1000L).toString)
+  val infoWithTime = info.updated("startupTimestamp", System.currentTimeMillis().toString)
 
   def withVersion(version: Version): InfoRoute = {
     new InfoRoute(
