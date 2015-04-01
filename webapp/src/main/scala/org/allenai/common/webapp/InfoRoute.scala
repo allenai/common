@@ -31,6 +31,9 @@ class InfoRoute(val info: Map[String, String] = Map.empty) {
 
   def withName(name: String): InfoRoute = new InfoRoute(info + ("name" -> name))
 
+  def withStartupTime(startupTime: Long = System.currentTimeMillis()): InfoRoute =
+    new InfoRoute(info + ("startupTime" -> startupTime.toString))
+
   // format: OFF
   def route: Route = get {
     pathPrefix("info") {
