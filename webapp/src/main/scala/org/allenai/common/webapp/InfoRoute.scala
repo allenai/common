@@ -15,8 +15,6 @@ import spray.routing.Route
   * @param info the info to serve
   */
 class InfoRoute(val info: Map[String, String] = Map.empty) {
-  val infoWithTime = info.updated("startupTimestamp", System.currentTimeMillis().toString)
-
   def withVersion(version: Version): InfoRoute = {
     new InfoRoute(
       info ++
@@ -33,20 +31,23 @@ class InfoRoute(val info: Map[String, String] = Map.empty) {
 
   def withName(name: String): InfoRoute = new InfoRoute(info + ("name" -> name))
 
+  def withStartupTime(startupTime: Long = System.currentTimeMillis()): InfoRoute =
+    new InfoRoute(info + ("startupTime" -> startupTime.toString))
+
   // format: OFF
   def route: Route = get {
     pathPrefix("info") {
       pathEndOrSingleSlash {
         respondWithMediaType(MediaTypes.`application/json`) {
           complete {
-            infoWithTime.toJson.prettyPrint
+            info.toJson.prettyPrint
           }
         }
       }
     } ~
     path("info" / Segment) { key =>
       complete {
-        infoWithTime.get(key) match {
+        info.get(key) match {
           case Some(key) => key
           case None => (StatusCodes.NotFound, "Could not find info: " + key)
         }
