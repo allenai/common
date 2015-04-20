@@ -55,4 +55,15 @@ lazy val webapp = Project(
 lazy val common = Project(id = "common", base = file(".")).settings(
   // Don't publish a jar for the root project.
   publishArtifact := false, publishTo := Some("dummy" at "nowhere"), publish := { }, publishLocal := { }
-).aggregate(webapp, core, testkit).enablePlugins(LibraryPlugin)
+).aggregate(webapp, core, testkit).enablePlugins(LibraryPlugin).settings(
+  ReleaseKeys.releaseProcess := Seq[ReleaseStep](
+    checkSnapshotDependencies,
+    inquireVersions,
+    runTest,
+    setReleaseVersion,
+    commitReleaseVersion,
+    tagRelease,
+    setNextVersion,
+    commitNextVersion
+  )
+)
