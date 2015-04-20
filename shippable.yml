@@ -9,5 +9,6 @@ cache:
 script:
   - sbt test formatCheckStrict styleCheckStrict
 after_script:
+  - admin/release.sh
   - mkdir -p shippable/testresults
   - cp */target/test-reports/*.xml shippable/testresults
