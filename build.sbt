@@ -1,3 +1,6 @@
+import sbtrelease._
+import ReleaseStateTransformations._
+
 lazy val buildSettings = Seq(
   organization := "org.allenai.common",
   crossScalaVersions := Seq("2.11.5"),
@@ -18,7 +21,17 @@ lazy val buildSettings = Seq(
         <name>Allen Institute for Artificial Intelligence</name>
         <email>dev-role@allenai.org</email>
       </developer>
-    </developers>)
+    </developers>),
+  ReleaseKeys.releaseProcess := Seq[ReleaseStep](
+    checkSnapshotDependencies,
+    inquireVersions,
+    runTest,
+    setReleaseVersion,
+    commitReleaseVersion,
+    tagRelease,
+    setNextVersion,
+    commitNextVersion
+  )
 ) ++ PublishTo.sonatype
 
 lazy val testkit = Project(
