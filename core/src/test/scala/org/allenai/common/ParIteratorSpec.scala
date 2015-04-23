@@ -12,10 +12,12 @@ import scala.language.postfixOps
 import scala.collection.JavaConverters._
 
 class ParIteratorSpec extends UnitSpec {
-  "ParForeachIterator" should "do things concurrently" in {
+  // With small values (<1000) for scale, this test is unreliable, and with large ones it takes
+  // over three seconds, so we ignore it.
+  "ParForeachIterator" should "do things concurrently" ignore {
     val successes = new ConcurrentSkipListSet[Int]()
 
-    val scale = 300
+    val scale = 1000
 
     val iter = Iterator(3, 1, 2)
     val time = Timing.time {
