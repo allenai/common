@@ -3,11 +3,11 @@ scala:
 - 2.11.5
 jdk:
 - openjdk7
-cache:
-  directories:
-  - $HOME/.ivy2/cache
+cache: true
+before_install:
+- sbt transitiveUpdate
 script:
-  - sbt test formatCheckStrict styleCheckStrict
+- sbt test formatCheckStrict styleCheckStrict
 after_script:
-  - mkdir -p shippable/testresults
-  - cp */target/test-reports/*.xml shippable/testresults
+- mkdir -p shippable/testresults
+- cp */target/test-reports/*.xml shippable/testresults
