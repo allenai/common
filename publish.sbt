@@ -2,11 +2,10 @@ import sbtrelease.ReleaseStep
 import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.ReleasePlugin.ReleaseKeys
 
-bintray.Plugin.bintrayPublishSettings
 
-bintray.Keys.repository in bintray.Keys.bintray := "common"
+bintray.Keys.repository in bintray.Keys.bintray in ThisBuild := "common"
 
-bintray.Keys.bintrayOrganization in bintray.Keys.bintray := Some("allenai")
+bintray.Keys.bintrayOrganization in bintray.Keys.bintray in ThisBuild := Some("allenai")
 
 val checkBranchIsNotMaster = { st: State =>
   val vcs = Project.extract(st).get(ReleaseKeys.versionControlSystem).getOrElse {
