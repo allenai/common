@@ -3,7 +3,7 @@ import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.ReleasePlugin.ReleaseKeys
 
 
-bintray.Keys.repository in bintray.Keys.bintray in ThisBuild := "common"
+bintray.Keys.repository in bintray.Keys.bintray in ThisBuild := "maven"
 
 bintray.Keys.bintrayOrganization in bintray.Keys.bintray in ThisBuild := Some("allenai")
 
