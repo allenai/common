@@ -2,9 +2,12 @@ language: scala
 scala:
 - 2.11.5
 jdk:
-- openjdk7
+- oraclejdk8
 cache: true
 before_install:
+# Update dependencies in before_install so they are accounted for separately
+# when timing the build.  transitiveUpdate does not try to update dependencies
+# that are already cachedo n the filesystem.
 - sbt transitiveUpdate
 script:
 - sbt test formatCheckStrict styleCheckStrict
