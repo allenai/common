@@ -5,7 +5,7 @@ lazy val buildSettings = Seq(
   publishMavenStyle := true,
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false },
-  licenses := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+  licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
   homepage := Some(url("https://github.com/allenai/common")),
   scmInfo := Some(ScmInfo(
     url("https://github.com/allenai/common"),
@@ -19,27 +19,30 @@ lazy val buildSettings = Seq(
         <email>dev-role@allenai.org</email>
       </developer>
     </developers>)
-) ++ PublishTo.sonatype
+) ++ releaseSettings ++
+  bintray.Plugin.bintrayPublishSettings ++
+  org.allenai.plugins.ReleasePlugin.SemanticVersion.settings
 
 lazy val testkit = Project(
   id = "testkit",
   base = file("testkit"),
   settings = buildSettings
-).enablePlugins(LibraryPlugin)
+)
 
 lazy val core = Project(
   id = "core",
   base = file("core"),
   settings = buildSettings
-).enablePlugins(LibraryPlugin).dependsOn(testkit % "test->compile")
+).dependsOn(testkit % "test->compile")
 
 lazy val webapp = Project(
   id = "webapp",
   base = file("webapp"),
   settings = buildSettings
-).enablePlugins(LibraryPlugin).dependsOn(core, testkit % "test->compile")
+).dependsOn(core, testkit % "test->compile")
 
 lazy val common = Project(id = "common", base = file(".")).settings(
   // Don't publish a jar for the root project.
   publishArtifact := false, publishTo := Some("dummy" at "nowhere"), publish := { }, publishLocal := { }
-).aggregate(webapp, core, testkit).enablePlugins(LibraryPlugin)
+).aggregate(webapp, core, testkit).settings(releaseSettings).
+  settings(org.allenai.plugins.ReleasePlugin.SemanticVersion.settings)

@@ -12,5 +12,7 @@ before_install:
 script:
 - sbt test formatCheckStrict styleCheckStrict
 after_script:
+- admin/create-bintray-credentials.sh
+- admin/publish-release.sh
 - mkdir -p shippable/testresults
 - cp */target/test-reports/*.xml shippable/testresults
