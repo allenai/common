@@ -20,7 +20,8 @@ lazy val buildSettings = Seq(
       </developer>
     </developers>)
 ) ++ releaseSettings ++
-  bintray.Plugin.bintrayPublishSettings
+  bintray.Plugin.bintrayPublishSettings ++
+  org.allenai.plugins.ReleasePlugin.SemanticVersion.settings
 
 lazy val testkit = Project(
   id = "testkit",
@@ -43,4 +44,5 @@ lazy val webapp = Project(
 lazy val common = Project(id = "common", base = file(".")).settings(
   // Don't publish a jar for the root project.
   publishArtifact := false, publishTo := Some("dummy" at "nowhere"), publish := { }, publishLocal := { }
-).aggregate(webapp, core, testkit).settings(releaseSettings)
+).aggregate(webapp, core, testkit).settings(releaseSettings).
+  settings(org.allenai.plugins.ReleasePlugin.SemanticVersion.settings)
