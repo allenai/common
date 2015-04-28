@@ -23,7 +23,9 @@ if [ $numParents -ne 2 ]; then
 fi
 
 # Shippable only runs a single build when a pull request is merged, so we need to list
-# all tags from the merged commits.
+# all tags from the merged commits.  HEAD^2 gives us the second parent of HEAD--also
+# known as the last commit on the merge branch.  So the rev-list gives us all commits
+# that are in the merge branch were not in the master branch.
 firstMergedCommit=`git rev-list HEAD^2 --not HEAD^1 | tail -n 1`
 echo "First merged commit: $firstMergedCommit"
 
