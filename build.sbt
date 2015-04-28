@@ -19,27 +19,27 @@ lazy val buildSettings = Seq(
         <email>dev-role@allenai.org</email>
       </developer>
     </developers>)
-) ++ PublishTo.sonatype
+) ++ releaseSettings
 
 lazy val testkit = Project(
   id = "testkit",
   base = file("testkit"),
   settings = buildSettings
-).enablePlugins(LibraryPlugin)
+)
 
 lazy val core = Project(
   id = "core",
   base = file("core"),
   settings = buildSettings
-).enablePlugins(LibraryPlugin).dependsOn(testkit % "test->compile")
+).dependsOn(testkit % "test->compile")
 
 lazy val webapp = Project(
   id = "webapp",
   base = file("webapp"),
   settings = buildSettings
-).enablePlugins(LibraryPlugin).dependsOn(core, testkit % "test->compile")
+).dependsOn(core, testkit % "test->compile")
 
 lazy val common = Project(id = "common", base = file(".")).settings(
   // Don't publish a jar for the root project.
   publishArtifact := false, publishTo := Some("dummy" at "nowhere"), publish := { }, publishLocal := { }
-).aggregate(webapp, core, testkit).enablePlugins(LibraryPlugin)
+).aggregate(webapp, core, testkit).settings(releaseSettings)
