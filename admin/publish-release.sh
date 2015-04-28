@@ -10,11 +10,12 @@ if [ "$PULL_REQUEST" != "false" ]; then
 fi
 
 if [ "$BRANCH" != "master" ]; then
-  echo "Shippable is building on branch $BRANCH, not publishing."
-  echo "BRANCH is equal to $BRANCH"
+  echo "Shippable is building on branch '$BRANCH', not publishing."
   exit 0
 fi
 
+# Compute the number of parents of the current commit.  A merged pull request should
+# have two parents.  `xargs` is used here to remove whitespace.
 numParents=`git log --pretty=%P -n 1 | wc -w | xargs`
 if [ $numParents -ne 2 ]; then
   echo "$numParents parent commits of HEAD when exactly 2 expected, not publishing."
