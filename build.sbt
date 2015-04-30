@@ -5,12 +5,11 @@ lazy val buildSettings = Seq(
   publishMavenStyle := true,
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false },
-  licenses := Seq("Apache 2.0" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.txt")),
+  licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
   homepage := Some(url("https://github.com/allenai/common")),
   scmInfo := Some(ScmInfo(
     url("https://github.com/allenai/common"),
     "https://github.com/allenai/common.git")),
-  ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value,
   pomExtra := (
     <developers>
       <developer>
@@ -19,7 +18,7 @@ lazy val buildSettings = Seq(
         <email>dev-role@allenai.org</email>
       </developer>
     </developers>)
-) ++ PublishTo.sonatype
+) ++ bintray.Plugin.bintrayPublishSettings
 
 lazy val testkit = Project(
   id = "testkit",
