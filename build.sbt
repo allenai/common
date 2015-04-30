@@ -10,7 +10,6 @@ lazy val buildSettings = Seq(
   scmInfo := Some(ScmInfo(
     url("https://github.com/allenai/common"),
     "https://github.com/allenai/common.git")),
-  ReleaseKeys.publishArtifactsAction := PgpKeys.publishSigned.value,
   pomExtra := (
     <developers>
       <developer>
