@@ -18,7 +18,7 @@ lazy val buildSettings = Seq(
         <email>dev-role@allenai.org</email>
       </developer>
     </developers>)
-)
+) ++ bintray.Plugin.bintrayPublishSettings
 
 lazy val testkit = Project(
   id = "testkit",
