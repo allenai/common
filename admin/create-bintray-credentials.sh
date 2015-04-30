@@ -1,3 +1,8 @@
+if [ -z "$BINTRAY_API_KEY" ]; then
+  echo "BINTRAY_API_KEY is not set or is empty!"
+  exit 1
+fi
+
 mkdir -p ~/.bintray
 chmod 700 ~/.bintray
 cat > ~/.bintray/.credentials <<CREDS
