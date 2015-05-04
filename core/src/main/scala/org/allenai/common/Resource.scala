@@ -1,5 +1,7 @@
 package org.allenai.common
 
+import java.net.URL
+
 object Resource {
   // Allow use of methods on structural types.
   import scala.language.reflectiveCalls
@@ -38,5 +40,48 @@ object Resource {
       resource1.close()
       resource2.close()
     }
+  }
+
+  /** Get a Java Resource.
+    * This method provides a much nicer exception than the Java default (NPE).
+    *
+    * @param  name  absolute path of the resource
+    */
+  def get(name: String): URL = {
+    getOpt(name).getOrElse {
+      throw new IllegalArgumentException("No such absolute resource found: " + name)
+    }
+  }
+
+  /** Get a Java Resource.
+    * This method provides a much nicer exception than the Java default (NPE).
+    *
+    * @param  name  absolute path of the resource
+    * @returns  Some(URL) if the resource exists
+    */
+  def getOpt(name: String): Option[URL] = {
+    Option(this.getClass.getClassLoader.getResource(name))
+  }
+
+  /** Get a Java Resource.
+    * This method provides a much nicer exception than the Java default (NPE).
+    *
+    * @param  clazz  the class from which the resource may be relative
+    * @param  name  path of the resource (absolute if prefixed with /)
+    */
+  def get(clazz: Class[_], name: String): URL = {
+    getOpt(clazz, name).getOrElse {
+      throw new IllegalArgumentException("No such absolute resource found: " + name)
+    }
+  }
+
+  /** Get a Java Resource.
+    * This method provides a much nicer exception than the Java default (NPE).
+    *
+    * @param  clazz  the class from which the resource may be relative
+    * @returns  Some(URL) if the resource exists
+    */
+  def getOpt(clazz: Class[_], name: String): Option[URL] = {
+    Option(clazz.getResource(name))
   }
 }
