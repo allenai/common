@@ -47,19 +47,18 @@ object Resource {
     *
     * @param  name  absolute path of the resource
     */
-  def get(name: String): URL = {
-    getOpt(name).getOrElse {
+  def getAbsolute(name: String): URL = {
+    getOptAbsolute(name).getOrElse {
       throw new IllegalArgumentException("No such absolute resource found: " + name)
     }
   }
 
-  /** Get a Java Resource.
-    * This method provides a much nicer exception than the Java default (NPE).
+  /** Get a Java Resource, returning None if it could not be found.
     *
     * @param  name  absolute path of the resource
     * @returns  Some(URL) if the resource exists
     */
-  def getOpt(name: String): Option[URL] = {
+  def getOptAbsolute(name: String): Option[URL] = {
     Option(this.getClass.getClassLoader.getResource(name))
   }
 
@@ -75,8 +74,7 @@ object Resource {
     }
   }
 
-  /** Get a Java Resource.
-    * This method provides a much nicer exception than the Java default (NPE).
+  /** Get a Java Resource, returning None if it could not be found.
     *
     * @param  clazz  the class from which the resource may be relative
     * @returns  Some(URL) if the resource exists

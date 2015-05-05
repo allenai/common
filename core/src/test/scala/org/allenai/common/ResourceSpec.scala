@@ -10,6 +10,10 @@ class ResourceSpec extends UnitSpec {
   }
 
   "Resource.get" should "find the correct absolute resource" in {
-    Resource.get(resourcePath + resourceName)
+    Resource.getAbsolute(resourcePath + resourceName)
+  }
+
+  "Resource.get" should "find the correct absolute resource since (prefixed with /)" in {
+    Resource.get(this.getClass, "/" + resourcePath + resourceName)
   }
 }
