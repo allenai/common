@@ -18,7 +18,7 @@ This project releases to BinTray.  To make a release, follow our standard
 release process.
 
 1.  Make sure you are on a branch other than `master`.
-2.  Set the upstream repository (`git push --set-upstream origin bintray`).
+2.  Set the upstream repository (`git push --set-upstream origin $branch_name`).
 3.  Kick of the release with `sbt release`.
 4.  Create a pull request and make sure Shippable builds it OK.
 5.  When the pull request is merged, Shippable will kick off a build and ultimately publish the artifact.
