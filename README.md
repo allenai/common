@@ -17,7 +17,9 @@ Releasing new versions
 This project releases to BinTray.  To make a release, follow our standard
 release process.
 
-1.  Make sure you are on a branch other than `master`.
+1.  Make sure you are on a branch of the main repository other than `master`.
+**You cannot use a branch of your fork for releases.**  If you do, your tag
+will not make it to the main repository.
 2.  Set the upstream repository (`git push --set-upstream origin $branch_name`).
 3.  Kick of the release with `sbt release`.
 4.  Create a pull request and make sure Shippable builds it OK.
