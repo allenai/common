@@ -1,10 +1,12 @@
-package org.allenai.common
+package org.allenai.common.guice
 
+import org.allenai.common.Logging
 import org.allenai.common.Config._
 
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.typesafe.config.{
+  Config,
   ConfigException,
   ConfigFactory,
   ConfigObject,
@@ -53,11 +55,7 @@ import scala.collection.JavaConverters._
   *
   * @param config the runtime config to use containing all values to bind
   */
-abstract class ConfigModule(config: com.typesafe.config.Config) extends ScalaModule with Logging {
-  // Local import to prevent compiler warning about org.allenai.common.Config object shadowing Java
-  // object.
-  import com.typesafe.config.Config
-
+abstract class ConfigModule(config: Config) extends ScalaModule with Logging {
   /** The actual config to bind. */
   private lazy val fullConfig = {
     val resolvedConfig = config.withFallback(defaultConfig).resolve()

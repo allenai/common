@@ -32,6 +32,12 @@ lazy val core = Project(
   settings = buildSettings
 ).enablePlugins(LibraryPlugin).dependsOn(testkit % "test->compile")
 
+lazy val guice = Project(
+  id = "guice",
+  base = file("guice"),
+  settings = buildSettings
+).enablePlugins(LibraryPlugin).dependsOn(core, testkit % "test->compile")
+
 lazy val webapp = Project(
   id = "webapp",
   base = file("webapp"),
@@ -41,4 +47,4 @@ lazy val webapp = Project(
 lazy val common = Project(id = "common", base = file(".")).settings(
   // Don't publish a jar for the root project.
   publishArtifact := false, publishTo := Some("dummy" at "nowhere"), publish := { }, publishLocal := { }
-).aggregate(webapp, core, testkit).enablePlugins(LibraryPlugin)
+).aggregate(core, guice, testkit, webapp).enablePlugins(LibraryPlugin)

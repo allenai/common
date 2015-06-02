@@ -1,8 +1,8 @@
-package org.allenai.common
+package org.allenai.common.guice
 
 import com.google.inject.{ Guice, Inject }
 import com.google.inject.name.Named
-import com.typesafe.config.ConfigFactory
+import com.typesafe.config.{ Config, ConfigFactory }
 import org.allenai.common.testkit.UnitSpec
 
 case class CaseClass(a: String)
@@ -27,9 +27,9 @@ case class OptionalParamClass @Inject() (
 
 // Test class with nested Config objects.
 case class NestedConfig @Inject() (
-  @Named("root") root: com.typesafe.config.Config,
-  @Named("root.nested") nested: com.typesafe.config.Config,
-  @Named("nested") nestedNone: Option[com.typesafe.config.Config],
+  @Named("root") root: Config,
+  @Named("root.nested") nested: Config,
+  @Named("nested") nestedNone: Option[Config],
   @Named("root.string") rootString: String,
   @Named("root.nested.string") nestedString: String
 )
@@ -45,9 +45,6 @@ case class PrefixClass @Inject() (
 )
 
 class ConfigModuleSpec extends UnitSpec {
-  // Local import to prevent shadowing warning.
-  import com.typesafe.config.Config
-
   /** Test module with injected Config. */
   abstract class TestModule(config: Config) extends ConfigModule(config)
 
