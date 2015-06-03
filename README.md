@@ -9,7 +9,10 @@ A collection of useful utility classes and functions.
 
 `webapp` - Spray- and web-specific tools.
 
+`guice` - Guice-specific libraries.
+
 `core` - Catchall collection of utilities, with smaller dependency footprint than `webapp`.
+
 
 Releasing new versions
 ---------------------------
