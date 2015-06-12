@@ -37,7 +37,7 @@ will not make it to the main repository.
 3.  Kick of the release with `sbt release`.
 4.  Create a pull request and make sure Shippable builds it OK.
 5.  When the pull request is merged, Shippable will kick off a build and ultimately publish the artifact.
-6.  You can verify that it was published by looking on BinTray.com!
+6.  You can verify that it was published by [looking on BinTray.com](https://bintray.com/allenai/maven)!
 
 You are done!
 
