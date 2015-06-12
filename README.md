@@ -13,9 +13,19 @@ A collection of useful utility classes and functions.
 
 `core` - Catchall collection of utilities, with smaller dependency footprint than `webapp`.
 
+Using this project as a library
+------------------
+
+`common` is published to [JCenter](https://bintray.com/bintray/jcenter) (an
+alternative to Maven Central) via [BinTray](https://bintray.com/) at https://bintray.com/allenai/maven.  If you have
+the latest version of our [core plugins](https://github.com/allenai/sbt-plugins) the [BinTray resolver will be included
+by default](https://github.com/allenai/sbt-plugins/blob/master/src/main/scala/org/allenai/plugins/CoreRepositories.scala#L24).
+Otherwise you will need to include [a resolver for the JCenter
+repo](https://github.com/softprops/bintray-sbt#resolving-bintray-artifacts)
+using the `sbt-bintray` plugin to find this artifact.
 
 Releasing new versions
----------------------------
+----------------------
 
 This project releases to BinTray.  To make a release, follow our standard
 release process.
