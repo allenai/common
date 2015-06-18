@@ -11,12 +11,12 @@ class LoggingConfigSpec extends UnitSpec with Logging {
   "logging.config" should "work" in {
     val path = Files.createTempFile("nio-temp", ".tmp")
     path.toFile().deleteOnExit()
-
-    logger.Config("org.allenai.common")
+    
+    loggerConfig.Logger("org.allenai.common")
       .reset()
       .addAppender(
-        logger.Config.newPatternLayoutEncoder("%-5level: %message%n"),
-        logger.Config.newFileAppender(path.toString)
+        loggerConfig.newPatternLayoutEncoder("%-5level: %message%n"),
+        loggerConfig.newFileAppender(path.toString)
       )
       .setLevel(Level.WARN)
 

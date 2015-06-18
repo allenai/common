@@ -17,7 +17,8 @@ import org.slf4j.LoggerFactory
 trait Logging {
   val internalLogger = LoggerFactory.getLogger(this.getClass)
 
-  object logger { // scalastyle:ignore
+  object logger {
+    // scalastyle:ignore
     def trace(message: => String): Unit =
       if (internalLogger.isTraceEnabled) {
         internalLogger.trace(message)
@@ -52,56 +53,57 @@ trait Logging {
       if (internalLogger.isErrorEnabled) {
         internalLogger.error(message, throwable)
       }
+  }
 
-    /** Simple logback configuration.
-      * Hopefully this will be discoverable by just typing <code>logger.Config().[TAB]</code>
-      *
-      * Examples:
-      * <code>
-      * logger.Config("org.apache.spark").setLevel(Level.WARN)
-      *
-      * logger.Config().addAppender(
-      *   logger.Config.newPatternLayoutEncoder("%-5level [%thread]: %message%n"),
-      *   logger.Config.newConsoleAppender
-      * )
-      * </code>
-      *
-      * @param loggerName the logger name, by default ROOT.
-      */
-    case class Config(loggerName: String = org.slf4j.Logger.ROOT_LOGGER_NAME) {
-      private val logger: Logger = LoggerFactory.getLogger(loggerName).asInstanceOf[Logger]
+  /** Simple logback configuration.
+    * Hopefully this will be discoverable by just typing <code>loggerConfig.[TAB]</code>
+    *
+    * Examples:
+    * <code>
+    * loggerConfig.Logger("org.apache.spark").setLevel(Level.WARN)
+    *
+    * loggerConfig.Logger().addAppender(
+    *   loggerConfig.newPatternLayoutEncoder("%-5level [%thread]: %message%n"),
+    *   loggerConfig.newConsoleAppender
+    * )
+    * </code>
+    */
+  object loggerConfig {
+    case class Logger(loggerName: String = org.slf4j.Logger.ROOT_LOGGER_NAME) {
+      private val logger: ch.qos.logback.classic.Logger =
+        LoggerFactory.getLogger(loggerName).asInstanceOf[ch.qos.logback.classic.Logger]
 
       /** Resets the logger. */
-      def reset(): Config = {
+      def reset(): Logger = {
         logger.getLoggerContext.reset()
         this
       }
 
       /** Simple log level setting. Example:
         * <code>
-        * logger.Config("org.apache.spark").setLevel(Level.WARN)
+        * loggerConfig.Logger("org.apache.spark").setLevel(Level.WARN)
         * </code>
         */
-      def setLevel(level: Level): Config = {
+      def setLevel(level: Level): Logger = {
         logger.setLevel(level)
         this
       }
 
       /** Simple log appender creation. Example:
         * <code>
-        * logger.Config()
+        * loggerConfig.Logger()
         *   .addAppender(
-        *     logger.Config.newPatternLayoutEncoder("%-5level [%thread]: %message%n"),
-        *     logger.Config.newConsoleAppender)
+        *     config.newPatternLayoutEncoder("%-5level [%thread]: %message%n"),
+        *     config.newConsoleAppender)
         *   .addAppender(
-        *     logger.Config.newHtmlLayoutEncoder("%relative%thread%level%logger%msg"),
-        *     logger.Config.newFileAppender("./log.html"))
+        *     config.newHtmlLayoutEncoder("%relative%thread%level%logger%msg"),
+        *     config.newFileAppender("./log.html"))
         * </code>
         */
       def addAppender(
         encoder: Encoder[ILoggingEvent],
         appender: OutputStreamAppender[ILoggingEvent]
-      ): Config = {
+      ): Logger = {
         val loggerContext = logger.getLoggerContext
         encoder.setContext(loggerContext)
         encoder.start()
@@ -113,46 +115,43 @@ trait Logging {
       }
     }
 
-    /** Factory methods for some simple config objects. */
-    object Config {
-      def newPatternLayoutEncoder(pattern: String): Encoder[ILoggingEvent] = {
-        val encoder = new PatternLayoutEncoder()
-        encoder.setPattern(pattern)
-        encoder
-      }
+    def newPatternLayoutEncoder(pattern: String): Encoder[ILoggingEvent] = {
+      val encoder = new PatternLayoutEncoder()
+      encoder.setPattern(pattern)
+      encoder
+    }
 
-      def newHtmlLayoutEncoder(pattern: String): Encoder[ILoggingEvent] = {
-        new LayoutWrappingEncoder[ILoggingEvent] {
-          private val htmlLayout = new HTMLLayout()
-          htmlLayout.setPattern(pattern)
-          setLayout(layout)
+    def newHtmlLayoutEncoder(pattern: String): Encoder[ILoggingEvent] = {
+      new LayoutWrappingEncoder[ILoggingEvent] {
+        private val htmlLayout = new HTMLLayout()
+        htmlLayout.setPattern(pattern)
+        setLayout(layout)
 
-          override def setLayout(layout: Layout[ILoggingEvent]) = {
-            throw new Exception("Layout set via Logging.logger.config.htmlLayoutEncoder")
-          }
+        override def setLayout(layout: Layout[ILoggingEvent]) = {
+          throw new Exception("Layout set via Logging.logger.config.htmlLayoutEncoder")
+        }
 
-          override def setContext(loggerContext: Context) = {
-            htmlLayout.setContext(loggerContext)
-            super.setContext(loggerContext)
-          }
+        override def setContext(loggerContext: Context) = {
+          htmlLayout.setContext(loggerContext)
+          super.setContext(loggerContext)
+        }
 
-          override def start() = {
-            htmlLayout.start()
-            super.start()
-          }
+        override def start() = {
+          htmlLayout.start()
+          super.start()
         }
       }
+    }
 
-      def newConsoleAppender(): OutputStreamAppender[ILoggingEvent] = {
-        new ConsoleAppender[ILoggingEvent]()
-      }
+    def newConsoleAppender(): OutputStreamAppender[ILoggingEvent] = {
+      new ConsoleAppender[ILoggingEvent]()
+    }
 
-      def newFileAppender(fileName: String): OutputStreamAppender[ILoggingEvent] = {
-        val appender = new FileAppender[ILoggingEvent]()
-        appender.setAppend(false)
-        appender.setFile(fileName)
-        appender
-      }
+    def newFileAppender(fileName: String): OutputStreamAppender[ILoggingEvent] = {
+      val appender = new FileAppender[ILoggingEvent]()
+      appender.setAppend(false)
+      appender.setFile(fileName)
+      appender
     }
   }
 }
