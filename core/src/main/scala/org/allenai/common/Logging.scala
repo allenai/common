@@ -53,7 +53,7 @@ trait Logging {
         internalLogger.error(message, throwable)
       }
 
-    /** Simple logback configuration. The logback APIs are obscure, complex and verbose.
+    /** Simple logback configuration.
       * Hopefully this will be discoverable by just typing <code>logger.config().[TAB]</code>
       *
       * Examples:
