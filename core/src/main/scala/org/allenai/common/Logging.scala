@@ -54,25 +54,21 @@ trait Logging {
       }
 
     /** Simple logback configuration.
-      * Hopefully this will be discoverable by just typing <code>logger.config().[TAB]</code>
+      * Hopefully this will be discoverable by just typing <code>logger.Config().[TAB]</code>
       *
       * Examples:
       * <code>
-      * logger.config("org.apache.spark").setLevel(Level.WARN)
+      * logger.Config("org.apache.spark").setLevel(Level.WARN)
       *
-      * logger.config().addAppender(
-      *   logger.factory.patternLayoutEncoder("%-5level [%thread]: %message%n"),
-      *   logger.factory.consoleAppender
+      * logger.Config().addAppender(
+      *   logger.Config.patternLayoutEncoder("%-5level [%thread]: %message%n"),
+      *   logger.Config.consoleAppender
       * )
       * </code>
       *
       * @param loggerName the logger name, by default ROOT.
       */
-    def config(loggerName: String = org.slf4j.Logger.ROOT_LOGGER_NAME) = {
-      new Config(loggerName)
-    }
-
-    class Config(loggerName: String = org.slf4j.Logger.ROOT_LOGGER_NAME) {
+    case class Config(loggerName: String = org.slf4j.Logger.ROOT_LOGGER_NAME) {
       private val logger: Logger = LoggerFactory.getLogger(loggerName).asInstanceOf[Logger]
 
       /** Resets the logger. */
@@ -82,7 +78,7 @@ trait Logging {
 
       /** Simple log level setting. Example:
         * <code>
-        * logger.config("org.apache.spark").setLevel(Level.WARN)
+        * logger.Config("org.apache.spark").setLevel(Level.WARN)
         * </code>
         */
       def setLevel(level: Level) = {
@@ -91,13 +87,13 @@ trait Logging {
 
       /** Simple log appender creation. Example:
         * <code>
-        * logger.config().addAppender(
-        *   logger.factory.patternLayoutEncoder("%-5level [%thread]: %message%n"),
-        *   logger.factory.consoleAppender
+        * logger.Config().addAppender(
+        *   logger.Config.patternLayoutEncoder("%-5level [%thread]: %message%n"),
+        *   logger.Config.consoleAppender
         * )
-        * logger.config().addAppender(
-        *   logger.factory.htmlLayoutEncoder("%relative%thread%level%logger%msg"),
-        *   logger.factory.fileAppender("./log.html")
+        * logger.Config().addAppender(
+        *   logger.Config.htmlLayoutEncoder("%relative%thread%level%logger%msg"),
+        *   logger.Config.fileAppender("./log.html")
         * )
         * </code>
         */
@@ -116,7 +112,7 @@ trait Logging {
     }
 
     /** Factory methods for some simple config objects. */
-    object factory {
+    object Config {
       def patternLayoutEncoder(pattern: String) = {
         val encoder = new PatternLayoutEncoder()
         encoder.setPattern(pattern)
