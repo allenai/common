@@ -25,9 +25,10 @@ class LoggingConfigSpec extends UnitSpec with Logging {
 
     assert(
       Source.fromFile(path.toString).mkString ===
-      """WARN  [ScalaTest-run-running-LoggingConfigSpec]: warn should be visible
+        """WARN  [ScalaTest-run-running-LoggingConfigSpec]: warn should be visible
         |WARN  [ScalaTest-run-running-LoggingConfigSpec]: warn should be visible 2
-        |""".stripMargin)
+        |""".stripMargin
+    )
 
     println(Source.fromFile(path.toString).mkString)
   }
