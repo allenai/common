@@ -5,8 +5,6 @@ import ch.qos.logback.classic.encoder.PatternLayoutEncoder
 import ch.qos.logback.classic.html.HTMLLayout
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core._
-
-//import ch.qos.logback.core._
 import ch.qos.logback.core.encoder.{Encoder, LayoutWrappingEncoder}
 import org.slf4j.LoggerFactory
 
@@ -58,9 +56,14 @@ trait Logging {
     /** Simple logback configuration. The logback APIs are obscure, complex and verbose.
       * Hopefully this will be discoverable by just typing <code>logger.config().[TAB]</code>
       *
-      * Example:
+      * Examples:
       * <code>
       * logger.config("org.apache.spark").setLevel(Level.WARN)
+      *
+      * logger.config().addAppender(
+      *   logger.factory.patternLayoutEncoder("%-5level [%thread]: %message%n"),
+      *   logger.factory.consoleAppender
+      * )
       * </code>
       *
       * @param loggerName the logger name, by default ROOT.
