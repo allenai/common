@@ -15,8 +15,8 @@ class LoggingConfigSpec extends UnitSpec with Logging {
     logger.Config("org.allenai.common")
       .reset()
       .addAppender(
-        logger.Config.patternLayoutEncoder("%-5level: %message%n"),
-        logger.Config.fileAppender(path.toString)
+        logger.Config.newPatternLayoutEncoder("%-5level: %message%n"),
+        logger.Config.newFileAppender(path.toString)
       )
       .setLevel(Level.WARN)
 

@@ -61,8 +61,8 @@ trait Logging {
       * logger.Config("org.apache.spark").setLevel(Level.WARN)
       *
       * logger.Config().addAppender(
-      *   logger.Config.patternLayoutEncoder("%-5level [%thread]: %message%n"),
-      *   logger.Config.consoleAppender
+      *   logger.Config.newPatternLayoutEncoder("%-5level [%thread]: %message%n"),
+      *   logger.Config.newConsoleAppender
       * )
       * </code>
       *
@@ -91,11 +91,11 @@ trait Logging {
         * <code>
         * logger.Config()
         *   .addAppender(
-        *     logger.Config.patternLayoutEncoder("%-5level [%thread]: %message%n"),
-        *     logger.Config.consoleAppender)
+        *     logger.Config.newPatternLayoutEncoder("%-5level [%thread]: %message%n"),
+        *     logger.Config.newConsoleAppender)
         *   .addAppender(
-        *     logger.Config.htmlLayoutEncoder("%relative%thread%level%logger%msg"),
-        *     logger.Config.fileAppender("./log.html"))
+        *     logger.Config.newHtmlLayoutEncoder("%relative%thread%level%logger%msg"),
+        *     logger.Config.newFileAppender("./log.html"))
         * </code>
         */
       def addAppender(
@@ -115,13 +115,13 @@ trait Logging {
 
     /** Factory methods for some simple config objects. */
     object Config {
-      def patternLayoutEncoder(pattern: String): Encoder[ILoggingEvent] = {
+      def newPatternLayoutEncoder(pattern: String): Encoder[ILoggingEvent] = {
         val encoder = new PatternLayoutEncoder()
         encoder.setPattern(pattern)
         encoder
       }
 
-      def htmlLayoutEncoder(pattern: String): Encoder[ILoggingEvent] = {
+      def newHtmlLayoutEncoder(pattern: String): Encoder[ILoggingEvent] = {
         new LayoutWrappingEncoder[ILoggingEvent] {
           private val htmlLayout = new HTMLLayout()
           htmlLayout.setPattern(pattern)
@@ -143,11 +143,11 @@ trait Logging {
         }
       }
 
-      def consoleAppender(): OutputStreamAppender[ILoggingEvent] = {
+      def newConsoleAppender(): OutputStreamAppender[ILoggingEvent] = {
         new ConsoleAppender[ILoggingEvent]()
       }
 
-      def fileAppender(fileName: String): OutputStreamAppender[ILoggingEvent] = {
+      def newFileAppender(fileName: String): OutputStreamAppender[ILoggingEvent] = {
         val appender = new FileAppender[ILoggingEvent]()
         appender.setAppend(false)
         appender.setFile(fileName)
