@@ -11,7 +11,7 @@ class LoggingConfigSpec extends UnitSpec with Logging {
   "logging.config" should "work" in {
     val path = Files.createTempFile("nio-temp", ".tmp")
     path.toFile().deleteOnExit()
-    
+
     loggerConfig.Logger("org.allenai.common")
       .reset()
       .addAppender(
