@@ -1,6 +1,8 @@
+import bintray.Keys.{ bintray => bintrayKey }
+
 lazy val buildSettings = Seq(
   organization := "org.allenai.common",
-  moduleName := s"${organization.value}:${name.value}_${scalaBinaryVersion.value}",
+  (name in bintrayKey) := s"${organization.value}:${name.value}_${scalaBinaryVersion.value}",
   crossScalaVersions := Seq("2.11.5"),
   scalaVersion <<= crossScalaVersions { (vs: Seq[String]) => vs.head },
   publishMavenStyle := true,
