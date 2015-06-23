@@ -93,11 +93,11 @@ trait Logging {
         * <code>
         * loggerConfig.Logger()
         *   .addAppender(
-        *     config.newPatternLayoutEncoder("%-5level [%thread]: %message%n"),
-        *     config.newConsoleAppender)
+        *     loggerConfig.newPatternLayoutEncoder("%-5level [%thread]: %message%n"),
+        *     loggerConfig.newConsoleAppender)
         *   .addAppender(
-        *     config.newHtmlLayoutEncoder("%relative%thread%level%logger%msg"),
-        *     config.newFileAppender("./log.html"))
+        *     loggerConfig.newHtmlLayoutEncoder("%relative%thread%level%logger%msg"),
+        *     loggerConfig.newFileAppender("./log.html"))
         * </code>
         */
       def addAppender(
