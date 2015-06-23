@@ -125,7 +125,7 @@ trait Logging {
       new LayoutWrappingEncoder[ILoggingEvent] {
         private val htmlLayout = new HTMLLayout()
         htmlLayout.setPattern(pattern)
-        setLayout(layout)
+        super.setLayout(htmlLayout)
 
         override def setLayout(layout: Layout[ILoggingEvent]) = {
           throw new Exception("Layout set via Logging.logger.config.htmlLayoutEncoder")
