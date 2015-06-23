@@ -8,7 +8,7 @@ import org.allenai.common.testkit.UnitSpec
 import scala.io.Source
 
 class LoggingConfigSpec extends UnitSpec with Logging {
-  "logging.config" should "work" in {
+  "loggerConfig" should "work" in {
     val path = Files.createTempFile("nio-temp", ".tmp")
     path.toFile().deleteOnExit()
 
@@ -29,6 +29,25 @@ class LoggingConfigSpec extends UnitSpec with Logging {
         """WARN : warn should be visible
           |WARN : warn should be visible 2
           |""".stripMargin
+    )
+  }
+
+  "loggerConfig" should "support html encoder" in {
+    val path = Files.createTempFile("nio-temp2", ".tmp")
+    path.toFile().deleteOnExit()
+
+    loggerConfig.Logger("org.allenai.common")
+      .reset()
+      .addAppender(
+        loggerConfig.newHtmlLayoutEncoder("%relative%thread%level%logger%msg"),
+        loggerConfig.newFileAppender(path.toString)
+      )
+      .setLevel(Level.INFO)
+
+    logger.info("<i>html</i>")
+
+    assert(
+      Source.fromFile(path.toString).mkString.contains("<td class=\"Message\"><i>html</i></td>")
     )
   }
 }

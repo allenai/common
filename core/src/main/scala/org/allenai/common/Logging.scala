@@ -93,11 +93,11 @@ trait Logging {
         * <code>
         * loggerConfig.Logger()
         *   .addAppender(
-        *     config.newPatternLayoutEncoder("%-5level [%thread]: %message%n"),
-        *     config.newConsoleAppender)
+        *     loggerConfig.newPatternLayoutEncoder("%-5level [%thread]: %message%n"),
+        *     loggerConfig.newConsoleAppender)
         *   .addAppender(
-        *     config.newHtmlLayoutEncoder("%relative%thread%level%logger%msg"),
-        *     config.newFileAppender("./log.html"))
+        *     loggerConfig.newHtmlLayoutEncoder("%relative%thread%level%logger%msg"),
+        *     loggerConfig.newFileAppender("./log.html"))
         * </code>
         */
       def addAppender(
@@ -125,7 +125,7 @@ trait Logging {
       new LayoutWrappingEncoder[ILoggingEvent] {
         private val htmlLayout = new HTMLLayout()
         htmlLayout.setPattern(pattern)
-        setLayout(layout)
+        super.setLayout(htmlLayout)
 
         override def setLayout(layout: Layout[ILoggingEvent]) = {
           throw new Exception("Layout set via Logging.logger.config.htmlLayoutEncoder")
