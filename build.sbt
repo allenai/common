@@ -1,5 +1,3 @@
-import bintray.Keys.{ bintray => bintrayKey }
-
 lazy val buildSettings = Seq(
   organization := "org.allenai.common",
   crossScalaVersions := Seq("2.11.5"),
@@ -19,10 +17,8 @@ lazy val buildSettings = Seq(
         <name>Allen Institute for Artificial Intelligence</name>
         <email>dev-role@allenai.org</email>
       </developer>
-    </developers>)
-) ++ bintray.Plugin.bintrayPublishSettings :+ (
-  (name in bintrayKey) :=
-    s"${organization.value}:${name.value}_${scalaBinaryVersion.value}"
+    </developers>),
+  bintrayPackage := s"${organization.value}:${name.value}_${scalaBinaryVersion.value}"
 )
 
 lazy val testkit = Project(
