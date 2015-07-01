@@ -45,9 +45,6 @@ case class PrefixClass @Inject() (
 )
 
 class ConfigModuleSpec extends UnitSpec {
-  /** Test module with injected Config. */
-  abstract class TestModule(config: Config) extends ConfigModule(config)
-
   "bindConfig" should "bind config values to appropriate @Named bindings" in {
     // Config with an entry for all of the bindable values except the one with a default.
     val testConfig = ConfigFactory.parseString("""
@@ -55,7 +52,7 @@ class ConfigModuleSpec extends UnitSpec {
       barNum = 42
       boolbool = true
       """)
-    val testModule = new TestModule(testConfig) {
+    val testModule = new ConfigModule(testConfig) {
       override def configureWithConfig(c: Config): Unit = {
         // Manually bind things missing from the config.
         bind[Set[String]].toInstance(Set("unannotated"))
@@ -82,7 +79,7 @@ class ConfigModuleSpec extends UnitSpec {
       barNum = 42
       boolbool = true
       """)
-    val testModule = new TestModule(testConfig) {
+    val testModule = new ConfigModule(testConfig) {
       override def configureWithConfig(c: Config): Unit = {
         // Manually bind things missing from the config.
         bind[Set[String]].toInstance(Set("unannotated"))
@@ -107,7 +104,7 @@ class ConfigModuleSpec extends UnitSpec {
       barNum = 42
       boolbool = true
       """)
-    val testModule = new TestModule(testConfig) {
+    val testModule = new ConfigModule(testConfig) {
       override def configName: String = "test_rename.conf"
 
       override def configureWithConfig(c: Config): Unit = {
@@ -143,7 +140,7 @@ class ConfigModuleSpec extends UnitSpec {
       boolbool = true
       ignored_no_prefix = "Should be ignored"
       """)
-    val testModule = new TestModule(testConfig) {
+    val testModule = new ConfigModule(testConfig) {
       override def bindingPrefix: Option[String] = Some("prefix")
       override def configureWithConfig(c: Config): Unit = {
         bind[Int].annotatedWithName("ignored_no_prefix").toInstance(33)
@@ -164,9 +161,7 @@ class ConfigModuleSpec extends UnitSpec {
       presentString = "here"
       // missingString = "missing"
       """)
-    val testModule = new TestModule(testConfig) {
-      override def configureWithConfig(c: Config): Unit = {}
-    }
+    val testModule = new ConfigModule(testConfig)
 
     val injector = Guice.createInjector(testModule)
 
@@ -187,9 +182,7 @@ class ConfigModuleSpec extends UnitSpec {
       }
       """)
 
-    val testModule = new TestModule(testConfig) {
-      override def configureWithConfig(c: Config): Unit = {}
-    }
+    val testModule = new ConfigModule(testConfig)
 
     val injector = Guice.createInjector(testModule)
 

@@ -55,7 +55,7 @@ import scala.collection.JavaConverters._
   *
   * @param config the runtime config to use containing all values to bind
   */
-abstract class ConfigModule(config: Config) extends ScalaModule with Logging {
+class ConfigModule(config: Config) extends ScalaModule with Logging {
   /** The actual config to bind. */
   private lazy val fullConfig = {
     val resolvedConfig = config.withFallback(defaultConfig).resolve()
@@ -79,10 +79,11 @@ abstract class ConfigModule(config: Config) extends ScalaModule with Logging {
     */
   def defaultConfig: Config = ConfigFactory.parseResources(getClass, configName)
 
-  /** Configure method for implementing classes to override.
+  /** Configure method for implementing classes to override if they wish to create additional
+    * bindings, or bindings based on config values.
     * @param config the fully-initilized config object
     */
-  def configureWithConfig(config: Config): Unit
+  def configureWithConfig(config: Config): Unit = {}
 
   /** Binds the config provided in the constructor, plus any default config found, and calls
     * configureWithConfig with the resultant config object.
