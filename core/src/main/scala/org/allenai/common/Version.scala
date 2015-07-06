@@ -121,7 +121,7 @@ object Version {
       val commitDate = jsObject.apply[Long]("commitDate")
       val artifactVersion = jsObject.apply[String]("artifact")
       val repoUrl = jsObject.get[String]("repoUrl")
-      val cacheKey = jsObject.apply[String]("cacheKey")
+      val cacheKey = jsObject.get[String]("cacheKey")
       Version(GitVersion(gitSha1, commitDate, repoUrl), artifactVersion, cacheKey)
     }
   }
