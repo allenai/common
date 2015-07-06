@@ -91,16 +91,8 @@ object Version {
     val artifactVersion = artifactConf[String]("version")
     val sha1 = gitConf[String]("sha1")
     val commitDate = gitConf[Long]("date")
-    val remotes = gitConf.getStringList("remotes").asScala
-
-    val cacheKey = cacheKeyConfUrl match {
-      case null => None
-      case _ => {
-        val cacheKeyConf = ConfigFactory.parseURL(cacheKeyConfUrl)
-        Some(cacheKeyConf[String]("cacheKey"))
-      }
-    }
-
+    val remotes = gitConf.getStringList("remotes").asScala:
+    val cacheKey = Option(cacheKeyConfUrl) map { url => ConfigFactory.parseURL(url)[String]("cacheKey") }
     Version(GitVersion.create(sha1, commitDate, remotes), artifactVersion, cacheKey)
   }
 
