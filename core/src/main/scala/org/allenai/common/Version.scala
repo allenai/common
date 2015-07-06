@@ -62,7 +62,8 @@ object GitVersion {
   */
 case class Version(
     git: GitVersion,
-    artifactVersion: String
+    artifactVersion: String,
+    cacheKey: Option[String] = None
 ) {
   @deprecated("Use artifactVersion instead.", "2014.09.09-1-SNAPSHOT")
   def artifact = artifactVersion
@@ -81,19 +82,26 @@ object Version {
     val pkg = "/" + org + "/" + name.replaceAll("-", "")
     val artifactConfUrl = this.getClass.getResource(pkg + "/artifact.conf")
     val gitConfUrl = this.getClass.getResource(pkg + "/git.conf")
-
+    val cacheKeyConfUrl = this.getClass.getResource(pkg + "/cacheKey.conf")
     require(artifactConfUrl != null, "Could not find artifact.conf in " + pkg + ".")
     require(gitConfUrl != null, "Could not find git.conf in " + pkg + ".")
 
     val artifactConf = ConfigFactory.parseURL(artifactConfUrl)
     val gitConf = ConfigFactory.parseURL(gitConfUrl)
-
     val artifactVersion = artifactConf[String]("version")
     val sha1 = gitConf[String]("sha1")
     val commitDate = gitConf[Long]("date")
     val remotes = gitConf.getStringList("remotes").asScala
 
-    Version(GitVersion.create(sha1, commitDate, remotes), artifactVersion)
+    val cacheKey = cacheKeyConfUrl match {
+      case null => None
+      case _ => {
+        val cacheKeyConf = ConfigFactory.parseURL(cacheKeyConfUrl)
+        Some(cacheKeyConf[String]("cacheKey"))
+      }
+    }
+
+    Version(GitVersion.create(sha1, commitDate, remotes), artifactVersion, cacheKey)
   }
 
   import spray.json.DefaultJsonProtocol._
