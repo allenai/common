@@ -63,7 +63,7 @@ object GitVersion {
 case class Version(
     git: GitVersion,
     artifactVersion: String,
-    cacheKey: Option[String] = None
+    cacheKey: Option[String]
 ) {
   @deprecated("Use artifactVersion instead.", "2014.09.09-1-SNAPSHOT")
   def artifact = artifactVersion
@@ -91,7 +91,7 @@ object Version {
     val artifactVersion = artifactConf[String]("version")
     val sha1 = gitConf[String]("sha1")
     val commitDate = gitConf[Long]("date")
-    val remotes = gitConf.getStringList("remotes").asScala:
+    val remotes = gitConf.getStringList("remotes").asScala
     val cacheKey = Option(cacheKeyConfUrl) map { url => ConfigFactory.parseURL(url)[String]("cacheKey") }
     Version(GitVersion.create(sha1, commitDate, remotes), artifactVersion, cacheKey)
   }
@@ -108,6 +108,10 @@ object Version {
         case Some(repoUrl) => baseJson.pack("repoUrl" -> repoUrl)
         case _ => baseJson
       }
+      version.cacheKey match {
+        case Some(cacheKey) => baseJson.pack("cacheKey" -> cacheKey)
+        case _ => baseJson
+      }
     }
 
     override def read(json: JsValue): Version = {
@@ -116,8 +120,8 @@ object Version {
       val commitDate = jsObject.apply[Long]("commitDate")
       val artifactVersion = jsObject.apply[String]("artifact")
       val repoUrl = jsObject.get[String]("repoUrl")
-
-      Version(GitVersion(gitSha1, commitDate, repoUrl), artifactVersion)
+      val cacheKey = jsObject.apply[String]("cacheKey")
+      Version(GitVersion(gitSha1, commitDate, repoUrl), artifactVersion, cacheKey)
     }
   }
 }
