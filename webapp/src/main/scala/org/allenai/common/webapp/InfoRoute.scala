@@ -25,7 +25,8 @@ class InfoRoute(val info: Map[String, String] = Map.empty) {
           "gitDatePretty" -> version.git.prettyCommitDate
         ) ++
           version.git.repoUrl.map("gitRepoUrl" -> _) ++
-          version.git.commitUrl.map("gitCommitUrl" -> _)
+          version.git.commitUrl.map("gitCommitUrl" -> _) ++
+          version.cacheKey.map("cacheKey" -> _)
     )
   }
 
