@@ -59,7 +59,7 @@ object GitVersion {
   *
   * @param  git  the git version (commit information) of the build.
   * @param  artifactVersion  the version of the artifact in the build.
-  * @param  cacheKey a cacheKey of the project. changes on git commits to src of project and dependency changes
+  * @param  cacheKey a cacheKey of the project. Changes on git commits to src of project and dependency changes.
   */
 case class Version(
     git: GitVersion,
