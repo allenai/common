@@ -26,10 +26,7 @@ class InfoRoute(val info: Map[String, String] = Map.empty) {
         ) ++
           version.git.repoUrl.map("gitRepoUrl" -> _) ++
           version.git.commitUrl.map("gitCommitUrl" -> _) ++
-          System.getProperty("application.cacheKey") match {
-            case null => None
-            case _ => Some(_)
-          }.map("cacheKey" -> _)
+          Option(System.getProperty("application.cacheKey")).map { value => Map("cacheKey" -> value) }.getOrElse(Map())
     )
   }
 
