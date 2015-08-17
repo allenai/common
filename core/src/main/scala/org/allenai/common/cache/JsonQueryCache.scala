@@ -17,15 +17,14 @@ import spray.json._
 class JsonQueryCache[V: JsonFormat](pool: JedisPool, clientPrefix: String)
     extends Logging {
 
-  /**
-  * constructs a QueryCache[V], handling the Jedis pool itself
-  * @param redisHostName the hostName of the redis server to connect to
-  * @param redisHostPort the port of the redis server to connect to
-  * @param clientPrefix an identifier for the client using this caching mechanism, which will become
-  * part of the cache key (prepended to the actual query)
-  */
-  def this[V](redisHostName: String, redisHostPort: Int, clientPrefix: String) =
-    this[V](new JedisPool(redisHostName, redisHostPort), clientPrefix)
+  /** constructs a QueryCache[V], handling the Jedis pool itself
+    * @param redisHostName the hostName of the redis server to connect to
+    * @param redisHostPort the port of the redis server to connect to
+    * @param clientPrefix an identifier for the client using this caching mechanism, which will become
+    * part of the cache key (prepended to the actual query)
+    */
+  def this(redisHostName: String, redisHostPort: Int, clientPrefix: String) =
+    this(new JedisPool(redisHostName, redisHostPort), clientPrefix)
 
   /** Trivial Helper to construct cache key with client prefix.
     */
