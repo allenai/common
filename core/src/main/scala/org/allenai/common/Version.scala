@@ -83,7 +83,6 @@ object Version {
     val pkg = "/" + org + "/" + name.replaceAll("-", "")
     val artifactConfUrl = this.getClass.getResource(pkg + "/artifact.conf")
     val gitConfUrl = this.getClass.getResource(pkg + "/git.conf")
-    val cacheKeyConfUrl = this.getClass.getResource(pkg + "/cacheKey.Sha1")
     require(artifactConfUrl != null, "Could not find artifact.conf in " + pkg + ".")
     require(gitConfUrl != null, "Could not find git.conf in " + pkg + ".")
 
@@ -93,7 +92,7 @@ object Version {
     val sha1 = gitConf[String]("sha1")
     val commitDate = gitConf[Long]("date")
     val remotes = gitConf.getStringList("remotes").asScala
-    val cacheKey = Option(System.getProperty("application.cacheKey", null))
+    val cacheKey = Option(System.getProperty("application.cacheKey"))
     Version(GitVersion.create(sha1, commitDate, remotes), artifactVersion, cacheKey)
   }
 

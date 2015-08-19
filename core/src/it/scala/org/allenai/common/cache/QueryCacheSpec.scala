@@ -4,9 +4,7 @@ import java.io.File
 import org.allenai.common.{ GitVersion, Version, cache }
 import org.allenai.common.testkit.UnitSpec
 import org.scalatest.BeforeAndAfterAll
-import spray.json.DefaultJsonProtocol
 import spray.json.DefaultJsonProtocol._
-import spray.json._
 import sys.process._
 
 case class Foo(stringVar: String, intVar: Int)
@@ -16,11 +14,13 @@ object FooJsonProtocol extends DefaultJsonProtocol {
 }
 
 class QueryCaches(redisHostname: String, redisPort: Int) {
+  import FooJsonProtocol.__
+
   val stringQueryCache = new JsonQueryCache[String](redisHostname, redisPort, "test")
   val intQueryCache = new JsonQueryCache[Int](redisHostname, redisPort, "test")
   val seqStringQueryCache = new JsonQueryCache[Seq[String]](redisHostname, redisPort, "test")
+
   // It's an object I can test
-  import FooJsonProtocol._
   val fooQueryCache = new JsonQueryCache[Foo](redisHostname, redisPort, "test")
 
   val stringKey = "stringKey"
@@ -88,14 +88,10 @@ class QueryCacheSpec extends UnitSpec with BeforeAndAfterAll {
   override def afterAll() {
     Seq("redis-cli", "FLUSHALL").!!
     Seq("redis-cli", "SHUTDOWN").!!
-    // delete redis dump file if it exists
-    try {
-      val f = new File("./dump.rdb")
-      if (f.exists) {
-        f.delete()
-      }
-    } catch {
-      case e: Throwable => ""
+    // delete redis dump file if it exists 
+    val f = new File("./dump.rdb")
+    if (f.exists) {
+      f.delete()
     }
   }
 }
