@@ -1,5 +1,6 @@
 package org.allenai.common.cache
 
+import java.io.File
 import org.allenai.common.{ GitVersion, Version, cache }
 import org.allenai.common.testkit.UnitSpec
 import org.scalatest.BeforeAndAfterAll
@@ -87,6 +88,14 @@ class QueryCacheSpec extends UnitSpec with BeforeAndAfterAll {
   override def afterAll() {
     Seq("redis-cli", "FLUSHALL").!!
     Seq("redis-cli", "SHUTDOWN").!!
-    "rm dump.rdb".!! // remove redis dump
+    // delete redis dump file if it exists
+    try {
+      val f = new File("./dump.rdb")
+      if (f.exists) {
+        f.delete()
+      }
+    } catch {
+      case e: Throwable => ""
+    }
   }
 }
