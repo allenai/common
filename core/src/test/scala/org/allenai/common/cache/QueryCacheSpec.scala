@@ -6,7 +6,7 @@ import org.scalatest.BeforeAndAfterAll
 import spray.json.DefaultJsonProtocol
 import spray.json.DefaultJsonProtocol._
 import spray.json._
-import scala.sys.process
+import sys.process._
 
 case class Foo(stringVar: String, intVar: Int)
 
@@ -20,7 +20,7 @@ class QueryCaches(redisHostname: String, redisPort: Int) {
   val seqStringQueryCache = new JsonQueryCache[Seq[String]](redisHostname, redisPort, "test")
   // It's an object I can test
   import FooJsonProtocol._
-  val versionQueryCache = new JsonQueryCache[Foo](redisHostname, redisPort, "test")
+  val fooQueryCache = new JsonQueryCache[Foo](redisHostname, redisPort, "test")
 
   val stringKey = "stringKey"
   val stringValue = "stringValue"
@@ -38,21 +38,21 @@ class QueryCaches(redisHostname: String, redisPort: Int) {
     stringQueryCache.get(stringKey),
     intQueryCache.get(intKey),
     seqStringQueryCache.get(seqStringKey),
-    fooQueryCache.get(versionKey)
+    fooQueryCache.get(fooKey)
   )
 
   def putAll(): Unit = {
     stringQueryCache.put(stringKey, stringValue)
     intQueryCache.put(intKey, intValue)
     seqStringQueryCache.put(seqStringKey, seqStringValue)
-    fooQueryCache.put(versionKey, versionValue)
+    fooQueryCache.put(fooKey, fooValue)
   }
 
   def delAll(): Unit = {
     stringQueryCache.del(stringKey)
     intQueryCache.del(intKey)
     seqStringQueryCache.del(seqStringKey)
-    fooQueryCache.del(versionKey)
+    fooQueryCache.del(fooKey)
   }
 
   def allThereAndEq(): Boolean = {
