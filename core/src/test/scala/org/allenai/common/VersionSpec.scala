@@ -37,6 +37,6 @@ class VersionSpec extends UnitSpec {
   "Version" should "be backwards compatible for reading" in {
     val json = """{  "git":"0144af4325992689cf5fd6d0e3c2d744b25935d6","artifact":"2014.07.21-0-SNAPSHOT","commitDate":1412094251000}"""
     assert(json.parseJson.convertTo[Version] ===
-      Version(GitVersion("0144af4325992689cf5fd6d0e3c2d744b25935d6", 1412094251000L, None), "2014.07.21-0-SNAPSHOT"))
+      Version(GitVersion("0144af4325992689cf5fd6d0e3c2d744b25935d6", 1412094251000L, None), "2014.07.21-0-SNAPSHOT", None))
   }
 }

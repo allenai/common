@@ -59,10 +59,12 @@ object GitVersion {
   *
   * @param  git  the git version (commit information) of the build.
   * @param  artifactVersion  the version of the artifact in the build.
+  * @param  cacheKey a cacheKey of the project. Changes on git commits to src of project and dependency changes.
   */
 case class Version(
     git: GitVersion,
-    artifactVersion: String
+    artifactVersion: String,
+    cacheKey: Option[String]
 ) {
   @deprecated("Use artifactVersion instead.", "2014.09.09-1-SNAPSHOT")
   def artifact = artifactVersion
@@ -81,19 +83,17 @@ object Version {
     val pkg = "/" + org + "/" + name.replaceAll("-", "")
     val artifactConfUrl = this.getClass.getResource(pkg + "/artifact.conf")
     val gitConfUrl = this.getClass.getResource(pkg + "/git.conf")
-
     require(artifactConfUrl != null, "Could not find artifact.conf in " + pkg + ".")
     require(gitConfUrl != null, "Could not find git.conf in " + pkg + ".")
 
     val artifactConf = ConfigFactory.parseURL(artifactConfUrl)
     val gitConf = ConfigFactory.parseURL(gitConfUrl)
-
     val artifactVersion = artifactConf[String]("version")
     val sha1 = gitConf[String]("sha1")
     val commitDate = gitConf[Long]("date")
     val remotes = gitConf.getStringList("remotes").asScala
-
-    Version(GitVersion.create(sha1, commitDate, remotes), artifactVersion)
+    val cacheKey = Option(System.getProperty("application.cacheKey"))
+    Version(GitVersion.create(sha1, commitDate, remotes), artifactVersion, cacheKey)
   }
 
   import spray.json.DefaultJsonProtocol._
@@ -108,6 +108,10 @@ object Version {
         case Some(repoUrl) => baseJson.pack("repoUrl" -> repoUrl)
         case _ => baseJson
       }
+      version.cacheKey match {
+        case Some(cacheKey) => baseJson.pack("cacheKey" -> cacheKey)
+        case _ => baseJson
+      }
     }
 
     override def read(json: JsValue): Version = {
@@ -116,8 +120,8 @@ object Version {
       val commitDate = jsObject.apply[Long]("commitDate")
       val artifactVersion = jsObject.apply[String]("artifact")
       val repoUrl = jsObject.get[String]("repoUrl")
-
-      Version(GitVersion(gitSha1, commitDate, repoUrl), artifactVersion)
+      val cacheKey = jsObject.get[String]("cacheKey")
+      Version(GitVersion(gitSha1, commitDate, repoUrl), artifactVersion, cacheKey)
     }
   }
 }

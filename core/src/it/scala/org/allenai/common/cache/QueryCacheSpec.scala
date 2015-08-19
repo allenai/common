@@ -1,17 +1,27 @@
 package org.allenai.common.cache
 
+import java.io.File
 import org.allenai.common.{ GitVersion, Version, cache }
 import org.allenai.common.testkit.UnitSpec
 import org.scalatest.BeforeAndAfterAll
-import sys.process._
 import spray.json.DefaultJsonProtocol._
+import sys.process._
+
+case class Foo(stringVar: String, intVar: Int)
+
+object FooJsonProtocol extends DefaultJsonProtocol {
+  implicit val fooFormat = jsonFormat2(Foo)
+}
 
 class QueryCaches(redisHostname: String, redisPort: Int) {
+  import FooJsonProtocol.__
+
   val stringQueryCache = new JsonQueryCache[String](redisHostname, redisPort, "test")
   val intQueryCache = new JsonQueryCache[Int](redisHostname, redisPort, "test")
   val seqStringQueryCache = new JsonQueryCache[Seq[String]](redisHostname, redisPort, "test")
+
   // It's an object I can test
-  val versionQueryCache = new JsonQueryCache[Version](redisHostname, redisPort, "test")
+  val fooQueryCache = new JsonQueryCache[Foo](redisHostname, redisPort, "test")
 
   val stringKey = "stringKey"
   val stringValue = "stringValue"
@@ -22,35 +32,35 @@ class QueryCaches(redisHostname: String, redisPort: Int) {
   val seqStringKey = "seqStringKey"
   val seqStringValue = Seq("a string", "a second string", "third time's the charm")
 
-  val versionKey = "versionKey"
-  val versionValue = new Version(new GitVersion("test", 324, Option("tester")), "artifact")
+  val fooKey = "fooKey"
+  val fooValue = new Foo("stringerino", 42)
 
   def getAll(): Seq[Option[Any]] = Seq(
     stringQueryCache.get(stringKey),
     intQueryCache.get(intKey),
     seqStringQueryCache.get(seqStringKey),
-    versionQueryCache.get(versionKey)
+    fooQueryCache.get(fooKey)
   )
 
   def putAll(): Unit = {
     stringQueryCache.put(stringKey, stringValue)
     intQueryCache.put(intKey, intValue)
     seqStringQueryCache.put(seqStringKey, seqStringValue)
-    versionQueryCache.put(versionKey, versionValue)
+    fooQueryCache.put(fooKey, fooValue)
   }
 
   def delAll(): Unit = {
     stringQueryCache.del(stringKey)
     intQueryCache.del(intKey)
     seqStringQueryCache.del(seqStringKey)
-    versionQueryCache.del(versionKey)
+    fooQueryCache.del(fooKey)
   }
 
   def allThereAndEq(): Boolean = {
-    stringQueryCache.get(stringKey).exists(_.equals(stringValue))
-    intQueryCache.get(intKey).exists(_.equals(intValue))
-    seqStringQueryCache.get(seqStringKey).exists(_.equals(seqStringValue))
-    versionQueryCache.get(versionKey).exists(_.equals(versionValue))
+    stringQueryCache.get(stringKey).exists(_.equals(stringValue)) &&
+      intQueryCache.get(intKey).exists(_.equals(intValue)) &&
+      seqStringQueryCache.get(seqStringKey).exists(_.equals(seqStringValue)) &&
+      fooQueryCache.get(fooKey).exists(_.equals(fooValue))
   }
 }
 
@@ -78,5 +88,10 @@ class QueryCacheSpec extends UnitSpec with BeforeAndAfterAll {
   override def afterAll() {
     Seq("redis-cli", "FLUSHALL").!!
     Seq("redis-cli", "SHUTDOWN").!!
+    // delete redis dump file if it exists 
+    val f = new File("./dump.rdb")
+    if (f.exists) {
+      f.delete()
+    }
   }
 }
