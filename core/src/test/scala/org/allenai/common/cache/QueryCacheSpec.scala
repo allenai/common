@@ -87,5 +87,6 @@ class QueryCacheSpec extends UnitSpec with BeforeAndAfterAll {
   override def afterAll() {
     Seq("redis-cli", "FLUSHALL").!!
     Seq("redis-cli", "SHUTDOWN").!!
+    "rm dump.rdb".!! // remove redis dump
   }
 }
