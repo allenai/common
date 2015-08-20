@@ -3,15 +3,15 @@
 set -e
 
 # Publish to BinTray if the HEAD commit is tagged with a version number.
-if [ "$PULL_REQUEST" != "false" ]; then
-  echo "Shippable is building a pull request, not publishing."
-  echo "PULL_REQUEST is equal to $PULL_REQUEST"
+if [ "$PULL_REQUEST_NUMBER" ]; then
+  echo "Semaphore is building a pull request, not publishing."
+  echo "PULL_REQUEST_NUMBER is equal to $PULL_REQUEST_NUMBER"
   exit 0
 fi
 
-if [ "$BRANCH" != "master" ]; then
-  echo "Shippable is building on branch $BRANCH, not publishing."
-  echo "BRANCH is equal to $BRANCH"
+if [ "$BRANCH_NAME" != "master" ]; then
+  echo "Semaphore is building on branch $BRANCH_NAME, not publishing."
+  echo "BRANCH_NAME is equal to $BRANCH_NAME"
   exit 0
 fi
 
@@ -21,8 +21,7 @@ if [ $numParents -ne 2 ]; then
   exit 0
 fi
 
-# Shippable only runs a single build when a pull request is merged, so we need to list
-# all tags from the merged commits.
+# One build is run for the merge to master, so we need to list all tags from the merged commits.
 firstMergedCommit=`git rev-list HEAD^2 --not HEAD^1 | tail -n 1`
 echo "First merged commit: $firstMergedCommit"
 
