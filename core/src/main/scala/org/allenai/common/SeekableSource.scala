@@ -12,16 +12,20 @@ import scala.io.Codec
   * either UTF-8 or ISO-8859-1 encoded.
   * <p>This also has a `getLines()` method to iterate over lines. Any reads done on this iterator
   * are reflected in the main Source, and reads on the Source are reflected in the
-  * `Iterator[String]`.</p>
+  * `Iterator[String]`. The iterator returned by `getLines()` will create another buffer of
+  * `bufferSize` bytes, so bear this in mind when estimating memory usage.</p>
   * @param inFile the file channel to wrap
-  * @param bufferSize the size of the internal buffer to use
+  * @param bufferSize the size of the internal buffer to use. Defaults to 8MB.
   * @param codec the codec to use. Must be one of UTF-8 or ISO-8859-1.
-  * @throws IllegalArgumentException if `bufferSize` is less than 3, or `codec` is not UTF-8 or
+  * @throws IllegalArgumentException if `bufferSize` is less than 4, or `codec` is not UTF-8 or
   * ISO-8859-1
   */
-class SeekableSource(inFile: FileChannel, bufferSize: Int = 8192)(implicit codec: Codec)
+class SeekableSource(inFile: FileChannel, bufferSize: Int = 8 << 20)(implicit codec: Codec)
     extends Iterator[Char] {
-  require(bufferSize >= 3, "Buffer must be at least 3 bytes to decode UTF-8!")
+  require(bufferSize >= 4, "Buffer must be at least 4 bytes to decode UTF-8!")
+
+  // "Unknown" character. Used as a replacement for bad characters encountered.
+  val BadChar = 0xfffd
 
   // The motivation for this class is explained above, but some of the implementation choices are a
   // little confusing. This has decoding implemented within the class below, which seems odd. The
@@ -51,6 +55,9 @@ class SeekableSource(inFile: FileChannel, bufferSize: Int = 8192)(implicit codec
     buffer.limit(0)
     buffer
   }
+
+  /** True if we're in the middle of a two-Java-char unicode character. */
+  private[common] var wideCharBytesRemaining = false
 
   /** Returns true if the source has more input, populating the input buffer if need be. */
   override def hasNext: Boolean = inBuffer.hasRemaining || (inputRemaining && fillBuffer())
@@ -91,7 +98,7 @@ class SeekableSource(inFile: FileChannel, bufferSize: Int = 8192)(implicit codec
   /** @return the next character in the buffer, decoded from UTF-8 */
   protected[common] def nextUtf8: Char = {
     // Ensure we are either at the end of file, or have at least three bytes that are readable.
-    if (inBuffer.remaining() < 3 && inputRemaining) {
+    if (inBuffer.remaining() < 4 && inputRemaining) {
       fillBuffer()
     }
     // See https://en.wikipedia.org/wiki/UTF-8 for details. This is checking the first byte for the
@@ -100,41 +107,73 @@ class SeekableSource(inFile: FileChannel, bufferSize: Int = 8192)(implicit codec
     val intVal = if ((first & 0x80) == 0) {
       return first.toChar
     } else if ((first & 0xe0) == 0xc0) {
-      // TODO(jkinkead): Secondary bytes (here and below) should all have their two highest bits set
-      // as 10. This should be asserted somehow, and if they're corrupted, producing an unknown
-      // character instead.
+      // First byte starts with 110 - two-byte encoding.
       val second = inBuffer.get()
-      ((first & 0x1f) << 6) | (second & 0x3f)
+      // Verify this starts with 10.
+      if ((second & 0xc0) == 0x80) {
+        ((first & 0x1f) << 6) | (second & 0x3f)
+      } else {
+        BadChar
+      }
     } else if ((first & 0xf0) == 0xe0) {
+      // First byte starts with 1110 - three-byte encoding.
       val second = inBuffer.get()
       val third = inBuffer.get()
-      ((first & 0x0f) << 12) | ((second & 0x3f) << 6) | (third & 0x3f)
-    } else {
-      // Anything here is technically illegal UTF-8. However, some sources (i.e. Wikipedia) use
-      // wide UTF-8 encodings. This will attempt to skip the correct number of bytes. Note that
-      // while we could decode the character here, it will be wider than 16 bits, and therefore
-      // won't fit in a JVM Char.
-
-      // skipCount stores the *additional* bytes we will skip, not the total length of the encoding.
-      val skipCount = if ((first & 0xf8) == 0xf0) {
-        3
-      } else if ((first & 0xfc) == 0xf8) {
-        4
-      } else if ((first & 0xfe) == 0xfc) {
-        5
+      // Verify these start with 10.
+      if ((second & 0xc0) == 0x80 && (third & 0xc0) == 0x80) {
+        ((first & 0x0f) << 12) | ((second & 0x3f) << 6) | (third & 0x3f)
       } else {
-        // This will be reached if the first character was truly illegal UTF-8, not just a wide
-        // encoding.
-        0
+        BadChar
       }
-      // Technically this is buggy if the buffer is 4 or 5 bytes - we won't skip the full character.
-      // That's fine.
-      if (inBuffer.remaining() < skipCount && inputRemaining) {
-        fillBuffer()
+    } else if ((first & 0xf8) == 0xf0) {
+      // First byte starts with 1111 - four-byte encoding. This needs to be split into two JVM
+      // chars (encoded in UTF-16).
+      val second = inBuffer.get()
+      val third = inBuffer.get()
+      val fourth = inBuffer.get()
+      // Verify these start with 10.
+      if ((second & 0xc0) == 0x80 && (third & 0xc0) == 0x80 && (fourth & 0xc0) == 0x80) {
+        // Set up our next read. We need to push back the third  & fourth byte.
+        wideCharBytesRemaining = true
+        inBuffer.position(inBuffer.position - 2)
+
+        // Decode the 10 bits we'll be encoding in the first UTF-16 char.  The 21st UTF-8 bit (0x08
+        // in the first byte) is discarded. UTF-8 four-byte encoding supports 21 bits.
+        val rawBits = ((first & 0x03) << 8) | ((second & 0x3f) << 2) |
+          ((third & 0x30) >> 4)
+
+        // The result is 0xd800 + (these bits - 0x40).
+        (0xd800 + rawBits - 0x40)
+      } else {
+        BadChar
       }
-      (0 until skipCount) foreach { _ => if (inBuffer.hasRemaining()) inBuffer.get() }
-      // Replace with the unknown character.
-      0xfffd
+    } else if (wideCharBytesRemaining) {
+      wideCharBytesRemaining = false
+
+      // First byte is the third of a UTF-8 four-byte encoding; second byte is the fourth byte in a
+      // UTF-8 encoding.
+      val second = inBuffer.get()
+      // Verify the second byte starts with 10 (we already verified the first).
+      if ((second & 0xc0) == 0x80) {
+        (0xdc00) | ((first & 0x0f) << 6) | (second & 0x3f)
+      } else {
+        BadChar
+      }
+    } else {
+      // Anything here is illegal UTF-8.
+
+      // Skip any secondary UTF bytes (bytes starting with 10) in case we're seeing some very-wide
+      // characters.
+      var skip = true
+      while (skip && (inBuffer.hasRemaining || fillBuffer())) {
+        val currByte = inBuffer.get()
+        if ((currByte & 0xc0) != 0x80) {
+          // Not a secondary byte; move buffer back.
+          skip = false
+          inBuffer.position(inBuffer.position - 1)
+        }
+      }
+      BadChar
     }
     intVal.toChar
   }
@@ -183,21 +222,27 @@ class SeekableSource(inFile: FileChannel, bufferSize: Int = 8192)(implicit codec
     private[common] def ensureFullBuffer(): Boolean = {
       // If we're at the end of our lineBuffer, we need to read more from SeekableSource.
       if (index == limit) {
-        // Repopulate inBuffer via hasNext.
-        if (SeekableSource.this.hasNext) {
-          val capacity = Math.min(inBuffer.remaining, lineBuffer.length)
-          val startPosition = inBuffer.position
-          // Copy data to lineBuffer, and reset our indexes.
-          inBuffer.get(lineBuffer, startPosition, capacity)
-          index = startPosition
-          limit = startPosition + capacity
-          inBuffer.position(startPosition)
-          true
-        } else {
-          false
-        }
+        fillBuffer()
       } else {
         true
+      }
+    }
+
+    /** Fills the buffer unconditionally.
+      * @return true if there is still input available
+      */
+    private[common] def fillBuffer(): Boolean = {
+      if (SeekableSource.this.fillBuffer()) {
+        val capacity = Math.min(inBuffer.remaining, lineBuffer.length)
+        val startPosition = inBuffer.position
+        // Copy data to lineBuffer, and reset our indexes.
+        inBuffer.get(lineBuffer, startPosition, capacity)
+        index = startPosition
+        limit = startPosition + capacity
+        inBuffer.position(startPosition)
+        true
+      } else {
+        false
       }
     }
 
@@ -208,14 +253,15 @@ class SeekableSource(inFile: FileChannel, bufferSize: Int = 8192)(implicit codec
       if (!ensureFullBuffer()) {
         throw new NoSuchElementException("next() called with no lines remaining")
       }
-      // Update our index + limit, in case the underlying SeekableSource has moved since we were last
-      // iterated on.
+      // Update our index + limit, in case the underlying SeekableSource has moved since we were
+      // last iterated on.
       index = inBuffer.position
       limit = inBuffer.limit
       // Holds the string we're building the second and subsequent times through the loop below. If
       // we find a newline contained entirely in the buffer, we'll just create a string directly.
       var stringBuilder: StringBuilder = null
-      while (ensureFullBuffer()) {
+      var moreChars = true
+      while (moreChars) {
         var start = index
 
         // Read chars until we find a newline or the end-of-buffer.
@@ -228,7 +274,7 @@ class SeekableSource(inFile: FileChannel, bufferSize: Int = 8192)(implicit codec
             foundEol = true
           }
         }
-        val length = index - start
+        var length = index - start
 
         // Scan the parent's input buffer to the position we just read to.
         inBuffer.position(index)
@@ -248,7 +294,34 @@ class SeekableSource(inFile: FileChannel, bufferSize: Int = 8192)(implicit codec
         if (stringBuilder == null) {
           stringBuilder = new StringBuilder(120)
         }
+        // Scan back from the end of the buffer to the start of any UTF-8 char we're encoding.
+        // Check for a UTF-8 non-singular char (high bit set)
+        if (useUtf8 && (ch & 0x80) != 0 && SeekableSource.this.inputRemaining) {
+          val offset = if ((ch & 0xc0) == 0xc0) {
+            // Start of a UTF-8 character. Skip back one.
+            1
+          } else {
+            // Middle of a UTF-8 character. We have to figure out the start.
+            var skipCount = 0
+            while ((ch & 0xc0) == 0x80) {
+              skipCount += 1
+              ch = lineBuffer(index - skipCount - 1)
+            }
+            // Check if we have a full char; if so, don't skip.
+            if ((ch & 0xe0) == 0xc0 && skipCount == 1) {
+              0
+            } else if ((ch & 0xf0) == 0xe0 && skipCount == 2) {
+              0
+            } else {
+              skipCount + 1
+            }
+          }
+          index -= offset
+          inBuffer.position(index)
+          length = index - start
+        }
         stringBuilder.append(new String(lineBuffer, start, length, charset))
+        moreChars = fillBuffer()
       }
       stringBuilder.toString
     }
