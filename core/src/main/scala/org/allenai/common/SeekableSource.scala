@@ -97,8 +97,8 @@ class SeekableSource(inFile: FileChannel, bufferSize: Int = 8 << 20)(implicit co
 
   /** @return the next character in the buffer, decoded from UTF-8 */
   protected[common] def nextUtf8: Char = {
-    // Ensure we are either at the end of file, or have at least three bytes that are readable.
-    if (inBuffer.remaining() < 4 && inputRemaining) {
+    // Fill the buffer if we need more bytes.
+    if (inBuffer.remaining < 4 && inputRemaining) {
       fillBuffer()
     }
     // See https://en.wikipedia.org/wiki/UTF-8 for details. This is checking the first byte for the
@@ -107,55 +107,73 @@ class SeekableSource(inFile: FileChannel, bufferSize: Int = 8 << 20)(implicit co
     val intVal = if ((first & 0x80) == 0) {
       return first.toChar
     } else if ((first & 0xe0) == 0xc0) {
-      // First byte starts with 110 - two-byte encoding.
-      val second = inBuffer.get()
-      // Verify this starts with 10.
-      if ((second & 0xc0) == 0x80) {
-        ((first & 0x1f) << 6) | (second & 0x3f)
+      if (inBuffer.hasRemaining) {
+        // First byte starts with 110 - two-byte encoding.
+        val second = inBuffer.get()
+        // Verify this starts with 10.
+        if ((second & 0xc0) == 0x80) {
+          ((first & 0x1f) << 6) | (second & 0x3f)
+        } else {
+          BadChar
+        }
       } else {
         BadChar
       }
     } else if ((first & 0xf0) == 0xe0) {
-      // First byte starts with 1110 - three-byte encoding.
-      val second = inBuffer.get()
-      val third = inBuffer.get()
-      // Verify these start with 10.
-      if ((second & 0xc0) == 0x80 && (third & 0xc0) == 0x80) {
-        ((first & 0x0f) << 12) | ((second & 0x3f) << 6) | (third & 0x3f)
+      if (inBuffer.remaining > 1) {
+        // First byte starts with 1110 - three-byte encoding.
+        val second = inBuffer.get()
+        val third = inBuffer.get()
+        // Verify these start with 10.
+        if ((second & 0xc0) == 0x80 && (third & 0xc0) == 0x80) {
+          ((first & 0x0f) << 12) | ((second & 0x3f) << 6) | (third & 0x3f)
+        } else {
+          BadChar
+        }
       } else {
+        while (inBuffer.hasRemaining) { inBuffer.get() }
         BadChar
       }
     } else if ((first & 0xf8) == 0xf0) {
-      // First byte starts with 1111 - four-byte encoding. This needs to be split into two JVM
-      // chars (encoded in UTF-16).
-      val second = inBuffer.get()
-      val third = inBuffer.get()
-      val fourth = inBuffer.get()
-      // Verify these start with 10.
-      if ((second & 0xc0) == 0x80 && (third & 0xc0) == 0x80 && (fourth & 0xc0) == 0x80) {
-        // Set up our next read. We need to push back the third  & fourth byte.
-        wideCharBytesRemaining = true
-        inBuffer.position(inBuffer.position - 2)
+      if (inBuffer.remaining > 2) {
+        // First byte starts with 1111 - four-byte encoding. This needs to be split into two JVM
+        // chars (encoded in UTF-16).
+        val second = inBuffer.get()
+        val third = inBuffer.get()
+        val fourth = inBuffer.get()
+        // Verify these start with 10.
+        if ((second & 0xc0) == 0x80 && (third & 0xc0) == 0x80 && (fourth & 0xc0) == 0x80) {
+          // Set up our next read. We need to push back the third  & fourth byte.
+          wideCharBytesRemaining = true
+          inBuffer.position(inBuffer.position - 2)
 
-        // Decode the 10 bits we'll be encoding in the first UTF-16 char.  The 21st UTF-8 bit (0x08
-        // in the first byte) is discarded. UTF-8 four-byte encoding supports 21 bits.
-        val rawBits = ((first & 0x03) << 8) | ((second & 0x3f) << 2) |
-          ((third & 0x30) >> 4)
+          // Decode the 10 bits we'll be encoding in the first UTF-16 char.  The 21st UTF-8 bit
+          // (0x08 in the first byte) is discarded. UTF-8 four-byte encoding supports 21 bits.
+          val rawBits = ((first & 0x03) << 8) | ((second & 0x3f) << 2) |
+            ((third & 0x30) >> 4)
 
-        // The result is 0xd800 + (these bits - 0x40).
-        (0xd800 + rawBits - 0x40)
+          // The result is 0xd800 + (these bits - 0x40).
+          (0xd800 + rawBits - 0x40)
+        } else {
+          BadChar
+        }
       } else {
+        while (inBuffer.hasRemaining) { inBuffer.get() }
         BadChar
       }
     } else if (wideCharBytesRemaining) {
       wideCharBytesRemaining = false
 
-      // First byte is the third of a UTF-8 four-byte encoding; second byte is the fourth byte in a
-      // UTF-8 encoding.
-      val second = inBuffer.get()
-      // Verify the second byte starts with 10 (we already verified the first).
-      if ((second & 0xc0) == 0x80) {
-        (0xdc00) | ((first & 0x0f) << 6) | (second & 0x3f)
+      if (inBuffer.hasRemaining) {
+        // First byte is the third of a UTF-8 four-byte encoding; second byte is the fourth byte in
+        // a UTF-8 encoding.
+        val second = inBuffer.get()
+        // Verify the second byte starts with 10 (we already verified the first).
+        if ((second & 0xc0) == 0x80) {
+          (0xdc00) | ((first & 0x0f) << 6) | (second & 0x3f)
+        } else {
+          BadChar
+        }
       } else {
         BadChar
       }

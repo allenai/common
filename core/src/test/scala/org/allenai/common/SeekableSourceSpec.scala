@@ -225,4 +225,28 @@ class SeekableSourceSpec extends UnitSpec {
     source.position should be(5)
     source.next() should be('b')
   }
+
+  it should "handle partial two-byte characters at the end of a stream" in {
+    val earlyEnd = newFileWithBytes(Array('a', 0xc3) map { _.toByte })
+    val source = new SeekableSource(earlyEnd)
+
+    source.next() should be('a')
+    source.next() should be('\ufffd')
+  }
+
+  it should "handle partial three-byte characters at the end of a stream" in {
+    val earlyEnd = newFileWithBytes(Array('a', 0xe5, 0x85) map { _.toByte })
+    val source = new SeekableSource(earlyEnd)
+
+    source.next() should be('a')
+    source.next() should be('\ufffd')
+  }
+
+  it should "handle partial four-byte characters at the end of a stream" in {
+    val earlyEnd = newFileWithBytes(Array('a', 0xf0, 0x9f, 0x91) map { _.toByte })
+    val source = new SeekableSource(earlyEnd)
+
+    source.next() should be('a')
+    source.next() should be('\ufffd')
+  }
 }
