@@ -1,0 +1,152 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>guice - org.allenai.common.guice</title>
+          <meta name="description" content="guice - org.allenai.common.guice" />
+          <meta name="keywords" content="guice org.allenai.common.guice" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../index.html';
+            var hash = 'org.allenai.common.guice.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../package.html" class="extype" name="org">org</a>.<a href="../../package.html" class="extype" name="org.allenai">allenai</a>.<a href="../package.html" class="extype" name="org.allenai.common">common</a></p>
+        <h1>guice</h1><span class="permalink">
+      <a href="../../../../index.html#org.allenai.common.guice.package" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">guice</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="org.allenai.common.guice.ActorSystemModule" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ActorSystemModuleextendsAbstractModulewithScalaModule"></a>
+      <a id="ActorSystemModule:ActorSystemModule"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ActorSystemModule.html"><span class="name">ActorSystemModule</span></a><span class="result"> extends <span class="extype" name="com.google.inject.AbstractModule">AbstractModule</span> with <span class="extype" name="net.codingwell.scalaguice.ScalaModule">ScalaModule</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.allenai.common.guice.package@ActorSystemModuleextendsAbstractModulewithScalaModule" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Module that binds an ActorSystem and its associated ExecutionContext.</p>
+    </li><li name="org.allenai.common.guice.ConfigModule" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ConfigModuleextendsAbstractModulewithScalaModulewithLogging"></a>
+      <a id="ConfigModule:ConfigModule"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ConfigModule.html"><span class="name">ConfigModule</span></a><span class="result"> extends <span class="extype" name="com.google.inject.AbstractModule">AbstractModule</span> with <span class="extype" name="net.codingwell.scalaguice.ScalaModule">ScalaModule</span> with <a href="../Logging.html" class="extype" name="org.allenai.common.Logging">Logging</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.allenai.common.guice.package@ConfigModuleextendsAbstractModulewithScalaModulewithLogging" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Parent class for modules which use a typesafe config for values.</p><div class="fullcomment"><div class="comment cmt"><p>Parent class for modules which use a typesafe config for values. This automatically binds all
+configuration values within a given Config instance, along with defaults from an optional
+bundled config file. Each binding is annotated with @Named(configPath) to differentiate multiple
+bindings for a single primitive type.</p><p>This will bind config (HOCON) value types boolean, number, string, list, and object. Boolean and
+string entries are bound to the corresponding scala type. Numbers are bound to Double if they're
+floating point, and are bound to Int, Long, and Double if they're integral. Lists are bound to
+Seq[Config], since HOCON allows mixed list types. All object-valued keys are also bound as
+Config instances.</p><p>The default config filename is looked for in the implementing class's path, using the resource
+name <code>module.conf</code>.  For example, if the implementing module is org.allenai.foobar.MyModule,
+<code>module.conf</code> should be in <code>src/main/resources/org/allenai/foobar</code>. <code>defaultConfig</code> provides the
+filename, if you want to change it from the default.</p><p>Example config and bindings:</p><p>format: OFF
+Config file -
+  stringValue = &quot;foo&quot;
+  someObject = {
+    propNumber = 123
+    propBool = true
+  }</p><p>Injected Scala class -
+  class Injected @Inject() (</p></div></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

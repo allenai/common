@@ -1,0 +1,597 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>common - org.allenai.common</title>
+          <meta name="description" content="common - org.allenai.common" />
+          <meta name="keywords" content="common org.allenai.common" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../index.html';
+            var hash = 'org.allenai.common.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../lib/package_big.png" />
+        <p id="owner"><a href="../../package.html" class="extype" name="org">org</a>.<a href="../package.html" class="extype" name="org.allenai">allenai</a></p>
+        <h1>common</h1><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">common</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="org.allenai.common.ComponentId" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="ComponentIdextendsProductwithSerializable"></a>
+      <a id="ComponentId:ComponentId"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="ComponentId.html"><span class="name">ComponentId</span></a><span class="params">(<span name="name">name: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="version">version: <a href="Version.html" class="extype" name="org.allenai.common.Version">Version</a></span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@ComponentIdextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A specific version of a component in AI2.</p><div class="fullcomment"><div class="comment cmt"><p>A specific version of a component in AI2. This fully-describes a running system - it contains
+enough information to re-deploy the version that generated the ComponentId instance.</p></div><dl class="paramcmts block"><dt class="param">name</dt><dd class="cmt"><p>a human-readable name of the component</p></dd><dt class="param">version</dt><dd class="cmt"><p>the version of the component that was running
+</p></dd></dl></div>
+    </li><li name="org.allenai.common.Enum" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="Enum[E&lt;:org.allenai.common.Enum[E]]extendsAnyRef"></a>
+      <a id="Enum[E&lt;:Enum[E]]:Enum[E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="Enum.html"><span class="name">Enum</span></a><span class="tparams">[<span name="E">E &lt;: <a href="Enum.html" class="extype" name="org.allenai.common.Enum">Enum</a>[<span class="extype" name="org.allenai.common.Enum.E">E</span>]</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@Enum[E&lt;:org.allenai.common.Enum[E]]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Enumeration implementation that supports automatic Spray JSON serialization as JsString(id).</p>
+    </li><li name="org.allenai.common.EnumCompanion" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="EnumCompanion[E&lt;:org.allenai.common.Enum[E]]extendsAnyRef"></a>
+      <a id="EnumCompanion[E&lt;:Enum[E]]:EnumCompanion[E]"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="EnumCompanion.html"><span class="name">EnumCompanion</span></a><span class="tparams">[<span name="E">E &lt;: <a href="Enum.html" class="extype" name="org.allenai.common.Enum">Enum</a>[<span class="extype" name="org.allenai.common.EnumCompanion.E">E</span>]</span>]</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@EnumCompanion[E&lt;:org.allenai.common.Enum[E]]extendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Superclass for Enum companion objects providing enum registration and JSON serialization</p>
+    </li><li name="org.allenai.common.GitVersion" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="GitVersionextendsProductwithSerializable"></a>
+      <a id="GitVersion:GitVersion"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="GitVersion.html"><span class="name">GitVersion</span></a><span class="params">(<span name="sha1">sha1: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="commitDate">commitDate: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Long" class="extype" target="_top">Long</a></span>, <span name="repoUrl">repoUrl: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@GitVersionextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Represents a git version.</p><div class="fullcomment"><div class="comment cmt"><p>Represents a git version.</p></div><dl class="paramcmts block"><dt class="param">sha1</dt><dd class="cmt"><p>the output of <code>git sha1</code> in the repository</p></dd><dt class="param">commitDate</dt><dd class="cmt"><p>commit date in milliseconds</p></dd><dt class="param">repoUrl</dt><dd class="cmt"><p>the url of the git repo
+</p></dd></dl></div>
+    </li><li name="org.allenai.common.Logging" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="LoggingextendsAnyRef"></a>
+      <a id="Logging:Logging"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="Logging.html"><span class="name">Logging</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@LoggingextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">This trait is meant to be mixed into a class to provide logging and logging configuration.</p><div class="fullcomment"><div class="comment cmt"><p>This trait is meant to be mixed into a class to provide logging and logging configuration.</p><p>The enclosed methods provide a Scala-style logging signature where the
+message is a block instead of a string.  This way the message string is
+not constructed unless the message will be logged.
+</p></div></div>
+    </li><li name="org.allenai.common.LoggingWithUncaughtExceptions" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="LoggingWithUncaughtExceptionsextendsLogging"></a>
+      <a id="LoggingWithUncaughtExceptions:LoggingWithUncaughtExceptions"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="LoggingWithUncaughtExceptions.html"><span class="name">LoggingWithUncaughtExceptions</span></a><span class="result"> extends <a href="Logging.html" class="extype" name="org.allenai.common.Logging">Logging</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@LoggingWithUncaughtExceptionsextendsLogging" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="org.allenai.common.SeekableSource" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SeekableSourceextendsIterator[Char]"></a>
+      <a id="SeekableSource:SeekableSource"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SeekableSource.html"><span class="name">SeekableSource</span></a><span class="result"> extends <span class="extype" name="scala.Iterator">Iterator</span>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Char" class="extype" target="_top">Char</a>]</span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@SeekableSourceextendsIterator[Char]" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">A class that provides seekability to an interface similar to scala.io.Source.</p><div class="fullcomment"><div class="comment cmt"><p>A class that provides seekability to an interface similar to scala.io.Source. This is required
+because scala.io.Source only provides character offsets, while FileChannel (and other seekable
+Java interfaces) take byte offsets for seeking. The only limitation is that the file must be
+either UTF-8 or ISO-8859-1 encoded.</p><p>This also has a <code>getLines()</code> method to iterate over lines. Any reads done on this iterator
+are reflected in the main Source, and reads on the Source are reflected in the
+<code>Iterator[String]</code>. The iterator returned by <code>getLines()</code> will create another buffer of
+<code>bufferSize</code> bytes, so bear this in mind when estimating memory usage.</p></div><dl class="attributes block"> <dt>Exceptions thrown</dt><dd><span class="cmt"><p><span class="extype" name="IllegalArgumentException"><code>IllegalArgumentException</code></span> if <code>bufferSize</code> is less than 4, or <code>codec</code> is not UTF-8 or
+ISO-8859-1
+</p></span></dd></dl></div>
+    </li><li name="org.allenai.common.SourceInputStream" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="SourceInputStreamextendsInputStream"></a>
+      <a id="SourceInputStream:SourceInputStream"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SourceInputStream.html"><span class="name">SourceInputStream</span></a><span class="result"> extends <a href=http://docs.oracle.com/javase/8/docs/api/index.html?java/io/InputStream.html class="extype" target="_top">InputStream</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@SourceInputStreamextendsInputStream" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Input stream wrapping a Source object, using the codec to convert characters to bytes.</p><div class="fullcomment"><div class="comment cmt"><p>Input stream wrapping a Source object, using the codec to convert characters to bytes. Not
+thread-safe.
+</p></div></div>
+    </li><li name="org.allenai.common.Version" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="VersionextendsProductwithSerializable"></a>
+      <a id="Version:Version"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">case class</span>
+      </span>
+      <span class="symbol">
+        <a href="Version.html"><span class="name">Version</span></a><span class="params">(<span name="git">git: <a href="GitVersion.html" class="extype" name="org.allenai.common.GitVersion">GitVersion</a></span>, <span name="artifactVersion">artifactVersion: <span class="extype" name="scala.Predef.String">String</span></span>, <span name="cacheKey">cacheKey: <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Option" class="extype" target="_top">Option</a>[<span class="extype" name="scala.Predef.String">String</span>]</span>)</span><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Product" class="extype" target="_top">Product</a> with <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@VersionextendsProductwithSerializable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Represents the version of this component.</p><div class="fullcomment"><div class="comment cmt"><p>Represents the version of this component. Should be built with the <code>fromResources</code> method on the
+companion object.
+</p></div><dl class="paramcmts block"><dt class="param">git</dt><dd class="cmt"><p>the git version (commit information) of the build.</p></dd><dt class="param">artifactVersion</dt><dd class="cmt"><p>the version of the artifact in the build.</p></dd><dt class="param">cacheKey</dt><dd class="cmt"><p>a cacheKey of the project. Changes on git commits to src of project and dependency changes.
+</p></dd></dl></div>
+    </li></ol>
+            </div>
+
+        
+
+        <div id="values" class="values members">
+              <h3>Value Members</h3>
+              <ol><li name="org.allenai.common.ComponentId" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ComponentId"></a>
+      <a id="ComponentId:ComponentId"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ComponentId$.html"><span class="name">ComponentId</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@ComponentId" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="org.allenai.common.Config" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="Config"></a>
+      <a id="Config:Config"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Config$.html"><span class="name">Config</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@Config" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Import to provide enhancements via implicit class conversion for making working
+with com.typesafe.config.Config more Scala-friendly (no nulls!).</p><div class="fullcomment"><div class="comment cmt"><p>Import to provide enhancements via implicit class conversion for making working
+with com.typesafe.config.Config more Scala-friendly (no nulls!).</p><p>Also provides a Spray JSON RootJsonFormat[Config].
+</p></div></div>
+    </li><li name="org.allenai.common.GitVersion" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="GitVersion"></a>
+      <a id="GitVersion:GitVersion"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="GitVersion$.html"><span class="name">GitVersion</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@GitVersion" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="org.allenai.common.JsonFormats" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="JsonFormats"></a>
+      <a id="JsonFormats:JsonFormats"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="JsonFormats$.html"><span class="name">JsonFormats</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@JsonFormats" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Common spray.json.JsonFormats, spray.json.JsonReaders, and spray.json.JsonWriters</p>
+    </li><li name="org.allenai.common.JsonIo" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="JsonIo"></a>
+      <a id="JsonIo:JsonIo"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="JsonIo$.html"><span class="name">JsonIo</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@JsonIo" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Helpers for streaming lists of JSON objects to and from disk.</p>
+    </li><li name="org.allenai.common.ParIterator" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="ParIterator"></a>
+      <a id="ParIterator:ParIterator"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="ParIterator$.html"><span class="name">ParIterator</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@ParIterator" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="org.allenai.common.Resource" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Resource"></a>
+      <a id="Resource:Resource"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Resource$.html"><span class="name">Resource</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@Resource" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="org.allenai.common.StreamClosingIterator" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="StreamClosingIterator"></a>
+      <a id="StreamClosingIterator:StreamClosingIterator"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="StreamClosingIterator$.html"><span class="name">StreamClosingIterator</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@StreamClosingIterator" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Creates an Iterator from an InputStream.</p><div class="fullcomment"><div class="comment cmt"><p>Creates an Iterator from an InputStream.
+The InputStream is automatically closed once the Iterator has been fully consumed.
+Example:  StreamClosingIterator(new FileInputStream(&quot;foo.txt&quot;))(Source.fromInputStream(_).getLines())
+</p></div></div>
+    </li><li name="org.allenai.common.StringImplicits" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="StringImplicits"></a>
+      <a id="StringImplicits:StringImplicits"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="StringImplicits$.html"><span class="name">StringImplicits</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@StringImplicits" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Utility functions on strings
+</p>
+    </li><li name="org.allenai.common.Timing" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Timing"></a>
+      <a id="Timing:Timing"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Timing$.html"><span class="name">Timing</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@Timing" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Methods for measuring the amount of time a method takes.</p>
+    </li><li name="org.allenai.common.UrlUtil" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="UrlUtil"></a>
+      <a id="UrlUtil:UrlUtil"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="UrlUtil$.html"><span class="name">UrlUtil</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@UrlUtil" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Util methods for java.net.URL.</p>
+    </li><li name="org.allenai.common.Version" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="Version"></a>
+      <a id="Version:Version"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">object</span>
+      </span>
+      <span class="symbol">
+        <a href="Version$.html"><span class="name">Version</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Serializable" class="extype" target="_top">Serializable</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@Version" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="org.allenai.common.cache" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="cache"></a>
+      <a id="cache:cache"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="cache/package.html"><span class="name">cache</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@cache" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="org.allenai.common.guice" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="guice"></a>
+      <a id="guice:guice"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="guice/package.html"><span class="name">guice</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@guice" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="org.allenai.common.immutable" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="immutable"></a>
+      <a id="immutable:immutable"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="immutable/package.html"><span class="name">immutable</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@immutable" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="org.allenai.common.json" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
+      <a id="json"></a>
+      <a id="json:json"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="json/package.html"><span class="name">json</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@json" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Utilities for making it easier to work with spray-json for common use cases.</p><div class="fullcomment"><div class="comment cmt"><p>Utilities for making it easier to work with spray-json for common use cases.</p><p>Usage:
+(format: OFF)</p><pre><span class="kw">import</span> spray.json._
+<span class="kw">import</span> org.allenai.common.json._
+
+<span class="kw">val</span> json: JsObject = ...
+<span class="kw">val</span> packed = json.pack(<span class="lit">"foo"</span> -&gt; <span class="num">5</span>) <span class="cmt">// creates a new JsObject with the added field</span>
+packed[<span class="std">Int</span>](<span class="lit">"foo"</span>) <span class="cmt">// returns 5</span>
+packed.get[<span class="std">Int</span>](<span class="lit">"foo"</span>) <span class="cmt">// returns Some(5)</span></pre><p>(format: ON)
+</p></div></div>
+    </li><li name="org.allenai.common.testkit" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="testkit"></a>
+      <a id="testkit:testkit"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="testkit/package.html"><span class="name">testkit</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@testkit" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="org.allenai.common.webapp" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
+      <a id="webapp"></a>
+      <a id="webapp:webapp"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <a href="webapp/package.html"><span class="name">webapp</span></a>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../index.html#org.allenai.common.package@webapp" title="Permalink" target="_top">
+        <img src="../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>

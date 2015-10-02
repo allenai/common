@@ -1,0 +1,230 @@
+<!DOCTYPE html >
+<html>
+        <head>
+          <title>testkit - org.allenai.common.testkit</title>
+          <meta name="description" content="testkit - org.allenai.common.testkit" />
+          <meta name="keywords" content="testkit org.allenai.common.testkit" />
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link href="../../../../lib/template.css" media="screen" type="text/css" rel="stylesheet" />
+      <link href="../../../../lib/diagrams.css" media="screen" type="text/css" rel="stylesheet" id="diagrams-css" />
+      <script type="text/javascript" src="../../../../lib/jquery.js" id="jquery-js"></script>
+      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
+      
+      <script type="text/javascript">
+         if(top === self) {
+            var url = '../../../../index.html';
+            var hash = 'org.allenai.common.testkit.package';
+            var anchor = window.location.hash;
+            var anchor_opt = '';
+            if (anchor.length >= 1)
+              anchor_opt = '@' + anchor.substring(1);
+            window.location.href = url + '#' + hash + anchor_opt;
+         }
+   	  </script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../lib/package_big.png" />
+        <p id="owner"><a href="../../../package.html" class="extype" name="org">org</a>.<a href="../../package.html" class="extype" name="org.allenai">allenai</a>.<a href="../package.html" class="extype" name="org.allenai.common">common</a></p>
+        <h1>testkit</h1><span class="permalink">
+      <a href="../../../../index.html#org.allenai.common.testkit.package" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      </div>
+
+      <h4 id="signature" class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">package</span>
+      </span>
+      <span class="symbol">
+        <span class="name">testkit</span>
+      </span>
+      </h4>
+      
+          <div id="comment" class="fullcommenttop"></div>
+        
+
+      <div id="mbrsel">
+        <div id="textfilter"><span class="pre"></span><span class="input"><input id="mbrsel-input" type="text" accesskey="/" /></span><span class="post"></span></div>
+        
+        
+        <div id="visbl">
+            <span class="filtertype">Visibility</span>
+            <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+          </div>
+      </div>
+
+      <div id="template">
+        <div id="allMembers">
+        
+
+        <div id="types" class="types members">
+              <h3>Type Members</h3>
+              <ol><li name="org.allenai.common.testkit.ActorSpec" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="ActorSpecextendsTestKitwithAllenAiBaseSpecwithImplicitSenderwithFutureHelperswithBeforeAndAfterAll"></a>
+      <a id="ActorSpec:ActorSpec"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="ActorSpec.html"><span class="name">ActorSpec</span></a><span class="result"> extends <a href="http://doc.akka.io/api/akka/2.4.0/index.html#akka.testkit.TestKit" class="extype" target="_top">TestKit</a> with <a href="AllenAiBaseSpec.html" class="extype" name="org.allenai.common.testkit.AllenAiBaseSpec">AllenAiBaseSpec</a> with <a href="http://doc.akka.io/api/akka/2.4.0/index.html#akka.testkit.ImplicitSender" class="extype" target="_top">ImplicitSender</a> with <a href="FutureHelpers.html" class="extype" name="org.allenai.common.testkit.FutureHelpers">FutureHelpers</a> with <span class="extype" name="org.scalatest.BeforeAndAfterAll">BeforeAndAfterAll</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.allenai.common.testkit.package@ActorSpecextendsTestKitwithAllenAiBaseSpecwithImplicitSenderwithFutureHelperswithBeforeAndAfterAll" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Base class for Akka Actor integration specs</p><div class="fullcomment"><div class="comment cmt"><p>Base class for Akka Actor integration specs</p><p>By extending akka.testkit.TestKit and akka.testkit.ImplicitSender,
+we get many helpers for testing Actors against a live actor system.</p><p>For more information on Akka TestKit, see: http://goo.gl/3SE4zz
+</p></div></div>
+    </li><li name="org.allenai.common.testkit.AllenAiBaseSpec" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="AllenAiBaseSpecextendsFlatSpecLikewithMatchers"></a>
+      <a id="AllenAiBaseSpec:AllenAiBaseSpec"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="AllenAiBaseSpec.html"><span class="name">AllenAiBaseSpec</span></a><span class="result"> extends <span class="extype" name="org.scalatest.FlatSpecLike">FlatSpecLike</span> with <span class="extype" name="org.scalatest.Matchers">Matchers</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.allenai.common.testkit.package@AllenAiBaseSpecextendsFlatSpecLikewithMatchers" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      
+    </li><li name="org.allenai.common.testkit.FutureHelpers" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="FutureHelpersextendsAnyRef"></a>
+      <a id="FutureHelpers:FutureHelpers"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="FutureHelpers.html"><span class="name">FutureHelpers</span></a><span class="result"> extends <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.allenai.common.testkit.package@FutureHelpersextendsAnyRef" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Trait providing helpers for dealing with scala.concurrent.Futures duruing tests
+</p>
+    </li><li name="org.allenai.common.testkit.IntegrationSpec" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="IntegrationSpecextendsAllenAiBaseSpec"></a>
+      <a id="IntegrationSpec:IntegrationSpec"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="IntegrationSpec.html"><span class="name">IntegrationSpec</span></a><span class="result"> extends <a href="AllenAiBaseSpec.html" class="extype" name="org.allenai.common.testkit.AllenAiBaseSpec">AllenAiBaseSpec</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.allenai.common.testkit.package@IntegrationSpecextendsAllenAiBaseSpec" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Base class for integration tests.</p><div class="fullcomment"><div class="comment cmt"><p>Base class for integration tests.
+By default, integration tests share their Spec instance.
+</p></div></div>
+    </li><li name="org.allenai.common.testkit.ScratchDirectory" visbl="pub" data-isabs="true" fullComment="no" group="Ungrouped">
+      <a id="ScratchDirectoryextendsBeforeAndAfterAll"></a>
+      <a id="ScratchDirectory:ScratchDirectory"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier"></span>
+        <span class="kind">trait</span>
+      </span>
+      <span class="symbol">
+        <a href="ScratchDirectory.html"><span class="name">ScratchDirectory</span></a><span class="result"> extends <span class="extype" name="org.scalatest.BeforeAndAfterAll">BeforeAndAfterAll</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.allenai.common.testkit.package@ScratchDirectoryextendsBeforeAndAfterAll" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Provides a scratch directory for writing unit-test output</p>
+    </li><li name="org.allenai.common.testkit.SingeInstanceUnitSpec" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="SingeInstanceUnitSpecextendsAllenAiBaseSpec"></a>
+      <a id="SingeInstanceUnitSpec:SingeInstanceUnitSpec"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="SingeInstanceUnitSpec.html"><span class="name">SingeInstanceUnitSpec</span></a><span class="result"> extends <a href="AllenAiBaseSpec.html" class="extype" name="org.allenai.common.testkit.AllenAiBaseSpec">AllenAiBaseSpec</a></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.allenai.common.testkit.package@SingeInstanceUnitSpecextendsAllenAiBaseSpec" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Base class for any unit test that, for some reason, want to share the Spec instance.</p><div class="fullcomment"><div class="comment cmt"><p>Base class for any unit test that, for some reason, want to share the Spec instance.
+Usually the reason is a slow expensive test setup time (setting up a 3rd party DB, etc.)
+</p></div></div>
+    </li><li name="org.allenai.common.testkit.UnitSpec" visbl="pub" data-isabs="true" fullComment="yes" group="Ungrouped">
+      <a id="UnitSpecextendsAllenAiBaseSpecwithOneInstancePerTest"></a>
+      <a id="UnitSpec:UnitSpec"></a>
+      <h4 class="signature">
+      <span class="modifier_kind">
+        <span class="modifier">abstract </span>
+        <span class="kind">class</span>
+      </span>
+      <span class="symbol">
+        <a href="UnitSpec.html"><span class="name">UnitSpec</span></a><span class="result"> extends <a href="AllenAiBaseSpec.html" class="extype" name="org.allenai.common.testkit.AllenAiBaseSpec">AllenAiBaseSpec</a> with <span class="extype" name="org.scalatest.OneInstancePerTest">OneInstancePerTest</span></span>
+      </span>
+      </h4><span class="permalink">
+      <a href="../../../../index.html#org.allenai.common.testkit.package@UnitSpecextendsAllenAiBaseSpecwithOneInstancePerTest" title="Permalink" target="_top">
+        <img src="../../../../lib/permalink.png" />
+      </a>
+    </span>
+      <p class="shortcomment cmt">Base class for any unit test.</p><div class="fullcomment"><div class="comment cmt"><p>Base class for any unit test.
+Runs each test in a separate Spec instance, to simplify / guarantee test isolation.
+This is the default behavior of JUnit.
+</p></div></div>
+    </li></ol>
+            </div>
+
+        
+
+        
+
+        
+
+        
+        </div>
+
+        <div id="inheritedMembers">
+        
+        
+        </div>
+
+        <div id="groupedMembers">
+        <div class="group" name="Ungrouped">
+              <h3>Ungrouped</h3>
+              
+            </div>
+        </div>
+
+      </div>
+
+      <div id="tooltip"></div>
+
+      <div id="footer">  </div>
+
+
+    </body>
+      </html>
