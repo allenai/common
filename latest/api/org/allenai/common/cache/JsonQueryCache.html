@@ -49,10 +49,10 @@
       </span>
       </h4>
       
-          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>class holding a Redis cache of query results. This is meant to store any value T where
-T : JsonFormat (any T with a json serialization as per spray json)
-, keyed on string query. If we ever need to run multiple instances within the same application
-user neeeds to handle using a shared Jedis Pool.</p></div><div class="toggleContainer block">
+          <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Class holding a Redis cache of query results. This is meant to store any value <code>T</code> where
+<code>T : spray.json.JsonFormat</code> (any <code>T</code> with a json serialization as per spray json), keyed on
+string query. Multiple cache instances (instances pointing to different Redis caches) need to be
+configured to have different JedisPools.</p></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="../Logging.html" class="extype" name="org.allenai.common.Logging">Logging</a>, <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>
@@ -108,8 +108,8 @@ user neeeds to handle using a shared Jedis Pool.</p></div><div class="toggleCont
         <img src="../../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">constructs a QueryCache[V], handling the Jedis pool itself</p><div class="fullcomment"><div class="comment cmt"><p>constructs a QueryCache[V], handling the Jedis pool itself</p></div><dl class="paramcmts block"><dt class="param">redisHostName</dt><dd class="cmt"><p>the hostName of the redis server to connect to</p></dd><dt class="param">redisHostPort</dt><dd class="cmt"><p>the port of the redis server to connect to</p></dd><dt class="param">clientPrefix</dt><dd class="cmt"><p>an identifier for the client using this caching mechanism, which will become
-part of the cache key (prepended to the actual query)
+      <p class="shortcomment cmt">Constructs a <code>QueryCache[V]</code>, building a JedisPool from the parameters given.</p><div class="fullcomment"><div class="comment cmt"><p>Constructs a <code>QueryCache[V]</code>, building a JedisPool from the parameters given.</p></div><dl class="paramcmts block"><dt class="param">redisHostName</dt><dd class="cmt"><p>the hostName of the redis server to connect to</p></dd><dt class="param">redisHostPort</dt><dd class="cmt"><p>the port of the redis server to connect to</p></dd><dt class="param">clientPrefix</dt><dd class="cmt"><p>an identifier for the client using this caching mechanism, which will
+become part of the cache key (prepended to the actual query)
 </p></dd></dl></div>
     </li><li name="org.allenai.common.cache.JsonQueryCache#&lt;init&gt;" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="&lt;init&gt;(pool:redis.clients.jedis.JedisPool,clientPrefix:String)(implicitevidence$1:spray.json.JsonFormat[V]):org.allenai.common.cache.JsonQueryCache[V]"></a>
@@ -246,7 +246,7 @@ part of the cache key (prepended to the actual query)
         <img src="../../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">deletes a key-&gt;value from the cache</p><div class="fullcomment"><div class="comment cmt"><p>deletes a key-&gt;value from the cache</p></div><dl class="paramcmts block"><dt class="param">query</dt><dd class="cmt"><p>key for value you want to delete (not including client prefix)
+      <p class="shortcomment cmt">Deletes a key-&gt;value pair from the cache.</p><div class="fullcomment"><div class="comment cmt"><p>Deletes a key-&gt;value pair from the cache.</p></div><dl class="paramcmts block"><dt class="param">query</dt><dd class="cmt"><p>key for value you want to delete (not including client prefix)
 </p></dd></dl></div>
     </li><li name="scala.AnyRef#eq" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="eq(x$1:AnyRef):Boolean"></a>
@@ -321,7 +321,7 @@ part of the cache key (prepended to the actual query)
         <img src="../../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Retrieves the value for a passed key</p><div class="fullcomment"><div class="comment cmt"><p>Retrieves the value for a passed key</p></div><dl class="paramcmts block"><dt class="param">query</dt><dd class="cmt"><p>key for stored value (not including client prefix)</p></dd><dt>returns</dt><dd class="cmt"><p>Option containing value, None if not found or timed out (async)
+      <p class="shortcomment cmt">Retrieves the value for a passed key.</p><div class="fullcomment"><div class="comment cmt"><p>Retrieves the value for a passed key.</p></div><dl class="paramcmts block"><dt class="param">query</dt><dd class="cmt"><p>key for stored value (not including client prefix)</p></dd><dt>returns</dt><dd class="cmt"><p>Option containing value, None if not found or timed out (async)
 </p></dd></dl></div>
     </li><li name="scala.AnyRef#getClass" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="getClass():Class[_]"></a>
@@ -407,8 +407,7 @@ part of the cache key (prepended to the actual query)
         <img src="../../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Trivial Helper to construct cache key with client prefix.</p><div class="fullcomment"><div class="comment cmt"><p>Trivial Helper to construct cache key with client prefix.
-</p></div><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt>returns</dt><dd class="cmt"><p>the cache key for the query, with client prefix prepended</p></dd></dl><dl class="attributes block"> <dt>Attributes</dt><dd>protected </dd></dl></div>
     </li><li name="org.allenai.common.Logging.logger" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="logger"></a>
       <a id="logger:logger"></a>
@@ -520,7 +519,7 @@ loggerConfig.Logger().addAppender(
         <img src="../../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">Puts a key-&gt;value to the cache</p><div class="fullcomment"><div class="comment cmt"><p>Puts a key-&gt;value to the cache</p></div><dl class="paramcmts block"><dt class="param">query</dt><dd class="cmt"><p>key for value (not including client prefix)</p></dd><dt class="param">response</dt><dd class="cmt"><p>Value you want stored in cache
+      <p class="shortcomment cmt">Puts a key-&gt;value pair in the cache.</p><div class="fullcomment"><div class="comment cmt"><p>Puts a key-&gt;value pair in the cache.</p></div><dl class="paramcmts block"><dt class="param">query</dt><dd class="cmt"><p>key for value (not including client prefix)</p></dd><dt class="param">response</dt><dd class="cmt"><p>Value you want stored in cache
 </p></dd></dl></div>
     </li><li name="scala.AnyRef#synchronized" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="synchronized[T0](x$1:=&gt;T0):T0"></a>

@@ -55,8 +55,8 @@ Java interfaces) take byte offsets for seeking. The only limitation is that the 
 either UTF-8 or ISO-8859-1 encoded.</p><p>This also has a <code>getLines()</code> method to iterate over lines. Any reads done on this iterator
 are reflected in the main Source, and reads on the Source are reflected in the
 <code>Iterator[String]</code>. The iterator returned by <code>getLines()</code> will create another buffer of
-<code>bufferSize</code> bytes, so bear this in mind when estimating memory usage.</p></div><dl class="attributes block"> <dt>Exceptions thrown</dt><dd><span class="cmt"><p><span class="extype" name="IllegalArgumentException"><code>IllegalArgumentException</code></span> if <code>bufferSize</code> is less than 4, or <code>codec</code> is not UTF-8 or
-ISO-8859-1
+<code>bufferSize</code> bytes, so bear this in mind when estimating memory usage.</p></div><dl class="attributes block"> <dt>Exceptions thrown</dt><dd><span class="cmt"><p><a href=http://docs.oracle.com/javase/8/docs/api/index.html?java/lang/IllegalArgumentException.html class="extype" target="_top"><code>java.lang.IllegalArgumentException</code></a> if <code>bufferSize</code> is less than 4, or <code>codec</code> is not
+UTF-8 or ISO-8859-1
 </p></span></dd></dl><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.collection.Iterator" class="extype" target="_top">Iterator</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Char" class="extype" target="_top">Char</a>], <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.collection.TraversableOnce" class="extype" target="_top">TraversableOnce</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Char" class="extype" target="_top">Char</a>], <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.collection.GenTraversableOnce" class="extype" target="_top">GenTraversableOnce</a>[<a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Char" class="extype" target="_top">Char</a>], <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Any" class="extype" target="_top">Any</a></div>
@@ -113,8 +113,8 @@ ISO-8859-1
         <img src="../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">inFile</dt><dd class="cmt"><p>the file channel to wrap</p></dd><dt class="param">bufferSize</dt><dd class="cmt"><p>the size of the internal buffer to use. Defaults to 8MB.</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the codec to use. Must be one of UTF-8 or ISO-8859-1.</p></dd></dl><dl class="attributes block"> <dt>Exceptions thrown</dt><dd><span class="cmt"><p><span class="extype" name="IllegalArgumentException"><code>IllegalArgumentException</code></span> if <code>bufferSize</code> is less than 4, or <code>codec</code> is not UTF-8 or
-ISO-8859-1
+      <p class="shortcomment cmt"></p><div class="fullcomment"><div class="comment cmt"></div><dl class="paramcmts block"><dt class="param">inFile</dt><dd class="cmt"><p>the file channel to wrap</p></dd><dt class="param">bufferSize</dt><dd class="cmt"><p>the size of the internal buffer to use. Defaults to 8MB.</p></dd><dt class="param">codec</dt><dd class="cmt"><p>the codec to use. Must be one of UTF-8 or ISO-8859-1.</p></dd></dl><dl class="attributes block"> <dt>Exceptions thrown</dt><dd><span class="cmt"><p><a href=http://docs.oracle.com/javase/8/docs/api/index.html?java/lang/IllegalArgumentException.html class="extype" target="_top"><code>java.lang.IllegalArgumentException</code></a> if <code>bufferSize</code> is less than 4, or <code>codec</code> is not
+UTF-8 or ISO-8859-1
 </p></span></dd></dl></div>
     </li></ol>
             </div>

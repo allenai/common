@@ -82,10 +82,10 @@
         <img src="../../../../lib/permalink.png" />
       </a>
     </span>
-      <p class="shortcomment cmt">class holding a Redis cache of query results.</p><div class="fullcomment"><div class="comment cmt"><p>class holding a Redis cache of query results. This is meant to store any value T where
-T : JsonFormat (any T with a json serialization as per spray json)
-, keyed on string query. If we ever need to run multiple instances within the same application
-user neeeds to handle using a shared Jedis Pool.</p></div></div>
+      <p class="shortcomment cmt">Class holding a Redis cache of query results.</p><div class="fullcomment"><div class="comment cmt"><p>Class holding a Redis cache of query results. This is meant to store any value <code>T</code> where
+<code>T : spray.json.JsonFormat</code> (any <code>T</code> with a json serialization as per spray json), keyed on
+string query. Multiple cache instances (instances pointing to different Redis caches) need to be
+configured to have different JedisPools.</p></div></div>
     </li></ol>
             </div>
 

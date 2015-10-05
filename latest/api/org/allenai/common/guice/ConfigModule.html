@@ -51,22 +51,27 @@
       
           <div id="comment" class="fullcommenttop"><div class="comment cmt"><p>Parent class for modules which use a typesafe config for values. This automatically binds all
 configuration values within a given Config instance, along with defaults from an optional
-bundled config file. Each binding is annotated with @Named(configPath) to differentiate multiple
-bindings for a single primitive type.</p><p>This will bind config (HOCON) value types boolean, number, string, list, and object. Boolean and
+bundled config file. Each binding is annotated with <code>@Named(configPath)</code> to differentiate
+multiple bindings for a single primitive type.</p><p>This will bind config (HOCON) value types boolean, number, string, list, and object. Boolean and
 string entries are bound to the corresponding scala type. Numbers are bound to Double if they're
 floating point, and are bound to Int, Long, and Double if they're integral. Lists are bound to
 Seq[Config], since HOCON allows mixed list types. All object-valued keys are also bound as
 Config instances.</p><p>The default config filename is looked for in the implementing class's path, using the resource
 name <code>module.conf</code>.  For example, if the implementing module is org.allenai.foobar.MyModule,
 <code>module.conf</code> should be in <code>src/main/resources/org/allenai/foobar</code>. <code>defaultConfig</code> provides the
-filename, if you want to change it from the default.</p><p>Example config and bindings:</p><p>format: OFF
-Config file -
-  stringValue = &quot;foo&quot;
-  someObject = {
-    propNumber = 123
-    propBool = true
-  }</p><p>Injected Scala class -
-  class Injected @Inject() (</p></div><div class="toggleContainer block">
+filename, if you want to change it from the default.</p><p>Example config and bindings:</p><p>Config file -</p><pre><span class="cmt">// format: OFF</span>
+stringValue = <span class="lit">"foo"</span>
+someObject = {
+  propNumber = <span class="num">123</span>
+  propBool = <span class="kw">true</span>
+}</pre><p>Injected Scala class -</p><pre><span class="kw">class</span> Injected @Inject() (
+  @Named(<span class="lit">"stringValue"</span>) foo: <span class="std">String</span>,
+  @Named(<span class="lit">"someObject.propBool"</span>) boolValue: <span class="std">Boolean</span>,
+  @Named(<span class="lit">"someObject.propNumber"</span>) integralValue: <span class="std">Int</span>,
+  someOtherParameter: ScalaClass,
+  @Named(<span class="lit">"someObject.propNumber"</span>) numbersCanBeDoubles: <span class="std">Double</span>
+)
+<span class="cmt">// format: ON</span></pre></div><div class="toggleContainer block">
           <span class="toggle">Linear Supertypes</span>
           <div class="superTypes hiddenContent"><a href="../Logging.html" class="extype" name="org.allenai.common.Logging">Logging</a>, <span class="extype" name="net.codingwell.scalaguice.ScalaModule">ScalaModule</span>, <span class="extype" name="net.codingwell.scalaguice.InternalModule">InternalModule</span>[<span class="extype" name="com.google.inject.Binder">Binder</span>], <span class="extype" name="com.google.inject.AbstractModule">AbstractModule</span>, <span class="extype" name="com.google.inject.Module">Module</span>, <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.AnyRef" class="extype" target="_top">AnyRef</a>, <a href="http://www.scala-lang.org/api/2.11.5/index.html#scala.Any" class="extype" target="_top">Any</a></div>
         </div></div>

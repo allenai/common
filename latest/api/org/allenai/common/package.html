@@ -196,8 +196,8 @@ Java interfaces) take byte offsets for seeking. The only limitation is that the 
 either UTF-8 or ISO-8859-1 encoded.</p><p>This also has a <code>getLines()</code> method to iterate over lines. Any reads done on this iterator
 are reflected in the main Source, and reads on the Source are reflected in the
 <code>Iterator[String]</code>. The iterator returned by <code>getLines()</code> will create another buffer of
-<code>bufferSize</code> bytes, so bear this in mind when estimating memory usage.</p></div><dl class="attributes block"> <dt>Exceptions thrown</dt><dd><span class="cmt"><p><span class="extype" name="IllegalArgumentException"><code>IllegalArgumentException</code></span> if <code>bufferSize</code> is less than 4, or <code>codec</code> is not UTF-8 or
-ISO-8859-1
+<code>bufferSize</code> bytes, so bear this in mind when estimating memory usage.</p></div><dl class="attributes block"> <dt>Exceptions thrown</dt><dd><span class="cmt"><p><a href=http://docs.oracle.com/javase/8/docs/api/index.html?java/lang/IllegalArgumentException.html class="extype" target="_top"><code>java.lang.IllegalArgumentException</code></a> if <code>bufferSize</code> is less than 4, or <code>codec</code> is not
+UTF-8 or ISO-8859-1
 </p></span></dd></dl></div>
     </li><li name="org.allenai.common.SourceInputStream" visbl="pub" data-isabs="false" fullComment="yes" group="Ungrouped">
       <a id="SourceInputStreamextendsInputStream"></a>
@@ -235,8 +235,8 @@ thread-safe.
       </a>
     </span>
       <p class="shortcomment cmt">Represents the version of this component.</p><div class="fullcomment"><div class="comment cmt"><p>Represents the version of this component. Should be built with the <code>fromResources</code> method on the
-companion object.
-</p></div><dl class="paramcmts block"><dt class="param">git</dt><dd class="cmt"><p>the git version (commit information) of the build.</p></dd><dt class="param">artifactVersion</dt><dd class="cmt"><p>the version of the artifact in the build.</p></dd><dt class="param">cacheKey</dt><dd class="cmt"><p>a cacheKey of the project. Changes on git commits to src of project and dependency changes.
+companion object.</p></div><dl class="paramcmts block"><dt class="param">git</dt><dd class="cmt"><p>the git version (commit information) of the build.</p></dd><dt class="param">artifactVersion</dt><dd class="cmt"><p>the version of the artifact in the build.</p></dd><dt class="param">cacheKey</dt><dd class="cmt"><p>a cacheKey of the project. Changes on git commits to src of project and
+dependency changes.
 </p></dd></dl></div>
     </li></ol>
             </div>
@@ -279,8 +279,8 @@ companion object.
       </a>
     </span>
       <p class="shortcomment cmt">Import to provide enhancements via implicit class conversion for making working
-with com.typesafe.config.Config more Scala-friendly (no nulls!).</p><div class="fullcomment"><div class="comment cmt"><p>Import to provide enhancements via implicit class conversion for making working
-with com.typesafe.config.Config more Scala-friendly (no nulls!).</p><p>Also provides a Spray JSON RootJsonFormat[Config].
+with <a href="http://typesafehub.github.io/config/latest/api/index.html#com.typesafe.config.Config" class="extype" target="_top">com.typesafe.config.Config</a> more Scala-friendly (no nulls!).</p><div class="fullcomment"><div class="comment cmt"><p>Import to provide enhancements via implicit class conversion for making working
+with <a href="http://typesafehub.github.io/config/latest/api/index.html#com.typesafe.config.Config" class="extype" target="_top">com.typesafe.config.Config</a> more Scala-friendly (no nulls!).</p><p>Also provides a <code>spray.json.RootJsonFormat[Config]</code>.
 </p></div></div>
     </li><li name="org.allenai.common.GitVersion" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="GitVersion"></a>
@@ -385,8 +385,7 @@ with com.typesafe.config.Config more Scala-friendly (no nulls!).</p><p>Also prov
     </span>
       <p class="shortcomment cmt">Creates an Iterator from an InputStream.</p><div class="fullcomment"><div class="comment cmt"><p>Creates an Iterator from an InputStream.
 The InputStream is automatically closed once the Iterator has been fully consumed.
-Example:  StreamClosingIterator(new FileInputStream(&quot;foo.txt&quot;))(Source.fromInputStream(_).getLines())
-</p></div></div>
+Example:</p><pre>StreamClosingIterator(<span class="kw">new</span> FileInputStream(<span class="lit">"foo.txt"</span>))(Source.fromInputStream(_).getLines())</pre></div></div>
     </li><li name="org.allenai.common.StringImplicits" visbl="pub" data-isabs="false" fullComment="no" group="Ungrouped">
       <a id="StringImplicits"></a>
       <a id="StringImplicits:StringImplicits"></a>
