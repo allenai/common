@@ -7,6 +7,7 @@ lazy val buildSettings = Seq(
   pomIncludeRepository := { _ => false },
   licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
   homepage := Some(url("https://github.com/allenai/common")),
+  apiURL := Some(url("https://allenai.github.io/common/")),
   scmInfo := Some(ScmInfo(
     url("https://github.com/allenai/common"),
     "https://github.com/allenai/common.git")),
@@ -47,5 +48,9 @@ lazy val webapp = Project(
 
 lazy val common = Project(id = "common", base = file(".")).settings(
   // Don't publish a jar for the root project.
-  publishArtifact := false, publishTo := Some("dummy" at "nowhere"), publish := { }, publishLocal := { }
-).aggregate(core, guice, testkit, webapp).enablePlugins(LibraryPlugin)
+  publishArtifact := false,
+  publishTo := Some("dummy" at "nowhere"),
+  publish := { },
+  publishLocal := { },
+  scaladocGenGitRemoteRepo := "git@github.com:allenai/common.git"
+).aggregate(core, guice, testkit, webapp).enablePlugins(LibraryPlugin, ScaladocGenPlugin)

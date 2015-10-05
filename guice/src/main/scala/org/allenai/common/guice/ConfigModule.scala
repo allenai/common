@@ -19,8 +19,8 @@ import scala.collection.JavaConverters._
 
 /** Parent class for modules which use a typesafe config for values. This automatically binds all
   * configuration values within a given Config instance, along with defaults from an optional
-  * bundled config file. Each binding is annotated with @Named(configPath) to differentiate multiple
-  * bindings for a single primitive type.
+  * bundled config file. Each binding is annotated with `@Named(configPath)` to differentiate
+  * multiple bindings for a single primitive type.
   *
   * This will bind config (HOCON) value types boolean, number, string, list, and object. Boolean and
   * string entries are bound to the corresponding scala type. Numbers are bound to Double if they're
@@ -35,23 +35,25 @@ import scala.collection.JavaConverters._
   *
   * Example config and bindings:
   *
-  * format: OFF
   * Config file -
-  *   stringValue = "foo"
-  *   someObject = {
-  *     propNumber = 123
-  *     propBool = true
-  *   }
+  * {{{
+  * stringValue = "foo"
+  * someObject = {
+  *   propNumber = 123
+  *   propBool = true
+  * }
+  * }}}
   *
   * Injected Scala class -
-  *   class Injected @Inject() (
-  *     @Named("stringValue") foo: String,
-  *     @Named("someObject.propBool") boolValue: Boolean,
-  *     @Named("someObject.propNumber") integralValue: Int,
-  *     someOtherParameter: ScalaClass,
-  *     @Named("someObject.propNumber") numbersCanBeDoubles: Double
-  *   )
-  * format: ON
+  * {{{
+  * class Injected @Inject() (
+  *   @Named("stringValue") foo: String,
+  *   @Named("someObject.propBool") boolValue: Boolean,
+  *   @Named("someObject.propNumber") integralValue: Int,
+  *   someOtherParameter: ScalaClass,
+  *   @Named("someObject.propNumber") numbersCanBeDoubles: Double
+  * )
+  * }}}
   *
   * @param config the runtime config to use containing all values to bind
   */
@@ -68,7 +70,7 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
   /** If overridden, the namespace prefix that is prepended to all binding key names. This is
     * used as a path prefix for all config values; so if the prefix is `Some("foo")` and the config
     * key is "one.two", the final binding will be for @Named("foo.one.two").
-    * 
+    *
     * This is useful if you're providing a module within a library, and want to have your clients be
     * able to pass Config overrides without having to worry about prefixing them properly.
     */

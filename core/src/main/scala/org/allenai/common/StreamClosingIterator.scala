@@ -4,7 +4,10 @@ import java.io.InputStream
 
 /** Creates an Iterator from an InputStream.
   * The InputStream is automatically closed once the Iterator has been fully consumed.
-  * Example:  StreamClosingIterator(new FileInputStream("foo.txt"))(Source.fromInputStream(_).getLines())
+  * Example:
+  * {{{
+  * StreamClosingIterator(new FileInputStream("foo.txt"))(Source.fromInputStream(_).getLines())
+  * }}}
   */
 object StreamClosingIterator {
   def apply[T](is: InputStream)(makeIterator: InputStream => Iterator[T]): Iterator[T] = {

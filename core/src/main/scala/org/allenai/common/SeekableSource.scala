@@ -17,8 +17,8 @@ import scala.io.Codec
   * @param inFile the file channel to wrap
   * @param bufferSize the size of the internal buffer to use. Defaults to 8MB.
   * @param codec the codec to use. Must be one of UTF-8 or ISO-8859-1.
-  * @throws IllegalArgumentException if `bufferSize` is less than 4, or `codec` is not UTF-8 or
-  * ISO-8859-1
+  * @throws java.lang.IllegalArgumentException if `bufferSize` is less than 4, or `codec` is not
+  * UTF-8 or ISO-8859-1
   */
 class SeekableSource(inFile: FileChannel, bufferSize: Int = 8 << 20)(implicit codec: Codec)
     extends Iterator[Char] {
