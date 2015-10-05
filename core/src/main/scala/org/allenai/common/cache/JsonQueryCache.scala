@@ -6,31 +6,28 @@ import redis.clients.jedis.{ Jedis, JedisPool }
 
 import spray.json._
 
-/** class holding a Redis cache of query results. This is meant to store any value T where
-  * T : JsonFormat (any T with a json serialization as per spray json)
-  * , keyed on string query. If we ever need to run multiple instances within the same application
-  * user neeeds to handle using a shared Jedis Pool.
+/** Class holding a Redis cache of query results. This is meant to store any value `T` where
+  * `T : spray.json.JsonFormat` (any `T` with a json serialization as per spray json), keyed on
+  * string query. Multiple cache instances (instances pointing to different Redis caches) need to be
+  * configured to have different JedisPools.
   * @param pool the JedisPool that the client should use to serve requests
   * @param clientPrefix an identifier for the client using this caching mechanism, which will become
   * part of the cache key (prepended to the actual query)
   */
-class JsonQueryCache[V: JsonFormat](pool: JedisPool, clientPrefix: String)
-    extends Logging {
-
-  /** constructs a QueryCache[V], handling the Jedis pool itself
+class JsonQueryCache[V: JsonFormat](pool: JedisPool, clientPrefix: String) extends Logging {
+  /** Constructs a `QueryCache[V]`, building a JedisPool from the parameters given.
     * @param redisHostName the hostName of the redis server to connect to
     * @param redisHostPort the port of the redis server to connect to
-    * @param clientPrefix an identifier for the client using this caching mechanism, which will become
-    * part of the cache key (prepended to the actual query)
+    * @param clientPrefix an identifier for the client using this caching mechanism, which will
+    * become part of the cache key (prepended to the actual query)
     */
   def this(redisHostName: String, redisHostPort: Int, clientPrefix: String) =
     this(new JedisPool(redisHostName, redisHostPort), clientPrefix)
 
-  /** Trivial Helper to construct cache key with client prefix.
-    */
+  /** @return the cache key for the query, with client prefix prepended */
   protected def keyForQuery(query: String): String = s"${clientPrefix}_$query"
 
-  /** Retrieves the value for a passed key
+  /** Retrieves the value for a passed key.
     * @param query key for stored value (not including client prefix)
     * @return Option containing value, None if not found or timed out (async)
     */
@@ -42,7 +39,7 @@ class JsonQueryCache[V: JsonFormat](pool: JedisPool, clientPrefix: String)
     }
   }
 
-  /** Puts a key->value to the cache
+  /** Puts a key->value pair in the cache.
     * @param query key for value (not including client prefix)
     * @param response Value you want stored in cache
     */
@@ -50,15 +47,15 @@ class JsonQueryCache[V: JsonFormat](pool: JedisPool, clientPrefix: String)
     client.set(keyForQuery(query), response.toJson.compactPrint)
   }
 
-  /** deletes a key->value from the cache
+  /** Deletes a key->value pair from the cache.
     * @param query key for value you want to delete (not including client prefix)
     */
   def del(query: String): Unit = withResource[Unit] { client: Jedis =>
     client.del(keyForQuery(query))
   }
 
-  // wrap operation in a try-catch & handle closing resource
-  private def withResource[T](operation: (Jedis => T)) = {
+  /** Runs the given operation, handling fetching and closing the Jedis connection. */
+  private def withResource[T](operation: (Jedis => T)): T = {
     var resource: Jedis = null
     try {
       resource = pool.getResource

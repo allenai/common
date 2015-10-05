@@ -4,16 +4,16 @@ import org.allenai.common.Config._
 import org.allenai.common.json._
 
 import com.typesafe.config.ConfigFactory
+import spray.json.{ JsNumber, JsObject, JsString, JsValue, RootJsonFormat }
 
 import scala.collection.JavaConverters._
-import spray.json._
 
 import java.util.Date
 
 /** Represents a git version.
-  * @param  sha1  the output of `git sha1` in the repository
-  * @param  commitDate commit date in milliseconds
-  * @param  repoUrl  the url of the git repo
+  * @param sha1 the output of `git sha1` in the repository
+  * @param commitDate commit date in milliseconds
+  * @param repoUrl the url of the git repo
   */
 case class GitVersion(sha1: String, commitDate: Long, repoUrl: Option[String]) {
   /** A URL pointing to the specific commit on GitHub. */
@@ -34,10 +34,10 @@ object GitVersion {
   implicit val gitVersionFormat = jsonFormat3(GitVersion.apply)
 
   /** The GitHub project URL.
-    * The remotes are searched for one with user "allenai" and then it's
-    * transformed into a valid GitHub project URL.
     *
-    * @return  a URL to a GitHub repo, or None if no allenai remotes exist
+    * The remotes are searched for one with user "allenai" and then it's transformed into a valid
+    * GitHub project URL.
+    * @return a URL to a GitHub repo, or None if no allenai remotes exist
     */
   def projectUrl(remotes: Seq[String], user: String): Option[String] = {
     val sshRegex = """git@github.com:([\w-]+)/([\w-]+).git""".r
@@ -56,10 +56,10 @@ object GitVersion {
 
 /** Represents the version of this component. Should be built with the `fromResources` method on the
   * companion object.
-  *
-  * @param  git  the git version (commit information) of the build.
-  * @param  artifactVersion  the version of the artifact in the build.
-  * @param  cacheKey a cacheKey of the project. Changes on git commits to src of project and dependency changes.
+  * @param git the git version (commit information) of the build.
+  * @param artifactVersion the version of the artifact in the build.
+  * @param cacheKey a cacheKey of the project. Changes on git commits to src of project and
+  * dependency changes.
   */
 case class Version(
     git: GitVersion,
