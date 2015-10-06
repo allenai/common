@@ -5,6 +5,8 @@ common
 
 A collection of useful utility classes and functions.
 
+[API Docs](http://allenai.github.io/common/latest/api/#package).
+
 `testkit` - Unit test classes and utilities.
 
 `webapp` - Spray- and web-specific tools.
