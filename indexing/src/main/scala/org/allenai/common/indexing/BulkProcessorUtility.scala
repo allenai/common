@@ -4,15 +4,15 @@ import org.allenai.common.Logging
 import BuildCorpusIndex.indexWithoutDuplicate
 
 import com.typesafe.config.Config
-import org.elasticsearch.action.bulk.{BulkResponse, BulkProcessor, BulkRequest}
+import org.elasticsearch.action.bulk.{ BulkResponse, BulkProcessor, BulkRequest }
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.transport.TransportClient
-import org.elasticsearch.common.io.stream.{InputStreamStreamInput, OutputStreamStreamOutput}
-import org.elasticsearch.common.unit.{TimeValue, ByteSizeUnit, ByteSizeValue}
+import org.elasticsearch.common.io.stream.{ InputStreamStreamInput, OutputStreamStreamOutput }
+import org.elasticsearch.common.unit.{ TimeValue, ByteSizeUnit, ByteSizeValue }
 
 import scala.collection.JavaConverters._
 import scala.util.Random
-import java.io.{FileInputStream, FileOutputStream}
+import java.io.{ FileInputStream, FileOutputStream }
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /** Factory for elasticsearch BulkProcessor.

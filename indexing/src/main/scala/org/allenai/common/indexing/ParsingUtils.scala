@@ -1,21 +1,21 @@
 package org.allenai.common.indexing
 
-import scala.io.{Source, Codec}
+import scala.io.{ Source, Codec }
 import scala.util.matching.Regex
 import java.io.File
 
 object ParsingUtils {
 
   /** Splits a file based on tags of the form <$splitString> ... </$splitString> and performs a
-   *  function on each segment. If a tag is missing for whatever reason will treat the next tag
-   *  (whether it is <$splitString> or </$splitString> as the delimiter of this segemnt.
-   *  @param inputFile file to be segmented
-   *  @param splitString string that defines doc delimiting tags
-   *  @param splitRegex passed in so that the regex does not have to be built with each call (should
+    * function on each segment. If a tag is missing for whatever reason will treat the next tag
+    * (whether it is <$splitString> or </$splitString> as the delimiter of this segemnt.
+    * @param inputFile file to be segmented
+    * @param splitString string that defines doc delimiting tags
+    * @param splitRegex passed in so that the regex does not have to be built with each call (should
     *                    look like """</?splitString>""")
-   *  @param segmentFunction function to be called on each segment
-   *  @param bufferSize size of readingBuffer
-   */
+    * @param segmentFunction function to be called on each segment
+    * @param bufferSize size of readingBuffer
+    */
   def splitOnTag(inputFile: File, splitString: String, splitRegex: Regex,
     segmentFunction: String => Unit, bufferSize: Int, codec: Codec): Unit = {
     val lines = Source.fromFile(inputFile, bufferSize = bufferSize)(codec).getLines()

@@ -3,8 +3,8 @@ package org.allenai.common.indexing
 import com.typesafe.config.ConfigFactory
 
 /** Indexing main object. Configuration specified in indexing.conf in org.allenai.common.indexing.
- *  See common/Readme for details.
- */
+  * See common/Readme for details.
+  */
 object BuildCorpusIndexRunner extends App {
 
   case class IndexConfig(indexConfigName: String = null)

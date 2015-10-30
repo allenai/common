@@ -7,16 +7,16 @@ import org.allenai.nlpstack.segment.defaultSegmenter
 import com.typesafe.config.ConfigFactory
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
-import scala.io.{Codec, Source}
-import java.io.{FileWriter, BufferedWriter, File}
+import scala.concurrent.{ Await, Future }
+import scala.io.{ Codec, Source }
+import java.io.{ FileWriter, BufferedWriter, File }
 
 /** Script used to segment waterloo corpus on a sentence level.
- *  Splits docs based on <DOC> ... </DOC> tags, determines whether the doc is in "English" by
- *  counting the fraction of stop words, and throws out the doc if it is not. Sentence segments the
- *  doc using nlp stack, wraps each sentence in <SENT> ... </SENT> tags, and then rewrites the
- *  entire doc to file.
- */
+  * Splits docs based on <DOC> ... </DOC> tags, determines whether the doc is in "English" by
+  * counting the fraction of stop words, and throws out the doc if it is not. Sentence segments the
+  * doc using nlp stack, wraps each sentence in <SENT> ... </SENT> tags, and then rewrites the
+  * entire doc to file.
+  */
 object WaterlooSegmentScript extends App with Logging {
 
   val englishThreshold = 0.2

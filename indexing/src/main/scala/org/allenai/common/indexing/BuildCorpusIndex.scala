@@ -6,7 +6,7 @@ import org.allenai.common.ParIterator._
 import org.allenai.datastore.Datastore
 import org.allenai.nlpstack.segment.defaultSegmenter
 
-import com.typesafe.config.{ConfigRenderOptions, ConfigFactory, ConfigObject, Config}
+import com.typesafe.config.{ ConfigRenderOptions, ConfigFactory, ConfigObject, Config }
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder
 import org.elasticsearch.action.bulk.BulkProcessor
 import org.elasticsearch.action.index.IndexRequest
@@ -16,21 +16,21 @@ import org.elasticsearch.common.xcontent.XContentFactory._
 import org.elasticsearch.index.query.QueryBuilders
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, Future}
-import scala.io.{Source, Codec}
+import scala.concurrent.{ Await, Future }
+import scala.io.{ Source, Codec }
 import scala.collection.JavaConverters._
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 import java.io.File
 import java.nio.file.{ Files, Path }
 import java.util.concurrent.TimeUnit
 
 /** CLI to build an Elastic Search index on Aristo corpora.
- *  In order to build the index, you need to have elasticsearch running.
- *  Download latest version of elasticsearch, go to the 'bin' folder and run it:
- *  ./elasticsearch
- *  Refer http://joelabrahamsson.com/elasticsearch-101/ to get started.
- *  Takes in Config object containing corpus and other information necessary to build the index.
- */
+  * In order to build the index, you need to have elasticsearch running.
+  * Download latest version of elasticsearch, go to the 'bin' folder and run it:
+  * ./elasticsearch
+  * Refer http://joelabrahamsson.com/elasticsearch-101/ to get started.
+  * Takes in Config object containing corpus and other information necessary to build the index.
+  */
 class BuildCorpusIndex(config: Config) extends Logging {
 
   /** Get Index Name and Index Type. */
@@ -52,16 +52,17 @@ class BuildCorpusIndex(config: Config) extends Logging {
   val splitRegex = """</?SENT>""".r.unanchored
 
   /** Index a single sentence into elasticsearch.
-   *  @param sentence to be indexed
-   *  @param source name of source for reference
-   *  @param sentenceIndex index of sentence in file (for deduplication)
-   *  @param bulkProcessor to communicate with the elasticsearch instance
-   */
+    * @param sentence to be indexed
+    * @param source name of source for reference
+    * @param sentenceIndex index of sentence in file (for deduplication)
+    * @param bulkProcessor to communicate with the elasticsearch instance
+    */
   def addSentenceToIndex(
     sentence: String,
     source: String,
     sentenceIndex: Int,
-    bulkProcessor: BulkProcessor): Unit = {
+    bulkProcessor: BulkProcessor
+  ): Unit = {
     val request = new IndexRequest(indexName, indexType).source(jsonBuilder().startObject()
       .field("text", sentence.trim)
       .field("source", source + "_" + sentenceIndex.toString)
@@ -70,13 +71,14 @@ class BuildCorpusIndex(config: Config) extends Logging {
   }
 
   /** Index a single file into elasticsearch.
-   *  @param file to be indexed
-   *  @param bulkProcessor to communicate with the elasticsearch instance
-   */
+    * @param file to be indexed
+    * @param bulkProcessor to communicate with the elasticsearch instance
+    */
   def addFileToIndex(
     file: File,
     bulkProcessor: BulkProcessor,
-    codec: Codec): Unit = {
+    codec: Codec
+  ): Unit = {
     val bufSource = Source.fromFile(file, 8192)(codec)
     val lines = bufSource.getLines
     (lines flatMap { defaultSegmenter.segmentTexts }).zipWithIndex.foreach {
@@ -93,11 +95,11 @@ class BuildCorpusIndex(config: Config) extends Logging {
   }
 
   /** Index a file tree into the elasticSearch instance.  Divides work into nThreads*4 Futures. Each
-   *  future syncs on currentFile which is a logging variable, and then grabs the next file from the
-   *  stream if it is not empty.
-   *  @param fileTree file stream to be indexed
-   *  @return a sequence of Futures each representing the work done by a thread on this file tree.
-   */
+    * future syncs on currentFile which is a logging variable, and then grabs the next file from the
+    * stream if it is not empty.
+    * @param fileTree file stream to be indexed
+    * @return a sequence of Futures each representing the work done by a thread on this file tree.
+    */
   def addTreeToIndex(fileTree: Iterator[Path], codec: Codec): Seq[Future[Unit]] = {
     for (i <- 0 until nThreads * 4) yield {
       Future {
@@ -121,9 +123,9 @@ class BuildCorpusIndex(config: Config) extends Logging {
   }
 
   /** Index a folder into the elasticsearch instance, following the convention of the waterloo
-   *  corpus. Sentences are encapsulated by <SENT> ... </SENT> tags.
-   *  @param indirPath path to the input directory
-   */
+    * corpus. Sentences are encapsulated by <SENT> ... </SENT> tags.
+    * @param indirPath path to the input directory
+    */
   def addWaterlooDirectoryToIndex(indirPath: String, codec: Codec): Seq[Future[Unit]] = {
     val indir = new File(indirPath)
     for (file <- indir.listFiles; if !file.getName.startsWith(".")) yield {
@@ -144,10 +146,10 @@ class BuildCorpusIndex(config: Config) extends Logging {
   }
 
   /** Index a file into the elasticsearch instance, following the convention of the waterloo corpus.
-   *  Sentences are encapsulated by <SENT> ... </SENT> tags.
-   *  @param inputFile path to the input directory
-   *  @param bulkProcessor to communicate with the elasticsearch instace
-   */
+    * Sentences are encapsulated by <SENT> ... </SENT> tags.
+    * @param inputFile path to the input directory
+    * @param bulkProcessor to communicate with the elasticsearch instace
+    */
   def addWaterlooFileToIndex(inputFile: File, bulkProcessor: BulkProcessor, codec: Codec): Unit = {
     var filePositionCounter = 0
 
@@ -161,7 +163,8 @@ class BuildCorpusIndex(config: Config) extends Logging {
       splitRegex = splitRegex,
       segmentFunction = segmentFunction,
       bufferSize = 16384,
-      codec)
+      codec
+    )
   }
 
   /** Build an index in ElasticSearch using the corpora specified in config. */
@@ -231,7 +234,8 @@ class BuildCorpusIndex(config: Config) extends Logging {
 
     // combine all results into a single Future
     val results: Future[Seq[Unit]] = Future.sequence(
-      datastoreTreeResults ++ datastorePathResults ++ waterlooPathResults)
+      datastoreTreeResults ++ datastorePathResults ++ waterlooPathResults
+    )
 
     results onComplete {
       case Success(l) =>
@@ -252,7 +256,8 @@ class BuildCorpusIndex(config: Config) extends Logging {
       val esClient = ElasticSearchTransportClientUtil.ConstructTransportClientFromESconfig(esConfig)
       for (bulkRequest <- failedRequests; request <- bulkRequest.requests().asScala) {
         BuildCorpusIndex.indexWithoutDuplicate(
-          request.asInstanceOf[IndexRequest], esClient, indexName)
+          request.asInstanceOf[IndexRequest], esClient, indexName
+        )
       }
       esClient.close
     } else {
@@ -267,7 +272,8 @@ object BuildCorpusIndex {
   def indexWithoutDuplicate(
     request: IndexRequest,
     esClient: TransportClient,
-    indexName: String): Unit = {
+    indexName: String
+  ): Unit = {
     val source = request.sourceAsMap().asScala("source")
     val result = esClient.prepareSearch(indexName)
       .setQuery(QueryBuilders.termQuery("source", source))
@@ -279,9 +285,9 @@ object BuildCorpusIndex {
   }
 
   /** Compile list if file paths (for files in Waterloo Corpus format).
-   *  @param corpusConfigs list of all corpus configs
-   *  @return filtered list of waterloo format paths, paired with their encodings
-   */
+    * @param corpusConfigs list of all corpus configs
+    * @return filtered list of waterloo format paths, paired with their encodings
+    */
   def getWaterlooPathList(corpusConfigs: Seq[Config]): Seq[(String, String)] = {
     corpusConfigs.filter(corpusConfig => {
       val corpusType = corpusConfig.get[String]("corpusType")
@@ -291,9 +297,9 @@ object BuildCorpusIndex {
   }
 
   /** Compile list of file trees from datastore.
-   *  @param corpusConfigs list of all corpus configs
-   *  @return filtered list of datastore directory file trees, paired with their encodings
-   */
+    * @param corpusConfigs list of all corpus configs
+    * @return filtered list of datastore directory file trees, paired with their encodings
+    */
   def getDataStoreFileTreeList(corpusConfigs: Seq[Config]): Seq[(Path, String)] = {
     val datastoreCorporaConfigs = corpusConfigs.filter(corpusConfig => {
       val corpusType = corpusConfig.get[String]("corpusType")
@@ -307,14 +313,16 @@ object BuildCorpusIndex {
           .directoryPath(
             config[String]("group"),
             config[String]("directory"),
-            config[Int]("version")),
-            config.get[String]("encoding").getOrElse("UTF-8")))
+            config[Int]("version")
+          ),
+            config.get[String]("encoding").getOrElse("UTF-8")
+        ))
   }
 
   /** Compile list of file paths from datastore.
-   *  @param corpusConfigs list of all corpus configs
-   *  @return filtered list of datastore paths, paired with their encodings
-   */
+    * @param corpusConfigs list of all corpus configs
+    * @return filtered list of datastore paths, paired with their encodings
+    */
   def getDataStoreFilePathList(corpusConfigs: Seq[Config]): Seq[(Path, String)] = {
     val datastoreCorporaConfigs = corpusConfigs.filter(corpusConfig => {
       val corpusType = corpusConfig.get[String]("corpusType")
@@ -330,13 +338,15 @@ object BuildCorpusIndex {
             .directoryPath(
               fileWithDir[String]("group"),
               fileWithDir[String]("directory"),
-              fileWithDir[Int]("version"))
+              fileWithDir[Int]("version")
+            )
             .resolve(fileString)
         }
         case fileWithoutDir => Datastore(privacy).filePath(
           fileWithoutDir[String]("group"),
           fileWithoutDir[String]("file"),
-          fileWithoutDir[Int]("version"))
+          fileWithoutDir[Int]("version")
+        )
       }
       (path, config.get[String]("encoding").getOrElse("UTF-8"))
     }
