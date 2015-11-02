@@ -40,6 +40,12 @@ lazy val guice = Project(
   settings = buildSettings
 ).enablePlugins(LibraryPlugin).dependsOn(core, testkit % "test->compile")
 
+lazy val indexing = Project(
+  id = "indexing",
+  base = file("indexing"),
+  settings = buildSettings
+).enablePlugins(LibraryPlugin).dependsOn(core, testkit % "test->compile")
+
 lazy val webapp = Project(
   id = "webapp",
   base = file("webapp"),
@@ -53,4 +59,4 @@ lazy val common = Project(id = "common", base = file(".")).settings(
   publish := { },
   publishLocal := { },
   scaladocGenGitRemoteRepo := "git@github.com:allenai/common.git"
-).aggregate(core, guice, testkit, webapp).enablePlugins(LibraryPlugin, ScaladocGenPlugin)
+).aggregate(core, guice, indexing, testkit, webapp).enablePlugins(LibraryPlugin, ScaladocGenPlugin)
