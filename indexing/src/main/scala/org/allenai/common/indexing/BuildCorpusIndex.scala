@@ -15,6 +15,7 @@ import org.elasticsearch.common.settings.ImmutableSettings
 import org.elasticsearch.common.xcontent.XContentFactory._
 import org.elasticsearch.index.query.QueryBuilders
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, Future }
 import scala.io.{ Source, Codec }

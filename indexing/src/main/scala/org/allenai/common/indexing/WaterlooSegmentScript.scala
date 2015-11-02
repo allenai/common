@@ -6,6 +6,7 @@ import org.allenai.nlpstack.segment.defaultSegmenter
 
 import com.typesafe.config.ConfigFactory
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, Future }
 import scala.io.{ Codec, Source }
