@@ -25,7 +25,7 @@ import spray.json.DefaultJsonProtocol._
   * }}}
   * (format: ON)
   */
-abstract class Enum[E <: Enum[E]](val id: String) {
+abstract class Enum[E <: Enum[E]](val id: String) extends Serializable {
   override def toString: String = id
 }
 

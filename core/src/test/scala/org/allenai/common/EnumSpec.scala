@@ -4,15 +4,13 @@ import org.allenai.common.testkit.UnitSpec
 
 import spray.json._
 
-class EnumSpec extends UnitSpec {
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.nio.file.Files
 
-  sealed abstract class FakeEnum(name: String) extends Enum[FakeEnum](name)
-  object FakeEnum extends EnumCompanion[FakeEnum] {
-    case object Value1 extends FakeEnum("value1")
-    case object Value2 extends FakeEnum("value2")
-    case object Value3 extends FakeEnum("value3")
-    register(Value1, Value2, Value3)
-  }
+class EnumSpec extends UnitSpec {
 
   "all" should "return all registerd Enum's" in {
     assert(FakeEnum.all.size === 3)
@@ -41,4 +39,30 @@ class EnumSpec extends UnitSpec {
       assert(js.convertTo[FakeEnum] eq enum)
     }
   }
+
+  "Java serialization" should "work" in {
+    FakeEnum.all foreach { enum =>
+      val tmp = Files.createTempFile(enum.id, "dat")
+      val tmpFile = tmp.toFile()
+      tmpFile.deleteOnExit()
+      Resource.using(new ObjectOutputStream(new FileOutputStream(tmpFile))) { os =>
+        os.writeObject(enum)
+      }
+      val obj = Resource.using(new ObjectInputStream(new FileInputStream(tmpFile))) { is =>
+        is.readObject()
+      }
+      obj should equal(enum)
+      tmpFile.delete()
+    }
+  }
+}
+
+// Test enum. Must be defined outside of spec otherwise serialization tests will
+// fail due to scalatest WordSpec not being serializable.
+sealed abstract class FakeEnum(name: String) extends Enum[FakeEnum](name)
+object FakeEnum extends EnumCompanion[FakeEnum] {
+  case object Value1 extends FakeEnum("value1")
+  case object Value2 extends FakeEnum("value2")
+  case object Value3 extends FakeEnum("value3")
+  register(Value1, Value2, Value3)
 }
