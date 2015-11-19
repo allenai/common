@@ -7,7 +7,7 @@ import java.nio.file.Files
 
 /** Provides a scratch directory for writing unit-test output */
 trait ScratchDirectory extends BeforeAndAfterAll {
-  this: UnitSpec =>
+  this: AllenAiBaseSpec =>
 
   val scratchDir: File = {
     val dir = Files.createTempDirectory(this.getClass.getSimpleName).toFile
@@ -28,5 +28,4 @@ trait ScratchDirectory extends BeforeAndAfterAll {
     }
     f.delete()
   }
-
 }

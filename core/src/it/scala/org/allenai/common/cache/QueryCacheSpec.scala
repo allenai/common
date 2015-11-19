@@ -4,7 +4,7 @@ import java.io.File
 import org.allenai.common.{ GitVersion, Version, cache }
 import org.allenai.common.testkit.UnitSpec
 import org.scalatest.BeforeAndAfterAll
-import spray.json.DefaultJsonProtocol._
+import spray.json.DefaultJsonProtocol
 import sys.process._
 
 case class Foo(stringVar: String, intVar: Int)
@@ -14,7 +14,7 @@ object FooJsonProtocol extends DefaultJsonProtocol {
 }
 
 class QueryCaches(redisHostname: String, redisPort: Int) {
-  import FooJsonProtocol.__
+  import FooJsonProtocol._
 
   val stringQueryCache = new JsonQueryCache[String](redisHostname, redisPort, "test")
   val intQueryCache = new JsonQueryCache[Int](redisHostname, redisPort, "test")
