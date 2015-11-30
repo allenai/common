@@ -71,7 +71,7 @@ Sample Command lines:
 With Overrides to one or more index-building config parameters:
 
 ```
-sbt "indexing/runMain org.allenai.common.indexing.BuildCorpusIndexRunner --index-name barrons --config-overrides-file /path/too/overrides.config"
+sbt "indexing/runMain org.allenai.common.indexing.BuildCorpusIndexRunner --index-name barrons --config-overrides-file /path/to/overrides.config"
 ```
 
 Sample overrides:
