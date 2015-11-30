@@ -32,7 +32,13 @@ import java.util.concurrent.TimeUnit
   * Refer http://joelabrahamsson.com/elasticsearch-101/ to get started.
   * Takes in Config object containing corpus and other information necessary to build the index.
   */
-class BuildCorpusIndex(config: Config) extends Logging {
+class BuildCorpusIndex(originalConfig: Config, configOverrides: Option[Config]) extends Logging {
+
+  /** Get merged Config object from applying requested overrides to original config. */
+  val config = configOverrides match {
+    case Some(overrides) => overrides.withFallback(originalConfig)
+    case None => originalConfig
+  }
 
   /** Get Index Name and Index Type. */
   val esConfig: Config = config[Config]("elasticSearch")
