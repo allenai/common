@@ -84,6 +84,6 @@ Sample overrides:
 Without Config Overrides:
 
 ```
-sbt "indexing/runMain org.allenai.common.indexing.BuildCorpusIndexRunner --index-name barrons --config-overrides-file"
+sbt "indexing/runMain org.allenai.common.indexing.BuildCorpusIndexRunner --index-name barrons"
 ```
 
