@@ -71,10 +71,10 @@ Sample Command lines:
 With Overrides to one or more index-building config parameters:
 
 ```
-sbt "indexing/runMain org.allenai.common.indexing.BuildCorpusIndexRunner --index-name barrons --config-overrides-file /path/to/overrides.config"
+sbt "indexing/runMain org.allenai.common.indexing.BuildCorpusIndexRunner --index-name barrons --config-overrides-file /path/to/overrides.conf"
 ```
 
-Sample overrides:
+Sample overrides.conf:
 ```
 {
   elasticSearch.clusterName: "solvercorpora"
