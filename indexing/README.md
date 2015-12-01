@@ -65,3 +65,25 @@ To run, specify which configuration you which to use as the argument to BuildCor
 1. Make sure the ip address and port in the configuration correspond to those of the machine you which to build the index on.
 2. If the buildFromScratch flag is set to true will not throw an exception if the index already exists, and add to the current index. However, if a document already exists in the index, will create a duplicate document. This was an intentional design decision (otherwise elasticsearch would have to first issue an exists query).
 3. After executing all requests, will dump failed queries to a dump folder, and retry failed queries once.
+
+Sample Command lines:
+
+With Overrides to one or more index-building config parameters:
+
+```
+sbt "indexing/runMain org.allenai.common.indexing.BuildCorpusIndexRunner --index-name barrons --config-overrides-file /path/to/overrides.conf"
+```
+
+Sample overrides.conf:
+```
+{
+  elasticSearch.clusterName: "solvercorpora"
+}
+```
+
+Without Config Overrides:
+
+```
+sbt "indexing/runMain org.allenai.common.indexing.BuildCorpusIndexRunner --index-name barrons"
+```
+
