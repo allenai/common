@@ -25,9 +25,18 @@ object BuildCorpusIndexRunner extends App {
 
   parser.parse(args, IndexConfig()).foreach(config => {
     val rootConfig = ConfigFactory.parseResources(getClass, "indexing.conf").resolve()
+
+    val originalConfig =
+      rootConfig.getConfig(s"org.allenai.common.indexing.${config.indexConfigName}").resolve()
     val configOverrides = config.configOverrideFile map { f => ConfigFactory.parseFile(f) }
-    new BuildCorpusIndex(rootConfig.getConfig(s"org.allenai.common.indexing.${config.indexConfigName}")
-      .resolve(), configOverrides).buildElasticSearchIndex()
+
+    /** Get merged Config object from applying requested overrides to original config. */
+    val buildIndexConfig = configOverrides match {
+      case Some(overrides) => overrides.withFallback(originalConfig)
+      case None => originalConfig
+    }
+
+    new BuildCorpusIndex(buildIndexConfig).buildElasticSearchIndex()
   })
 
 }
