@@ -5,7 +5,7 @@
 
 Builds an elasticsearch index on an existing ElasticSearch instance, using one of the configurations defined in the indexing.conf file in resources/org/allenai/ari/indexing.
 
-To use this, you need to have a running instance of ElasticSearch (can be local or remote). As of this writing, the latest version is `1.7.2`. To install: Refer to http://joelabrahamsson.com/elasticsearch-101/ to get started, or use `brew install elasticsearch`
+To use this, you need to have a running instance of ElasticSearch (can be local or remote). As of this writing, the latest version is `1.7.2`. To install: Refer to http://joelabrahamsson.com/elasticsearch-101/ to get started, or use `brew install elasticsearch`.  NOTE: you need to have the _same_ version of elastic search installed as the code is using, or you will get obtuse errors.  `brew install elasticsearch` installed version 2.1.0 as of 12/2015, and the code is currently using version 1.7.1.  You need to use the command `brew install homebrew/versions/elasticsearch17` to install the correct version of elasticsearch.
 Once you have ElasticSearch, go to the `bin` directory and run: `./elasticsearch`
 
 Configurations are of the form:
