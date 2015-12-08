@@ -50,23 +50,36 @@ class BuildCorpusIndex(config: Config) extends Logging {
   val bulkProcessorUtility = new BulkProcessorUtility
 
   /** Regex used to split sentences in waterloo corpus. */
-  val splitRegex = """</?SENT>""".r.unanchored
+  val sentenceSplitRegex = """</?SENT>""".r.unanchored
 
-  /** Index a single sentence into elasticsearch.
-    * @param sentence to be indexed
+  /**
+   * Segment a line from a document into paragraphs.  For the files in the datastore format, this
+   * is trivially done by returning the line, as they are already segmented into paragraphs.
+   * @param line the line of text
+   */
+  def segmentByParagraph(line: String): Seq[String] = {
+    if (line.trim().isEmpty()) {
+      Seq.empty[String]
+    } else {
+      Seq[String](line)
+    }
+  }
+
+  /** Index a single segment into elasticsearch.
+    * @param segment to be indexed
     * @param source name of source for reference
-    * @param sentenceIndex index of sentence in file (for deduplication)
+    * @param segmentIndex index of segment in file (for deduplication)
     * @param bulkProcessor to communicate with the elasticsearch instance
     */
-  def addSentenceToIndex(
-    sentence: String,
+  def addSegmentToIndex(
+    segment: String,
     source: String,
-    sentenceIndex: Int,
+    segmentIndex: Int,
     bulkProcessor: BulkProcessor
   ): Unit = {
     val request = new IndexRequest(indexName, indexType).source(jsonBuilder().startObject()
-      .field("text", sentence.trim)
-      .field("source", source + "_" + sentenceIndex.toString)
+      .field("text", segment.trim)
+      .field("source", source + "_" + segmentIndex.toString)
       .endObject())
     bulkProcessor.add(request)
   }
@@ -80,17 +93,22 @@ class BuildCorpusIndex(config: Config) extends Logging {
     bulkProcessor: BulkProcessor,
     codec: Codec
   ): Unit = {
+    val segmentFunction = indexType match {
+      case "sentence" => defaultSegmenter.segmentTexts _
+      case "paragraph" => segmentByParagraph _
+      case _ => throw new IllegalStateException("unrecognized index type")
+    }
     val bufSource = Source.fromFile(file, 8192)(codec)
     val lines = bufSource.getLines
-    (lines flatMap { defaultSegmenter.segmentTexts }).zipWithIndex.foreach {
-      case (sentence, sentenceIndex) => {
-        addSentenceToIndex(sentence, file.getName, sentenceIndex, bulkProcessor)
+    (lines flatMap { segmentFunction }).zipWithIndex.foreach {
+      case (segment, segmentIndex) => {
+        addSegmentToIndex(segment, file.getName, segmentIndex, bulkProcessor)
       }
     }
-    var sentenceIndex = 0
-    for (line <- lines; sentence <- defaultSegmenter.segmentTexts(line)) {
-      addSentenceToIndex(sentence, file.getName, sentenceIndex, bulkProcessor)
-      sentenceIndex += 1
+    var segmentIndex = 0
+    for (line <- lines; segment <- defaultSegmenter.segmentTexts(line)) {
+      addSegmentToIndex(segment, file.getName, segmentIndex, bulkProcessor)
+      segmentIndex += 1
     }
     bufSource.close()
   }
@@ -152,16 +170,22 @@ class BuildCorpusIndex(config: Config) extends Logging {
     * @param bulkProcessor to communicate with the elasticsearch instace
     */
   def addWaterlooFileToIndex(inputFile: File, bulkProcessor: BulkProcessor, codec: Codec): Unit = {
+    indexType match {
+      case "sentence" => {}
+      case "paragraph" => throw new IllegalStateException("paragraph segmenting not implemented "
+        + "for waterloo corpora")
+      case _ => throw new IllegalStateException("unrecognized index type")
+    }
     var filePositionCounter = 0
 
-    def segmentFunction(sentence: String): Unit = {
-      addSentenceToIndex(sentence, inputFile.getName, filePositionCounter, bulkProcessor)
+    def segmentFunction(segment: String): Unit = {
+      addSegmentToIndex(segment, inputFile.getName, filePositionCounter, bulkProcessor)
       filePositionCounter += 1
     }
     ParsingUtils.splitOnTag(
       inputFile = inputFile,
       splitString = "DOC",
-      splitRegex = splitRegex,
+      splitRegex = sentenceSplitRegex,
       segmentFunction = segmentFunction,
       bufferSize = 16384,
       codec
