@@ -202,9 +202,15 @@ class BuildCorpusIndex(config: Config) extends Logging {
   def segmentFile(file: File, codec: Codec, documentFormat: String): Iterator[String] = {
     documentFormat match {
       case "plain text" => segmentPlainTextFile(file, codec)
+      case "barrons" => getSegmentsFromDocument(new BarronsDocumentReader(file, codec).read())
       case "waterloo" => throw new IllegalStateException("you shouldn't have gotten here")
       case _ => throw new IllegalStateException("Unrecognized document format")
     }
+  }
+
+  def getSegmentsFromDocument(document: SegmentedDocument): Iterator[String] = {
+    val segments = document.getSegmentsOfType(indexType)
+    segments.map(_.getTextSegments.mkString(" ")).iterator
   }
 
   def segmentPlainTextFile(file: File, codec: Codec): Iterator[String] = {
