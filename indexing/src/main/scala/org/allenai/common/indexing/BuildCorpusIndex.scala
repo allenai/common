@@ -276,10 +276,9 @@ object BuildCorpusIndex {
     }
   }
 
-  /**
-   * Take the config for a corpus, resolve paths, and return a simple object containing information
-   * about the corpus.
-   */
+  /** Take the config for a corpus, resolve paths, and return a simple object containing information
+    * about the corpus.
+    */
   def parseCorpusConfig(corpusConfig: Config): ParsedConfig = {
     val documentFormat = corpusConfig.get[String]("documentFormat").getOrElse("plain text")
     val encoding = corpusConfig.get[String]("encoding").getOrElse("UTF-8")

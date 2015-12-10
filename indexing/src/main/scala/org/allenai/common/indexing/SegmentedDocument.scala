@@ -4,11 +4,10 @@ import org.allenai.nlpstack.core.repr.Document
 
 import scala.collection.mutable
 
-/**
- * A document that has been broken up into (potentially nested) segments.  Note that there's a
- * notion of a segment and segmenter in the nlpstack, but those are used exclusively for sentences.
- * This class aims to capture higher-level document structure than sentences.
- */
+/** A document that has been broken up into (potentially nested) segments.  Note that there's a
+  * notion of a segment and segmenter in the nlpstack, but those are used exclusively for sentences.
+  * This class aims to capture higher-level document structure than sentences.
+  */
 class SegmentedDocument(text: String, val segments: Seq[Segment]) extends Document(text) {
   def getSegmentsOfType(segmentType: String): Seq[Segment] = {
     segments.flatMap(_.getSegmentsOfType(segmentType))
@@ -67,6 +66,6 @@ sealed abstract class Segment(segmentType: String) {
 }
 
 case class NonTerminalSegment(segmentType: String, segments: Seq[Segment])
-extends Segment(segmentType)
+  extends Segment(segmentType)
 
 case class TerminalSegment(segmentType: String, text: String) extends Segment(segmentType)

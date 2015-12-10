@@ -10,11 +10,10 @@ class BuildCorpusIndexSpec extends UnitSpec {
   val dir1 = "/test/path/dir1/"
   val file1 = "test/file1"
 
-  /**
-   * Test an given parse result against expected results.  We need to test like this when we're
-   * accessing something from the Datastore, because we have to check a suffix on the file path,
-   * instead of just checking for object equality.
-   */
+  /** Test an given parse result against expected results.  We need to test like this when we're
+    * accessing something from the Datastore, because we have to check a suffix on the file path,
+    * instead of just checking for object equality.
+    */
   def expectParse(
     parsedConfig: ParsedConfig,
     pathSuffix: String,
@@ -27,7 +26,6 @@ class BuildCorpusIndexSpec extends UnitSpec {
     parsedConfig.encoding should be(encoding)
     parsedConfig.documentFormat should be(documentFormat)
   }
-
 
   "parseCorpusConfig" should "parse a local directory" in {
     val corpusConfig = ConfigFactory.parseString(s"""{
@@ -74,7 +72,8 @@ class BuildCorpusIndexSpec extends UnitSpec {
         "simple_wikipedia_first_few_articles-v1.txt",
       false,
       "UTF-8",
-      "plain text")
+      "plain text"
+    )
   }
 
   it should "parse a datastore directory" in {
@@ -90,7 +89,8 @@ class BuildCorpusIndexSpec extends UnitSpec {
         "Barrons-4thGrade.sentences-d1",
       true,
       "UTF-8",
-      "plain text")
+      "plain text"
+    )
   }
 
   it should "parse a datastore file with a directory" in {
@@ -108,6 +108,7 @@ class BuildCorpusIndexSpec extends UnitSpec {
         "Barrons-4thGrade.sentences-d1/Barrons-5.sentences.txt",
       false,
       "fake encoding",
-      "plain text")
+      "plain text"
+    )
   }
 }
