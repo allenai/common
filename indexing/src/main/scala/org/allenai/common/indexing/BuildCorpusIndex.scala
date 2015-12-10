@@ -131,7 +131,11 @@ class BuildCorpusIndex(config: Config) extends Logging {
     * @param fileTree file stream to be indexed
     * @return a sequence of Futures each representing the work done by a thread on this file tree.
     */
-  def addTreeToIndex(fileTree: Iterator[Path], codec: Codec, documentFormat: String): Seq[Future[Unit]] = {
+  def addTreeToIndex(
+    fileTree: Iterator[Path],
+    codec: Codec,
+    documentFormat: String
+  ): Seq[Future[Unit]] = {
     for (i <- 0 until nThreads * 4) yield {
       Future {
         val esClient =

@@ -17,6 +17,8 @@ class SegmentedDocument(text: String, val segments: Seq[Segment]) extends Docume
     case that: SegmentedDocument => { that.text == this.text && that.segments == this.segments }
     case _ => false
   }
+
+  override def hashCode() = text.hashCode * 41 + segments.hashCode
 }
 
 class SegmentedDocumentBuilder(text: String) {
@@ -49,7 +51,11 @@ sealed abstract class Segment(segmentType: String) {
     this match {
       case NonTerminalSegment(sType, segments) => {
         val matchingSegmentsBelowMe = segments.flatMap(_.getSegmentsOfType(requestedType))
-        if (requestedType == sType) Seq(this) ++ matchingSegmentsBelowMe else matchingSegmentsBelowMe
+        if (requestedType == sType) {
+          Seq(this) ++ matchingSegmentsBelowMe
+        } else {
+          matchingSegmentsBelowMe
+        }
       }
       case TerminalSegment(sType, text) => {
         if (requestedType == sType) Seq(this) else Seq.empty[Segment]

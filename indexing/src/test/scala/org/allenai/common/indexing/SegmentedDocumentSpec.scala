@@ -20,7 +20,9 @@ class SegmentedDocumentSpec extends UnitSpec {
     chapter1.getSegmentsOfType("chapter") should be(Seq(chapter1))
     chapter1.getSegmentsOfType("section") should be(Seq(section1, section2))
     chapter1.getSegmentsOfType("paragraph") should be(Seq(paragraph1, paragraph2, paragraph3))
-    chapter1.getSegmentsOfType("sentence") should be(Seq(sentence1, sentence2, sentence3, sentence4))
+    chapter1.getSegmentsOfType("sentence") should be(
+      Seq(sentence1, sentence2, sentence3, sentence4)
+    )
   }
 
   "Segment.getTextSegments" should "recursively get text from all terminal segments" in {
@@ -40,7 +42,9 @@ class SegmentedDocumentSpec extends UnitSpec {
     document.getSegmentsOfType("chapter") should be(Seq(chapter1))
     document.getSegmentsOfType("section") should be(Seq(section1, section2))
     document.getSegmentsOfType("paragraph") should be(Seq(paragraph1, paragraph2, paragraph3))
-    document.getSegmentsOfType("sentence") should be(Seq(sentence1, sentence2, sentence3, sentence4))
+    document.getSegmentsOfType("sentence") should be(
+      Seq(sentence1, sentence2, sentence3, sentence4)
+    )
   }
 
   "SegmentedDocumentBuilder" should "correctly build a segmented document" in {
