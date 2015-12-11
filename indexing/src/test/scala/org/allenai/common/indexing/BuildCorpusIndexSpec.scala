@@ -34,7 +34,7 @@ class BuildCorpusIndexSpec extends UnitSpec {
         case Some(d) => s"/${file}"
         case None => {
           val (base, extension) = file.splitAt(file.lastIndexOf("."))
-          s"${base}-v${version}.${extension}"
+          s"${base}-v${version}${extension}"
         }
       }
       Paths.get(s"/fake/cache/dir/org.allenai.datastore/${privacy}/${group}/${d}${f}")
@@ -44,7 +44,9 @@ class BuildCorpusIndexSpec extends UnitSpec {
       group: String,
       directory: String,
       version: Int
-    ): Path = { Paths.get(s"/fake/dir/org.allenai.datastore/${privacy}/${group}/${directory}") }
+    ): Path = {
+      Paths.get(s"/fake/dir/org.allenai.datastore/${privacy}/${group}/${directory}-d${version}")
+    }
   }
   val dir1 = "/test/path/dir1/"
   val file1 = "test/file1"
@@ -104,7 +106,7 @@ class BuildCorpusIndexSpec extends UnitSpec {
       |version: 1
       |privacy: "public"
       |}""".stripMargin)
-    val parsed = buildCorpusIndex.parseCorpusConfig(corpusConfig)
+    val parsed = bciWithMockedDatastore.parseCorpusConfig(corpusConfig)
     expectParse(
       parsed,
       "org.allenai.datastore/public/org.allenai.corpora.wikipedia/" +
@@ -121,7 +123,7 @@ class BuildCorpusIndexSpec extends UnitSpec {
       |directory: "Barrons-4thGrade.sentences"
       |version: 1
       |}""".stripMargin)
-    val parsed = buildCorpusIndex.parseCorpusConfig(corpusConfig)
+    val parsed = bciWithMockedDatastore.parseCorpusConfig(corpusConfig)
     expectParse(
       parsed,
       "org.allenai.datastore/private/org.allenai.aristo.corpora.derivative/" +
@@ -140,7 +142,7 @@ class BuildCorpusIndexSpec extends UnitSpec {
       |encoding: "fake encoding"
       |version: 1
       |}""".stripMargin)
-    val parsed = buildCorpusIndex.parseCorpusConfig(corpusConfig)
+    val parsed = bciWithMockedDatastore.parseCorpusConfig(corpusConfig)
     expectParse(
       parsed,
       "org.allenai.datastore/private/org.allenai.aristo.corpora.derivative/" +
