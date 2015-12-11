@@ -86,7 +86,7 @@ class BuildCorpusIndex(config: Config) extends Logging {
     }
 
     val corpusConfigs = config.get[Seq[Config]]("corpora").getOrElse(Seq.empty[Config])
-    val parsedConfigs = corpusConfigs.map(BuildCorpusIndex.parseCorpusConfig)
+    val parsedConfigs = corpusConfigs.map(parseCorpusConfig)
 
     val results: Future[Seq[Unit]] = Future.sequence(parsedConfigs.flatMap(corpus => {
       if (corpus.isDirectory) {
@@ -258,28 +258,6 @@ class BuildCorpusIndex(config: Config) extends Logging {
     bulkProcessor.add(request)
   }
 
-}
-
-case class ParsedConfig(path: Path, isDirectory: Boolean, encoding: String, documentFormat: String)
-
-object BuildCorpusIndex {
-
-  /** Execute a given index request if the document is not already in the index. */
-  def indexWithoutDuplicate(
-    request: IndexRequest,
-    esClient: TransportClient,
-    indexName: String
-  ): Unit = {
-    val source = request.sourceAsMap().asScala("source")
-    val result = esClient.prepareSearch(indexName)
-      .setQuery(QueryBuilders.termQuery("source", source))
-      .execute()
-      .actionGet()
-    if (result.getHits.getTotalHits == 0) {
-      esClient.index(request).actionGet()
-    }
-  }
-
   /** Take the config for a corpus, resolve paths, and return a simple object containing information
     * about the corpus.
     */
@@ -317,17 +295,50 @@ object BuildCorpusIndex {
     val group = corpusConfig[String]("group")
     val version = corpusConfig[Int]("version")
     file match {
-      case Some(f) => {
-        directory match {
-          case Some(d) => {
-            (Datastore(privacy).directoryPath(group, d, version).resolve(f), false)
-          }
-          case None => (Datastore(privacy).filePath(group, f, version), false)
-        }
-      }
-      case None => {
-        (Datastore(privacy).directoryPath(group, directory.get, version), true)
-      }
+      case Some(f) => (getFileFromDatastore(privacy, group, directory, f, version), false)
+      case None => (getDirectoryFromDatastore(privacy, group, directory.get, version), true)
+    }
+  }
+
+  def getFileFromDatastore(
+    privacy: String,
+    group: String,
+    directory: Option[String],
+    file: String,
+    version: Int
+  ): Path = {
+    directory match {
+      case Some(d) => Datastore(privacy).directoryPath(group, d, version).resolve(file)
+      case None => Datastore(privacy).filePath(group, file, version)
+    }
+  }
+
+  def getDirectoryFromDatastore(
+    privacy: String,
+    group: String,
+    directory: String,
+    version: Int
+  ): Path = {
+    Datastore(privacy).directoryPath(group, directory, version)
+  }
+}
+
+case class ParsedConfig(path: Path, isDirectory: Boolean, encoding: String, documentFormat: String)
+
+object BuildCorpusIndex {
+  /** Execute a given index request if the document is not already in the index. */
+  def indexWithoutDuplicate(
+    request: IndexRequest,
+    esClient: TransportClient,
+    indexName: String
+  ): Unit = {
+    val source = request.sourceAsMap().asScala("source")
+    val result = esClient.prepareSearch(indexName)
+      .setQuery(QueryBuilders.termQuery("source", source))
+      .execute()
+      .actionGet()
+    if (result.getHits.getTotalHits == 0) {
+      esClient.index(request).actionGet()
     }
   }
 }
