@@ -8,5 +8,6 @@ libraryDependencies ++= Seq(
   "redis.clients" % "jedis" % "2.7.2",
   Logging.logbackClassic,
   Logging.logbackCore,
-  Logging.slf4jApi
+  Logging.slf4jApi,
+  apacheLang3
 )
