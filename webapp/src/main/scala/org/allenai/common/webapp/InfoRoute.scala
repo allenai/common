@@ -53,6 +53,14 @@ class InfoRoute(val info: Map[String, String] = Map.empty) {
           case None => (StatusCodes.NotFound, "Could not find info: " + key)
         }
       }
+    } ~
+    pathPrefix("ichooseyou") {
+      pathEndOrSingleSlash {
+        complete {
+          val name = info.getOrElse("name", "component").toUpperCase
+          s"A wild $name appeared!"
+        }
+      }
     }
   }
   // format: ON
