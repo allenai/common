@@ -9,5 +9,5 @@ libraryDependencies ++= Seq(
   Logging.logbackClassic,
   Logging.logbackCore,
   Logging.slf4jApi,
-  "org.apache.commons" % "commons-lang3" % "3.4"
+  apacheLang3
 )

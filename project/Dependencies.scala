@@ -14,4 +14,6 @@ object Dependencies extends CoreDependencies {
   val scalaTest = "org.scalatest" %% "scalatest" % "2.2.1"
 
   val scalaGuice = "net.codingwell" %% "scala-guice" % "4.0.0"
+
+  val apacheLang3 = "org.apache.commons" % "commons-lang3" % "3.4"
 }
