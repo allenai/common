@@ -132,7 +132,29 @@ object StringUtils {
     '\uFEFF' -> " "
   )
 
-  implicit class StringImplicits(str: String) {
+  /** Extension methods for String. Meant to be mixed into an extension method implicit class,
+    * which is why it extends Any. While we provide a StringImplicits implementation below that uses
+    * this trait, we define this trait separately so that client projects can extend the extension
+    * methods further (because you cannot extend an extension method class).
+    *
+    * To understand the quirky rules of extension method implicit classes,
+    * see http://docs.scala-lang.org/overviews/core/value-classes.html#extension-methods
+    *
+    * A String extension method class should be defined like:
+    * format: OFF
+    * {{{
+    * implicit class MyStringImplicits(val str: String) extends AnyVal with StringExtras {
+    *   def anotherExtensionMethod = str.replaceAll("foo", "bar")
+    * }}}
+    * format: ON
+    */
+  trait StringExtras extends Any {
+    /** value that is transformed by extension methods.
+      * Must be declared as the constructor argument for the implementing  extension method class
+      * (see trait scaladoc)
+      */
+    def str: String
+
     /** @return Trim white spaces, lower case, then strip the accents.
       */
     def normalize: String = whiteSpaceRegex.replaceAllIn(
@@ -216,4 +238,6 @@ object StringUtils {
       unescapeHtml4(unescapeXml(str))
     }
   }
+
+  implicit class StringImplicits(val str: String) extends AnyVal with StringExtras
 }
