@@ -59,14 +59,16 @@ trait Logging {
     * Hopefully this will be discoverable by just typing <code>loggerConfig.[TAB]</code>
     *
     * Examples:
-    * <code>
+    * format: OFF
+    * {{{
     * loggerConfig.Logger("org.apache.spark").setLevel(Level.WARN)
     *
     * loggerConfig.Logger().addAppender(
     *   loggerConfig.newPatternLayoutEncoder("%-5level [%thread]: %message%n"),
     *   loggerConfig.newConsoleAppender
     * )
-    * </code>
+    * }}}
+    * format: ON
     */
   object loggerConfig {
     case class Logger(loggerName: String = org.slf4j.Logger.ROOT_LOGGER_NAME) {
