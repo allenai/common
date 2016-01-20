@@ -36,6 +36,7 @@ import scala.collection.JavaConverters._
   * Example config and bindings:
   *
   * Config file -
+  * format: OFF
   * {{{
   * stringValue = "foo"
   * someObject = {
@@ -54,6 +55,7 @@ import scala.collection.JavaConverters._
   *   @Named("someObject.propNumber") numbersCanBeDoubles: Double
   * )
   * }}}
+  * format: ON
   *
   * @param config the runtime config to use containing all values to bind
   */
