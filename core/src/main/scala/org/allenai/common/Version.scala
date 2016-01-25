@@ -80,11 +80,18 @@ object Version {
     * @param  name  the sbt name, or artifact id, the calling code is in
     */
   def fromResources(org: String, name: String): Version = {
-    val pkg = "/" + org + "/" + name.replaceAll("-", "")
-    val artifactConfUrl = this.getClass.getResource(pkg + "/artifact.conf")
-    val gitConfUrl = this.getClass.getResource(pkg + "/git.conf")
-    require(artifactConfUrl != null, "Could not find artifact.conf in " + pkg + ".")
-    require(gitConfUrl != null, "Could not find git.conf in " + pkg + ".")
+    val prefix = s"$org/${name.replaceAll("-", "")}"
+
+    val artifactConfPath = s"$prefix/artifact.conf"
+    val gitConfPath = s"$prefix/git.conf"
+
+    val classLoader = this.getClass.getClassLoader
+
+    val artifactConfUrl = classLoader.getResource(artifactConfPath)
+    val gitConfUrl = classLoader.getResource(gitConfPath)
+
+    require(artifactConfUrl != null, s"Could not find $artifactConfPath")
+    require(gitConfUrl != null, s"Could not find $gitConfPath")
 
     val artifactConf = ConfigFactory.parseURL(artifactConfUrl)
     val gitConf = ConfigFactory.parseURL(gitConfUrl)
