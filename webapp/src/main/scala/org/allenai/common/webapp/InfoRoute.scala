@@ -35,6 +35,9 @@ class InfoRoute(val info: Map[String, String] = Map.empty) {
   def withStartupTime(startupTime: Long = System.currentTimeMillis()): InfoRoute =
     new InfoRoute(info + ("startupTime" -> startupTime.toString))
 
+  def withCpuCount: InfoRoute =
+    new InfoRoute(info + ("cpuCount" -> Runtime.getRuntime.availableProcessors().toString))
+
   // format: OFF
   def route: Route = get {
     pathPrefix("info") {
