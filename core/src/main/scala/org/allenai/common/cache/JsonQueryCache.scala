@@ -2,8 +2,7 @@ package org.allenai.common.cache
 
 import org.allenai.common.Logging
 
-import redis.clients.jedis.{ Jedis, JedisPool }
-
+import redis.clients.jedis.{ Jedis, JedisPool, JedisPoolConfig, Protocol }
 import spray.json._
 
 /** Class holding a Redis cache of query results. This is meant to store any value `T` where
@@ -18,11 +17,22 @@ class JsonQueryCache[V: JsonFormat](pool: JedisPool, clientPrefix: String) exten
   /** Constructs a `QueryCache[V]`, building a JedisPool from the parameters given.
     * @param redisHostName the hostName of the redis server to connect to
     * @param redisHostPort the port of the redis server to connect to
+    * @param redisTimeout the timeout, in millis, to use when sending requests to the redis server
+    * @param clientPrefix an identifier for the client using this caching mechanism, which will
+    * become part of the cache key (prepended to the actual query)
+    */
+  def this(redisHostName: String, redisHostPort: Int, redisTimeout: Int, clientPrefix: String) =
+    this(new JedisPool(new JedisPoolConfig, redisHostName, redisHostPort, redisTimeout), clientPrefix)
+
+  /** Constructs a `QueryCache[V]`, building a JedisPool from the parameters given.
+    * Uses the default Jedis timeout for requests.
+    * @param redisHostName the hostName of the redis server to connect to
+    * @param redisHostPort the port of the redis server to connect to
     * @param clientPrefix an identifier for the client using this caching mechanism, which will
     * become part of the cache key (prepended to the actual query)
     */
   def this(redisHostName: String, redisHostPort: Int, clientPrefix: String) =
-    this(new JedisPool(redisHostName, redisHostPort), clientPrefix)
+    this(redisHostName, redisHostPort, Protocol.DEFAULT_TIMEOUT, clientPrefix)
 
   /** @return the cache key for the query, with client prefix prepended */
   protected def keyForQuery(query: String): String = s"${clientPrefix}_$query"
