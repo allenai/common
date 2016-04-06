@@ -3,11 +3,12 @@ import Dependencies._
 name := "common-core"
 
 libraryDependencies ++= Seq(
-  sprayJson,
-  typesafeConfig,
-  "redis.clients" % "jedis" % "2.7.2",
+  apacheLang3,
+  jedis,
   Logging.logbackClassic,
   Logging.logbackCore,
   Logging.slf4jApi,
-  apacheLang3
+  mockJedis,
+  sprayJson,
+  typesafeConfig
 )

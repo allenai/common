@@ -1,27 +1,24 @@
 package org.allenai.common.cache
 
-import java.io.File
-import org.allenai.common.{ GitVersion, Version, cache }
 import org.allenai.common.testkit.UnitSpec
-import org.scalatest.BeforeAndAfterAll
-import spray.json.DefaultJsonProtocol
-import sys.process._
+
+import com.fiftyonred.mock_jedis.MockJedisPool
+import redis.clients.jedis.JedisPoolConfig
+import spray.json.DefaultJsonProtocol._
 
 case class Foo(stringVar: String, intVar: Int)
 
-object FooJsonProtocol extends DefaultJsonProtocol {
+class QueryCaches {
   implicit val fooFormat = jsonFormat2(Foo)
-}
 
-class QueryCaches(redisHostname: String, redisPort: Int) {
-  import FooJsonProtocol._
+  val mockJedisPool = new MockJedisPool(new JedisPoolConfig, "localhost")
 
-  val stringQueryCache = new JsonQueryCache[String](redisHostname, redisPort, "test")
-  val intQueryCache = new JsonQueryCache[Int](redisHostname, redisPort, "test")
-  val seqStringQueryCache = new JsonQueryCache[Seq[String]](redisHostname, redisPort, "test")
+  val stringQueryCache = new JsonQueryCache[String](mockJedisPool, "test_string")
+  val intQueryCache = new JsonQueryCache[Int](mockJedisPool, "test_int")
+  val seqStringQueryCache = new JsonQueryCache[Seq[String]](mockJedisPool, "test_seq")
 
   // It's an object I can test
-  val fooQueryCache = new JsonQueryCache[Foo](redisHostname, redisPort, "test")
+  val fooQueryCache = new JsonQueryCache[Foo](mockJedisPool, "test_foo")
 
   val stringKey = "stringKey"
   val stringValue = "stringValue"
@@ -64,14 +61,11 @@ class QueryCaches(redisHostname: String, redisPort: Int) {
   }
 }
 
-class QueryCacheSpec extends UnitSpec with BeforeAndAfterAll {
+class JsonQueryCacheSpec extends UnitSpec {
 
-  val redisHostname = "127.0.0.1"
-  val redisPort = 6379
-  val redisServer = "redis-server".run()
-  val queryCaches = new QueryCaches(redisHostname, redisPort)
+  val queryCaches = new QueryCaches
 
-  "QueryCache" should "return None when items are not in cache" in {
+  "JsonQueryCache" should "return None when items are not in cache" in {
     assert(queryCaches.getAll().forall(_.isEmpty))
   }
 
@@ -83,15 +77,5 @@ class QueryCacheSpec extends UnitSpec with BeforeAndAfterAll {
   it should "delete the items properly" in {
     queryCaches.delAll()
     assert(queryCaches.getAll().forall(_.isEmpty))
-  }
-
-  override def afterAll() {
-    Seq("redis-cli", "FLUSHALL").!!
-    Seq("redis-cli", "SHUTDOWN").!!
-    // delete redis dump file if it exists 
-    val f = new File("./dump.rdb")
-    if (f.exists) {
-      f.delete()
-    }
   }
 }
