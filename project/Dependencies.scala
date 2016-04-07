@@ -7,16 +7,21 @@ object Dependencies extends CoreDependencies {
 
   val apacheLang3 = "org.apache.commons" % "commons-lang3" % "3.4"
 
-  val awsJavaSdk = ("com.amazonaws" % "aws-java-sdk" % "1.8.9.1").exclude(
-    "commons-logging",
-    "commons-logging"
-  )
+  val awsJavaSdk = ("com.amazonaws" % "aws-java-sdk" % "1.8.9.1")
+    .exclude("commons-logging", "commons-logging")
 
   val commonsIO = "commons-io" % "commons-io" % "2.4"
+
+  val datastore = "org.allenai" %% "datastore" % "2015.04.02-0"
+
+  val elasticSearch = "org.elasticsearch" % "elasticsearch" % "1.7.1"
 
   val jedis = "redis.clients" % "jedis" % "2.7.2"
 
   val mockJedis = "com.fiftyonred" % "mock-jedis" % "0.4.0"
+
+  def nlpstack(component: String) = ("org.allenai.nlpstack" % s"nlpstack-${component}_2.11" % "1.6")
+    .exclude("commons-logging", "commons-logging")
 
   val pegdown = "org.pegdown" % "pegdown" % "1.4.2"
 

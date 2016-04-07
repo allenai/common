@@ -4,7 +4,7 @@ name := "common-caching"
 
 libraryDependencies ++= Seq(
   jedis,
-  mockJedis,
+  mockJedis % Test,
   scalaGuice,
   sprayJson,
   typesafeConfig
