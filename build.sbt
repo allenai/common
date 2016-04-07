@@ -22,35 +22,34 @@ lazy val buildSettings = Seq(
   bintrayPackage := s"${organization.value}:${name.value}_${scalaBinaryVersion.value}"
 )
 
-lazy val testkit = Project(
-  id = "testkit",
-  base = file("testkit"),
-  settings = buildSettings
-).enablePlugins(LibraryPlugin)
+lazy val caching = Project(id = "caching", base = file("caching"))
+    .settings(buildSettings)
+    .enablePlugins(LibraryPlugin)
+    .dependsOn(guice, testkit % "test->compile")
 
-lazy val core = Project(
-  id = "core",
-  base = file("core"),
-  settings = buildSettings
-).enablePlugins(LibraryPlugin).dependsOn(testkit % "test->compile")
+lazy val core = Project(id = "core", base = file("core"))
+    .settings(buildSettings)
+    .enablePlugins(LibraryPlugin)
+    .dependsOn(testkit % "test->compile")
 
-lazy val guice = Project(
-  id = "guice",
-  base = file("guice"),
-  settings = buildSettings
-).enablePlugins(LibraryPlugin).dependsOn(core, testkit % "test->compile")
+lazy val guice = Project(id = "guice", base = file("guice"))
+    .settings(buildSettings)
+    .enablePlugins(LibraryPlugin)
+    .dependsOn(core, testkit % "test->compile")
 
-lazy val indexing = Project(
-  id = "indexing",
-  base = file("indexing"),
-  settings = buildSettings
-).enablePlugins(LibraryPlugin).dependsOn(core, testkit % "test->compile")
+lazy val indexing = Project(id = "indexing", base = file("indexing"))
+    .settings(buildSettings)
+    .enablePlugins(LibraryPlugin)
+    .dependsOn(core, testkit % "test->compile")
 
-lazy val webapp = Project(
-  id = "webapp",
-  base = file("webapp"),
-  settings = buildSettings
-).enablePlugins(LibraryPlugin).dependsOn(core, testkit % "test->compile")
+lazy val testkit = Project(id = "testkit", base = file("testkit"))
+    .settings(buildSettings)
+    .enablePlugins(LibraryPlugin)
+
+lazy val webapp = Project(id = "webapp", base = file("webapp"))
+    .settings(buildSettings)
+    .enablePlugins(LibraryPlugin)
+    .dependsOn(core, testkit % "test->compile")
 
 lazy val common = Project(id = "common", base = file(".")).settings(
   // Don't publish a jar for the root project.
@@ -59,4 +58,11 @@ lazy val common = Project(id = "common", base = file(".")).settings(
   publish := { },
   publishLocal := { },
   scaladocGenGitRemoteRepo := "git@github.com:allenai/common.git"
-).aggregate(core, guice, indexing, testkit, webapp).enablePlugins(LibraryPlugin, ScaladocGenPlugin)
+).aggregate(
+  caching,
+  core,
+  guice,
+  indexing,
+  testkit,
+  webapp
+).enablePlugins(LibraryPlugin, ScaladocGenPlugin)
