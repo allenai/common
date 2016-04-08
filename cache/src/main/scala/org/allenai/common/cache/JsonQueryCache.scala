@@ -1,7 +1,7 @@
 package org.allenai.common.cache
 
-import org.allenai.common.Logging
-
+import com.google.inject.Inject
+import com.google.inject.name.Named
 import redis.clients.jedis.{ Jedis, JedisPool, JedisPoolConfig, Protocol }
 import spray.json._
 
@@ -13,7 +13,10 @@ import spray.json._
   * @param clientPrefix an identifier for the client using this caching mechanism, which will become
   * part of the cache key (prepended to the actual query)
   */
-class JsonQueryCache[V: JsonFormat](pool: JedisPool, clientPrefix: String) extends Logging {
+class JsonQueryCache[V: JsonFormat] @Inject() (
+  pool: JedisPool,
+  @Named("redis.clientPrefix") clientPrefix: String
+) {
   /** Constructs a `QueryCache[V]`, building a JedisPool from the parameters given.
     * @param redisHostName the hostName of the redis server to connect to
     * @param redisHostPort the port of the redis server to connect to
