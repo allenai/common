@@ -22,7 +22,7 @@ lazy val buildSettings = Seq(
   bintrayPackage := s"${organization.value}:${name.value}_${scalaBinaryVersion.value}"
 )
 
-lazy val caching = Project(id = "caching", base = file("caching"))
+lazy val cache = Project(id = "cache", base = file("cache"))
     .settings(buildSettings)
     .enablePlugins(LibraryPlugin)
     .dependsOn(guice, testkit % "test->compile")
@@ -59,7 +59,7 @@ lazy val common = Project(id = "common", base = file(".")).settings(
   publishLocal := { },
   scaladocGenGitRemoteRepo := "git@github.com:allenai/common.git"
 ).aggregate(
-  caching,
+  cache,
   core,
   guice,
   indexing,

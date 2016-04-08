@@ -1,6 +1,6 @@
 import Dependencies._
 
-name := "common-caching"
+name := "common-cache"
 
 libraryDependencies ++= Seq(
   jedis,
