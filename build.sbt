@@ -25,7 +25,7 @@ lazy val buildSettings = Seq(
 lazy val cache = Project(id = "cache", base = file("cache"))
     .settings(buildSettings)
     .enablePlugins(LibraryPlugin)
-    .dependsOn(guice, testkit % "test->compile")
+    .dependsOn(core, testkit % "test->compile")
 
 lazy val core = Project(id = "core", base = file("core"))
     .settings(buildSettings)

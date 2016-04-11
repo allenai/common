@@ -25,7 +25,7 @@ object Dependencies extends CoreDependencies {
 
   val pegdown = "org.pegdown" % "pegdown" % "1.4.2"
 
-  val scalaGuice = "net.codingwell" %% "scala-guice" % "4.0.0"
+  val scalaGuice = "net.codingwell" %% "scala-guice" % "4.0.1"
 
   val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.11.4"
 
