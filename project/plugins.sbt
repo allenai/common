@@ -1,1 +1,1 @@
-addSbtPlugin("org.allenai.plugins" % "allenai-sbt-plugins" % "1.2.0")
+addSbtPlugin("org.allenai.plugins" % "allenai-sbt-plugins" % "1.2.1")

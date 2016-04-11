@@ -1,9 +1,28 @@
 package org.allenai.common.cache
 
-import com.google.inject.Inject
-import com.google.inject.name.Named
+import org.allenai.common.Config._
+
+import com.typesafe.config.Config
 import redis.clients.jedis.{ Jedis, JedisPool, JedisPoolConfig, Protocol }
 import spray.json._
+
+object JsonQueryCache {
+  /** Factory method for creating a cache instance from config.
+    * The config must have keys for `hostname` and `clientPrefix`. It may also optionally have
+    * keys for `port` and `timeoutMillis`; if not given, these values are set to the Jedis defaults.
+    */
+  def fromConfig[V](config: Config)(implicit jsonFormat: JsonFormat[V]): JsonQueryCache[V] = {
+    // Required fields.
+    val hostname: String = config[String]("hostname")
+    val clientPrefix: String = config[String]("clientPrefix")
+
+    // Optional overrides for Jedis defaults.
+    val port: Int = config.get[Int]("port") getOrElse Protocol.DEFAULT_PORT
+    val timeoutMillis: Int = config.get[Int]("timeoutMillis") getOrElse Protocol.DEFAULT_TIMEOUT
+
+    new JsonQueryCache[V](hostname, port, timeoutMillis, clientPrefix)
+  }
+}
 
 /** Class holding a Redis cache of query results. This is meant to store any value `T` where
   * `T : spray.json.JsonFormat` (any `T` with a json serialization as per spray json), keyed on
@@ -13,10 +32,7 @@ import spray.json._
   * @param clientPrefix an identifier for the client using this caching mechanism, which will become
   * part of the cache key (prepended to the actual query)
   */
-class JsonQueryCache[V: JsonFormat] @Inject() (
-  pool: JedisPool,
-  @Named("redis.clientPrefix") clientPrefix: String
-) {
+class JsonQueryCache[V: JsonFormat] private[cache](pool: JedisPool, clientPrefix: String) {
   /** Constructs a `QueryCache[V]`, building a JedisPool from the parameters given.
     * @param redisHostName the hostName of the redis server to connect to
     * @param redisHostPort the port of the redis server to connect to
@@ -25,7 +41,10 @@ class JsonQueryCache[V: JsonFormat] @Inject() (
     * become part of the cache key (prepended to the actual query)
     */
   def this(redisHostName: String, redisHostPort: Int, redisTimeout: Int, clientPrefix: String) =
-    this(new JedisPool(new JedisPoolConfig, redisHostName, redisHostPort, redisTimeout), clientPrefix)
+    this(
+      new JedisPool(new JedisPoolConfig, redisHostName, redisHostPort, redisTimeout),
+      clientPrefix
+    )
 
   /** Constructs a `QueryCache[V]`, building a JedisPool from the parameters given.
     * Uses the default Jedis timeout for requests.
