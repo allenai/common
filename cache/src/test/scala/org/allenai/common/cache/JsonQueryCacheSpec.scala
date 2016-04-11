@@ -10,10 +10,10 @@ class JsonQueryCacheSpec extends UnitSpec {
   import Foo._
 
   val mockJedisPool = new MockJedisPool(new JedisPoolConfig, "localhost")
-  val stringQueryCache = new JsonQueryCache[String](mockJedisPool, "test_string")
-  val intQueryCache = new JsonQueryCache[Int](mockJedisPool, "test_int")
-  val seqStringQueryCache = new JsonQueryCache[Seq[String]](mockJedisPool, "test_seq")
-  val fooQueryCache = new JsonQueryCache[Foo](mockJedisPool, "test_foo")
+  val stringQueryCache = new JsonQueryCache[String]("test_string", mockJedisPool)
+  val intQueryCache = new JsonQueryCache[Int]("test_int", mockJedisPool)
+  val seqStringQueryCache = new JsonQueryCache[Seq[String]]("test_seq", mockJedisPool)
+  val fooQueryCache = new JsonQueryCache[Foo]("test_foo", mockJedisPool)
 
   val queryCaches = new QueryCaches(
     stringQueryCache,

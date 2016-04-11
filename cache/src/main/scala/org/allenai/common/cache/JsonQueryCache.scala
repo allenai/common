@@ -20,7 +20,10 @@ object JsonQueryCache {
     val port: Int = config.get[Int]("port") getOrElse Protocol.DEFAULT_PORT
     val timeoutMillis: Int = config.get[Int]("timeoutMillis") getOrElse Protocol.DEFAULT_TIMEOUT
 
-    new JsonQueryCache[V](hostname, port, timeoutMillis, clientPrefix)
+    new JsonQueryCache[V](
+      clientPrefix,
+      new JedisPool(new JedisPoolConfig, hostname, port, timeoutMillis)
+    )
   }
 }
 
@@ -28,33 +31,11 @@ object JsonQueryCache {
   * `T : spray.json.JsonFormat` (any `T` with a json serialization as per spray json), keyed on
   * string query. Multiple cache instances (instances pointing to different Redis caches) need to be
   * configured to have different JedisPools.
-  * @param pool the JedisPool that the client should use to serve requests
   * @param clientPrefix an identifier for the client using this caching mechanism, which will become
   * part of the cache key (prepended to the actual query)
+  * @param pool the JedisPool that the client should use to serve requests
   */
-class JsonQueryCache[V: JsonFormat] private[cache](pool: JedisPool, clientPrefix: String) {
-  /** Constructs a `QueryCache[V]`, building a JedisPool from the parameters given.
-    * @param redisHostName the hostName of the redis server to connect to
-    * @param redisHostPort the port of the redis server to connect to
-    * @param redisTimeout the timeout, in millis, to use when sending requests to the redis server
-    * @param clientPrefix an identifier for the client using this caching mechanism, which will
-    * become part of the cache key (prepended to the actual query)
-    */
-  def this(redisHostName: String, redisHostPort: Int, redisTimeout: Int, clientPrefix: String) =
-    this(
-      new JedisPool(new JedisPoolConfig, redisHostName, redisHostPort, redisTimeout),
-      clientPrefix
-    )
-
-  /** Constructs a `QueryCache[V]`, building a JedisPool from the parameters given.
-    * Uses the default Jedis timeout for requests.
-    * @param redisHostName the hostName of the redis server to connect to
-    * @param redisHostPort the port of the redis server to connect to
-    * @param clientPrefix an identifier for the client using this caching mechanism, which will
-    * become part of the cache key (prepended to the actual query)
-    */
-  def this(redisHostName: String, redisHostPort: Int, clientPrefix: String) =
-    this(redisHostName, redisHostPort, Protocol.DEFAULT_TIMEOUT, clientPrefix)
+class JsonQueryCache[V: JsonFormat] private[cache](clientPrefix: String, pool: JedisPool) {
 
   /** @return the cache key for the query, with client prefix prepended */
   protected def keyForQuery(query: String): String = s"${clientPrefix}_$query"
