@@ -48,10 +48,11 @@ class ConfigModuleSpec extends UnitSpec {
   "bindConfig" should "bind config values to appropriate @Named bindings" in {
     // Config with an entry for all of the bindable values except the one with a default.
     val testConfig = ConfigFactory.parseString("""
+      hasDefault = "default"
       fooString = "Foo"
       barNum = 42
       boolbool = true
-      """)
+    """)
     val testModule = new ConfigModule(testConfig) {
       override def configureWithConfig(c: Config): Unit = {
         // Manually bind things missing from the config.
@@ -71,41 +72,15 @@ class ConfigModuleSpec extends UnitSpec {
     )
   }
 
-  it should "allow overriding default configs" in {
-    // Config with an entry for all of the bindable values.
-    val testConfig = ConfigFactory.parseString("""
-      hasDefault = "new val"
-      fooString = "Foo"
-      barNum = 42
-      boolbool = true
-      """)
-    val testModule = new ConfigModule(testConfig) {
-      override def configureWithConfig(c: Config): Unit = {
-        // Manually bind things missing from the config.
-        bind[Set[String]].toInstance(Set("unannotated"))
-        bind[CaseClass].annotatedWithName("unsupported").toInstance(CaseClass("instance"))
-      }
-    }
-
-    val injector = Guice.createInjector(testModule)
-
-    val annotatedClassInstance = injector.getInstance(classOf[AnnotatedClass])
-
-    // Verify bindings. They should match the config plus the manually-bound values.
-    annotatedClassInstance should be(
-      AnnotatedClass("Foo", "new val", Set("unannotated"), true, 42, 42, 42, CaseClass("instance"))
-    )
-  }
-
-  it should "allow setting a different default config name" in {
+  it should "allow setting a default config name" in {
     // Config with an entry for all of the bindable values except the one with a default.
     val testConfig = ConfigFactory.parseString("""
       fooString = "Foo"
       barNum = 42
       boolbool = true
-      """)
+    """)
     val testModule = new ConfigModule(testConfig) {
-      override def configName: String = "test_rename.conf"
+      override def configName: Option[String] = Some("test_default.conf")
 
       override def configureWithConfig(c: Config): Unit = {
         // Manually bind things missing from the config.
@@ -133,9 +108,38 @@ class ConfigModuleSpec extends UnitSpec {
     )
   }
 
+  it should "allow overriding default configs" in {
+    // Config with an entry for all of the bindable values.
+    val testConfig = ConfigFactory.parseString("""
+      hasDefault = "new val"
+      fooString = "Foo"
+      barNum = 42
+      boolbool = true
+      """)
+    val testModule = new ConfigModule(testConfig) {
+      override def configName: Option[String] = Some("test_default.conf")
+
+      override def configureWithConfig(c: Config): Unit = {
+        // Manually bind things missing from the config.
+        bind[Set[String]].toInstance(Set("unannotated"))
+        bind[CaseClass].annotatedWithName("unsupported").toInstance(CaseClass("instance"))
+      }
+    }
+
+    val injector = Guice.createInjector(testModule)
+
+    val annotatedClassInstance = injector.getInstance(classOf[AnnotatedClass])
+
+    // Verify bindings. They should match the config plus the manually-bound values.
+    annotatedClassInstance should be(
+      AnnotatedClass("Foo", "new val", Set("unannotated"), true, 42, 42, 42, CaseClass("instance"))
+    )
+  }
+
   it should "allow a default namespace" in {
     // Config with non-default entries, plus a bonus entry that shouldn't be bound.
     val testConfig = ConfigFactory.parseString("""
+      hasDefault = "default"
       fooString = "Foo"
       boolbool = true
       ignored_no_prefix = "Should be ignored"
@@ -160,7 +164,7 @@ class ConfigModuleSpec extends UnitSpec {
     val testConfig = ConfigFactory.parseString("""
       presentString = "here"
       // missingString = "missing"
-      """)
+    """)
     val testModule = new ConfigModule(testConfig)
 
     val injector = Guice.createInjector(testModule)

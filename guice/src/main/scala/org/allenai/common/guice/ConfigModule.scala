@@ -3,7 +3,6 @@ package org.allenai.common.guice
 import org.allenai.common.Logging
 import org.allenai.common.Config._
 
-import com.google.inject.Inject
 import com.google.inject.name.Named
 import com.typesafe.config.{
   Config,
@@ -56,7 +55,6 @@ import scala.collection.JavaConverters._
   * )
   * }}}
   * format: ON
-  *
   * @param config the runtime config to use containing all values to bind
   */
 class ConfigModule(config: Config) extends ScalaModule with Logging {
@@ -66,8 +64,12 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
     bindingPrefix map { resolvedConfig.atPath } getOrElse { resolvedConfig }
   }
 
-  /** The filename to use for the default. Can be overridden for clarity. */
-  def configName: String = "module.conf"
+  /** An optional filename pointing to a file containing default config values.
+    * Optional to allow for use-cases in which we want config to be fully-specified by users,
+    * without losing the nice utility of using this module or introducing code smell by trying to
+    * load a dummy config file.
+    */
+  def configName: Option[String] = None
 
   /** If overridden, the namespace prefix that is prepended to all binding key names. This is
     * used as a path prefix for all config values; so if the prefix is `Some("foo")` and the config
@@ -81,7 +83,9 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
   /** The config to use as a fallback. This is where keys will be looked up if they aren't present
     * in the provided config.
     */
-  def defaultConfig: Config = ConfigFactory.parseResources(getClass, configName)
+  def defaultConfig: Config = configName map { name =>
+    ConfigFactory.parseResources(getClass, name)
+  } getOrElse ConfigFactory.empty
 
   /** Configure method for implementing classes to override if they wish to create additional
     * bindings, or bindings based on config values.
@@ -161,7 +165,7 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
   }
 
   /** Binds all of the paths in the full config object to the appropriate type, annotated with a
-    * @Named annotation holding the config key.
+    * @@Named annotation holding the config key.
     */
   private def bindConfig(): Unit = {
     bindConfigObject(fullConfig.root, Seq.empty)
