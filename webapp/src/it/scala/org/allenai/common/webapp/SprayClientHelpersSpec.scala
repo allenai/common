@@ -12,7 +12,7 @@ import scala.concurrent.{ Await, Future, TimeoutException }
 import scala.concurrent.duration._
 
 class SprayClientHelpersSpec extends ActorSpec(ActorSystem("SprayClientHelpersSpec"))
-  with SprayJsonSupport {
+    with SprayJsonSupport {
 
   import system.dispatcher
 
