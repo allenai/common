@@ -10,18 +10,79 @@ import spray.can.client.{ ClientConnectionSettings, HostConnectorSettings }
 import spray.http.HttpHeaders.`User-Agent`
 import spray.http.{ HttpRequest, HttpResponse }
 
-import java.net.URL
-
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
+/** Utility methods for sending HTTP requests through spray without being tripped-up by the
+  * nastiness of spray's API / underlying implementation. The two methods in this object are
+  * intended for use together.
+  *
+  * Example: Making quick GET requests with little internal buffering.
+  * format: OFF
+  * {{{
+  *   import SprayClientHelpers._
+  *
+  *   // Define parameters for sending requests to the foo service.
+  *   // This can be done once per web client instance as part of initialization, if all of the
+  *   // fields are constant.
+  *   val quickConnectorSetup = getConnectionSetup(
+  *     host = "foo.com",
+  *     port = 1234,
+  *     connectionTimeout = 500.millis,
+  *     requestTimeout = 1.second,
+  *     maxConnections = 100
+  *   )
+  *
+  *   // Define a function that requests a Foo object from the remote service and parses the
+  *   // response JSON.
+  *   def getFoo: Future[Foo] = sendRequest(Get("/foo"), quickConnectorSetup) { response =>
+  *     response ~> unmarshal[Foo]
+  *   }
+  *
+  *   // Completes in ~ 1 second, either with a Seq of 100 Foos or spray's RequestTimeoutException.
+  *   Future.sequence(Seq.fill(100) { getFoo })
+  * }}}
+  * format: ON
+  *
+  * Example: Making slow, CPU-intensive POST requests with internal rate-limiting.
+  * format: OFF
+  * {{{
+  *   import SprayClientHelpers._
+  *
+  *   val slowConnectorSetup = getConnectorSetup(
+  *     host = "bar.com",
+  *     port = 9876,
+  *     connectionTimeout = 1.second,
+  *     requestTimeout = 10.seconds,
+  *     // Limit the number of in-flight requests at any one time to 4, to avoid overloading the
+  *     // remote service.
+  *     maxConnections = 4
+  *   )
+  *
+  *   def fooToBar(foo: Foo): Future[Bar] = {
+  *     sendRequest(Post("/bar", foo), slowConnectorSetup) { response =>
+  *       response ~> unmarshal[Bar]
+  *     }
+  *   }
+  *
+  *   // Takes longer than 10 seconds! Only 4 requests will be sent over the wire at a time, and
+  *   // the 10-second request timeout doesn't apply until a request gets sent out.
+  *   Future.sequence(Seq.fill(16) { fooToBar(someFoo) })
+  * }}}
+  * format: ON
+  */
 object SprayClientHelpers {
   /** Send an HTTP request through spray using a dedicated `HostConnectorSetup`, and process the
     * response using the given function. This gives you much more control over how and when your
     * request is sent over the wire / when it times out than does use of `sendReceive`.
+    * Caveat: this function is designed to practically prevent you from needing to worry about
+    * catching `AskTimeoutExceptions` when using spray, but it's not actually possible to
+    * guarantee. If you somehow send so many requests that one is internally buffered for more than
+    * `Int.MaxValue.millis`, you'll see an `AskTimeoutException` thrown.
     * @param request the `HttpRequest` object to send over the wire
     * @param connectorSetup the `HostConnectorSetup` object defining connection and timeout
-    * information for your request
+    * information for your request. See `getConnectionSetup` for a method of building these
+    * connectors.
     * @param parseResponse a function from `HttpResponse` to a generic value `T` you want to
     * extract from your request's response
     */
@@ -42,7 +103,8 @@ object SprayClientHelpers {
   }
 
   /** Override spray's default settings for sending requests with the given timeouts.
-    * @param url the URL of the remote host to communicate with
+    * @param host the name of the remote host you want to communicate with
+    * @param port the port the remote host is listening on
     * @param connectionTimeout the timeout to use when establishing a remote connection to the
     * remote host
     * @param requestTimeout the timeout to use when waiting for a response from the remote host
@@ -55,7 +117,8 @@ object SprayClientHelpers {
     * between the different types of requests.
     */
   def getConnectionSetup(
-    url: URL,
+    host: String,
+    port: Int,
     connectionTimeout: FiniteDuration,
     requestTimeout: FiniteDuration,
     maxConnections: Int,
@@ -63,17 +126,20 @@ object SprayClientHelpers {
   )(implicit system: ActorSystem): HostConnectorSetup = {
     val clientConnectionSettings = ClientConnectionSettings(system).copy(
       requestTimeout = requestTimeout,
-      idleTimeout = requestTimeout * 2,
+      // Amount of time an idle HTTP connection will be held open before being closed.
+      idleTimeout = Duration.Inf,
       connectingTimeout = connectionTimeout,
       userAgentHeader = connectorId map { `User-Agent`(_) }
     )
 
     HostConnectorSetup(
-      host = url.getHost,
-      port = url.getPort,
+      host = host,
+      port = port,
       settings = Some(
         HostConnectorSettings(system).copy(
-          idleTimeout = requestTimeout * 2,
+          // Amount of time one of spray's HostConnector actors will sit idle before terminating
+          // itself.
+          idleTimeout = Duration.Inf,
           maxConnections = maxConnections,
           connectionSettings = clientConnectionSettings
         )

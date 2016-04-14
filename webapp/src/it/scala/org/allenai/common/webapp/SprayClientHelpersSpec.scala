@@ -6,8 +6,6 @@ import akka.actor.ActorSystem
 import spray.client.pipelining._
 import spray.httpx.SprayJsonSupport
 
-import java.net.URL
-
 import scala.concurrent.{ Await, Future, TimeoutException }
 import scala.concurrent.duration._
 
@@ -18,13 +16,14 @@ class SprayClientHelpersSpec extends ActorSpec(ActorSystem("SprayClientHelpersSp
 
   // Set up a dummy server to test sending requests and parsing responses.
   val server = new DummyServer()
+  val testHost = "localhost"
   val testPort = 6000
-  val serverUrl = new URL("http", "localhost", testPort, "")
   val connectionTimeout = 250.millis
   val requestTimeout = 500.millis
 
   val connector = SprayClientHelpers.getConnectionSetup(
-    serverUrl,
+    testHost,
+    testPort,
     connectionTimeout,
     requestTimeout,
     1
@@ -59,7 +58,8 @@ class SprayClientHelpersSpec extends ActorSpec(ActorSystem("SprayClientHelpersSp
 
   it should "allow for a variable number of requests to run in parallel" in {
     val connector2 = SprayClientHelpers.getConnectionSetup(
-      serverUrl,
+      testHost,
+      testPort,
       connectionTimeout,
       requestTimeout,
       2
@@ -85,7 +85,8 @@ class SprayClientHelpersSpec extends ActorSpec(ActorSystem("SprayClientHelpersSp
 
   it should "support sending requests to a single host via separate connectors" in {
     val connectorA = SprayClientHelpers.getConnectionSetup(
-      serverUrl,
+      testHost,
+      testPort,
       connectionTimeout,
       requestTimeout,
       1,
@@ -93,7 +94,8 @@ class SprayClientHelpersSpec extends ActorSpec(ActorSystem("SprayClientHelpersSp
     )
 
     val connectorB = SprayClientHelpers.getConnectionSetup(
-      serverUrl,
+      testHost,
+      testPort,
       connectionTimeout,
       requestTimeout,
       1,
