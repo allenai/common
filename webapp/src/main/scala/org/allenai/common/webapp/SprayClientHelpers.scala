@@ -103,6 +103,12 @@ object SprayClientHelpers {
   }
 
   /** Override spray's default settings for sending requests with the given timeouts.
+    * Note this automatically sets two different idle timeouts to be `2 * requestTimeout`:
+    * format: OFF
+    *   1. The time after which an idle HTTP connection will be automatically closed.
+    *   2. The time after which idle `HttpHostConnector` actors (internal to spray) without open
+    *      connections will automatically terminate themselves.
+    * format: ON
     * @param host the name of the remote host you want to communicate with
     * @param port the port the remote host is listening on
     * @param connectionTimeout the timeout to use when establishing a remote connection to the
