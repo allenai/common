@@ -127,7 +127,7 @@ object SprayClientHelpers {
     val clientConnectionSettings = ClientConnectionSettings(system).copy(
       requestTimeout = requestTimeout,
       // Amount of time an idle HTTP connection will be held open before being closed.
-      idleTimeout = Duration.Inf,
+      idleTimeout = requestTimeout * 2,
       connectingTimeout = connectionTimeout,
       userAgentHeader = connectorId map { `User-Agent`(_) }
     )
@@ -139,7 +139,7 @@ object SprayClientHelpers {
         HostConnectorSettings(system).copy(
           // Amount of time one of spray's HostConnector actors will sit idle before terminating
           // itself.
-          idleTimeout = Duration.Inf,
+          idleTimeout = requestTimeout * 2,
           maxConnections = maxConnections,
           connectionSettings = clientConnectionSettings
         )
