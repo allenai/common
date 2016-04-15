@@ -1,10 +1,10 @@
 package org.allenai.common.cache
 
 class QueryCaches(
-  stringQueryCache: JsonQueryCache[String],
-  intQueryCache: JsonQueryCache[Int],
-  seqStringQueryCache: JsonQueryCache[Seq[String]],
-  fooQueryCache: JsonQueryCache[Foo]
+    stringQueryCache: JsonQueryCache[String],
+    intQueryCache: JsonQueryCache[Int],
+    seqStringQueryCache: JsonQueryCache[Seq[String]],
+    fooQueryCache: JsonQueryCache[Foo]
 ) {
   val stringKey = "stringKey"
   val stringValue = "stringValue"

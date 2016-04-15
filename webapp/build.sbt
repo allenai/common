@@ -4,17 +4,18 @@ name := "common-webapp"
 
 libraryDependencies ++= Seq(
   akkaActor,
+  sprayClient,
   sprayJson,
   sprayRouting,
-  sprayTestkit % Test,
-  typesafeConfig
+  typesafeConfig,
+  sprayTestkit % Test
 )
 
 dependencyOverrides ++= Set(
   // Override needed because spray testkit declares dependency on an older version of akka
   akkaTestkit,
-  scalaReflection(defaultScalaVersion),
   pegdown,
-  scalaCheck
+  scalaCheck,
+  scalaReflection(defaultScalaVersion)
 )
 
