@@ -12,7 +12,7 @@ object Dependencies extends CoreDependencies {
 
   val commonsIO = "commons-io" % "commons-io" % "2.4"
 
-  val datastore = "org.allenai" %% "datastore" % "2015.04.02-0"
+  val datastore = "org.allenai" %% "datastore" % "1.0.0"
 
   val elasticSearch = "org.elasticsearch" % "elasticsearch" % "1.7.1"
 
@@ -22,6 +22,8 @@ object Dependencies extends CoreDependencies {
 
   def nlpstack(component: String) = ("org.allenai.nlpstack" % s"nlpstack-${component}_2.11" % "1.6")
     .exclude("commons-logging", "commons-logging")
+
+  val openCsv = "net.sf.opencsv" % "opencsv" % "2.1"
 
   val pegdown = "org.pegdown" % "pegdown" % "1.4.2"
 
