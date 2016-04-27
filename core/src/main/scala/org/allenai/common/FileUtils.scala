@@ -55,7 +55,7 @@ object FileUtils extends Logging {
 
   /** Get a resource file as a sequence of lines. */
   def getResourceAsLines(name: String, codecOpt: Option[Codec] = None): Seq[String] = {
-    logger.info(s"Loading resource $name")
+    logger.debug(s"Loading resource $name")
     Resource.using(getResourceAsSource(name, codecOpt)) { input =>
       val lines = input.getLines().toVector // convert to vector to force stream to be processed
       logger.trace(s"lines:\n\t${lines.mkString("\n\t")}")
@@ -65,7 +65,7 @@ object FileUtils extends Logging {
 
   /** Read a CSV resource file into a sequence (rows) of sequence (columns) of strings. */
   def getCSVContentFromResource(name: String): Seq[Seq[String]] = {
-    logger.info(s"Loading CSV resource $name")
+    logger.debug(s"Loading CSV resource $name")
     val csvReader = new CSVReader(getResourceAsReader(name))
     Resource.using(csvReader)(_.readAll.asScala.map(_.toSeq))
   }
