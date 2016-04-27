@@ -7,8 +7,6 @@ import java.io._
 import scala.collection.JavaConverters._
 import scala.io.{ BufferedSource, Codec, Source }
 
-import java.nio.charset.Charset
-
 /** Various convenient utilities for reading files and resources. */
 object FileUtils extends Logging {
 
