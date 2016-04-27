@@ -4,9 +4,9 @@ import org.allenai.datastore.Datastore
 
 import com.typesafe.config.{ Config => TypesafeConfig }
 
-import scala.io.{ BufferedSource, Source }
-
 import java.io.File
+
+import scala.io.{ BufferedSource, Source }
 
 /** Various convenient utiltiies for accessing the Datastore. */
 object DatastoreUtils extends Logging {
