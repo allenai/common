@@ -13,54 +13,56 @@ import java.nio.charset.Charset
 object FileUtils extends Logging {
 
   /** Get a file as a non-lazy sequence of lines. */
-  def getFileAsLines(file: File)(codec: Codec): Seq[String] = {
+  def getFileAsLines(file: File)(implicit codec: Codec): Seq[String] = {
     logger.debug(s"Loading file ${file.getName}")
     // use toVector to force stream to be processed
     Resource.using(Source.fromFile(file)(codec))(_.getLines().toVector)
   }
 
   /** Read a CSV file as a non-lazy sequence (rows) of sequence (columns) of strings. */
-  def getCSVContentFromFile(file: File): Seq[Seq[String]] = {
+  def getCSVContentFromFile(file: File)(implicit codec: Codec): Seq[Seq[String]] = {
     logger.debug(s"Loading CSV file ${file.getName}")
-    val csvReader = new CSVReader(new FileReader(file))
+    val csvReader = new CSVReader(new InputStreamReader(new FileInputStream(file), codec.charSet))
     Resource.using(csvReader)(_.readAll.asScala.map(_.toVector))
   }
 
   /** Get a resource file for a given class as a Stream. Caller is responsible for closing this
     * stream.
     */
-  def getResourceAsStream(name: String, c: Class[_]): BufferedInputStream = {
-    new BufferedInputStream(c.getClassLoader.getResourceAsStream(name))
+  def getResourceAsStream(name: String, clazz: Class[_]): BufferedInputStream = {
+    new BufferedInputStream(clazz.getClassLoader.getResourceAsStream(name))
   }
 
   /** Get a resource file for a given class as a Reader. Caller is responsible for closing this
     * reader.
     */
-  def getResourceAsReader(name: String, c: Class[_])(codec: Codec): BufferedReader = {
-    val localCharset = codec.asInstanceOf[Charset]
-    new BufferedReader(new InputStreamReader(getResourceAsStream(name, c), localCharset))
+  def getResourceAsReader(name: String, clazz: Class[_])(implicit codec: Codec): BufferedReader = {
+    new BufferedReader(new InputStreamReader(getResourceAsStream(name, clazz), codec.charSet))
   }
 
   /** Get a resource file for a given class as a buffered Source. Caller is responsible for closing
     * this source.
     */
-  def getResourceAsSource(name: String, c: Class[_])(codec: Codec): BufferedSource = {
-    Source.fromInputStream(getResourceAsStream(name, c))(codec)
+  def getResourceAsSource(name: String, clazz: Class[_])(implicit codec: Codec): BufferedSource = {
+    Source.fromInputStream(getResourceAsStream(name, clazz))(codec)
   }
 
   /** Get a resource file for a given class as a non-lazy sequence of lines. */
-  def getResourceAsLines(name: String, c: Class[_])(codec: Codec): Seq[String] = {
+  def getResourceAsLines(name: String, clazz: Class[_])(implicit codec: Codec): Seq[String] = {
     logger.debug(s"Loading resource $name")
     // use toVector to force stream to be processed
-    Resource.using(getResourceAsSource(name, c)(codec))(_.getLines().toVector)
+    Resource.using(getResourceAsSource(name, clazz)(codec))(_.getLines().toVector)
   }
 
   /** Read a CSV resource file for a given class as a non-lazy sequence (rows) of sequence (columns)
     * of strings.
     */
-  def getCSVContentFromResource(name: String, c: Class[_])(codec: Codec): Seq[Seq[String]] = {
+  def getCSVContentFromResource(
+    name: String,
+    clazz: Class[_]
+  )(implicit codec: Codec): Seq[Seq[String]] = {
     logger.debug(s"Loading CSV resource $name")
-    val csvReader = new CSVReader(getResourceAsReader(name, c)(codec))
+    val csvReader = new CSVReader(getResourceAsReader(name, clazz)(codec))
     Resource.using(csvReader)(_.readAll.asScala.map(_.toVector))
   }
 }
