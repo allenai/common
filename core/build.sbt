@@ -7,6 +7,7 @@ libraryDependencies ++= Seq(
   Logging.logbackClassic,
   Logging.logbackCore,
   Logging.slf4jApi,
+  openCsv,
   sprayJson,
   typesafeConfig
 )
