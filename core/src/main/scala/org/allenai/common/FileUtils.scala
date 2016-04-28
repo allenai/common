@@ -27,40 +27,42 @@ object FileUtils extends Logging {
   /** Get a resource file for a given class as a Stream. Caller is responsible for closing this
     * stream.
     */
-  def getResourceAsStream(name: String, clazz: Class[_]): BufferedInputStream = {
-    new BufferedInputStream(clazz.getClassLoader.getResourceAsStream(name))
+  def getResourceAsStream(clazz: Class[_], name: String): BufferedInputStream = {
+    val inputStream = clazz.getResourceAsStream(name)
+    require(inputStream != null, s"Could not find file $name as resource for $clazz")
+    new BufferedInputStream(inputStream)
   }
 
   /** Get a resource file for a given class as a Reader. Caller is responsible for closing this
     * reader.
     */
-  def getResourceAsReader(name: String, clazz: Class[_])(implicit codec: Codec): BufferedReader = {
-    new BufferedReader(new InputStreamReader(getResourceAsStream(name, clazz), codec.charSet))
+  def getResourceAsReader(clazz: Class[_], name: String)(implicit codec: Codec): BufferedReader = {
+    new BufferedReader(new InputStreamReader(getResourceAsStream(clazz, name), codec.charSet))
   }
 
   /** Get a resource file for a given class as a buffered Source. Caller is responsible for closing
     * this source.
     */
-  def getResourceAsSource(name: String, clazz: Class[_])(implicit codec: Codec): BufferedSource = {
-    Source.fromInputStream(getResourceAsStream(name, clazz))(codec)
+  def getResourceAsSource(clazz: Class[_], name: String)(implicit codec: Codec): BufferedSource = {
+    Source.fromInputStream(getResourceAsStream(clazz, name))(codec)
   }
 
   /** Get a resource file for a given class as a non-lazy sequence of lines. */
-  def getResourceAsLines(name: String, clazz: Class[_])(implicit codec: Codec): Seq[String] = {
+  def getResourceAsLines(clazz: Class[_], name: String)(implicit codec: Codec): Seq[String] = {
     logger.debug(s"Loading resource $name")
     // use toVector to force stream to be processed
-    Resource.using(getResourceAsSource(name, clazz)(codec))(_.getLines().toVector)
+    Resource.using(getResourceAsSource(clazz, name)(codec))(_.getLines().toVector)
   }
 
   /** Read a CSV resource file for a given class as a non-lazy sequence (rows) of sequence (columns)
     * of strings.
     */
   def getCSVContentFromResource(
-    name: String,
-    clazz: Class[_]
+    clazz: Class[_],
+    name: String
   )(implicit codec: Codec): Seq[Seq[String]] = {
     logger.debug(s"Loading CSV resource $name")
-    val csvReader = new CSVReader(getResourceAsReader(name, clazz)(codec))
+    val csvReader = new CSVReader(getResourceAsReader(clazz, name)(codec))
     Resource.using(csvReader)(_.readAll.asScala.map(_.toVector))
   }
 }
