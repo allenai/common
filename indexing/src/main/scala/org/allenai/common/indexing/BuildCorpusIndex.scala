@@ -22,7 +22,7 @@ import scala.io.{ Source, Codec }
 import scala.collection.JavaConverters._
 import scala.util.{ Failure, Success }
 import java.io.File
-import java.nio.file.{ Files, Path }
+import java.nio.file.{ Files, Path, Paths }
 import java.util.concurrent.TimeUnit
 
 /** CLI to build an Elastic Search index on Aristo corpora.
@@ -50,123 +50,7 @@ class BuildCorpusIndex(config: Config) extends Logging {
   val bulkProcessorUtility = new BulkProcessorUtility
 
   /** Regex used to split sentences in waterloo corpus. */
-  val splitRegex = """</?SENT>""".r.unanchored
-
-  /** Index a single sentence into elasticsearch.
-    * @param sentence to be indexed
-    * @param source name of source for reference
-    * @param sentenceIndex index of sentence in file (for deduplication)
-    * @param bulkProcessor to communicate with the elasticsearch instance
-    */
-  def addSentenceToIndex(
-    sentence: String,
-    source: String,
-    sentenceIndex: Int,
-    bulkProcessor: BulkProcessor
-  ): Unit = {
-    val request = new IndexRequest(indexName, indexType).source(jsonBuilder().startObject()
-      .field("text", sentence.trim)
-      .field("source", source + "_" + sentenceIndex.toString)
-      .endObject())
-    bulkProcessor.add(request)
-  }
-
-  /** Index a single file into elasticsearch.
-    * @param file to be indexed
-    * @param bulkProcessor to communicate with the elasticsearch instance
-    */
-  def addFileToIndex(
-    file: File,
-    bulkProcessor: BulkProcessor,
-    codec: Codec
-  ): Unit = {
-    val bufSource = Source.fromFile(file, 8192)(codec)
-    val lines = bufSource.getLines
-    (lines flatMap { defaultSegmenter.segmentTexts }).zipWithIndex.foreach {
-      case (sentence, sentenceIndex) => {
-        addSentenceToIndex(sentence, file.getName, sentenceIndex, bulkProcessor)
-      }
-    }
-    var sentenceIndex = 0
-    for (line <- lines; sentence <- defaultSegmenter.segmentTexts(line)) {
-      addSentenceToIndex(sentence, file.getName, sentenceIndex, bulkProcessor)
-      sentenceIndex += 1
-    }
-    bufSource.close()
-  }
-
-  /** Index a file tree into the elasticSearch instance.  Divides work into nThreads*4 Futures. Each
-    * future syncs on currentFile which is a logging variable, and then grabs the next file from the
-    * stream if it is not empty.
-    * @param fileTree file stream to be indexed
-    * @return a sequence of Futures each representing the work done by a thread on this file tree.
-    */
-  def addTreeToIndex(fileTree: Iterator[Path], codec: Codec): Seq[Future[Unit]] = {
-    for (i <- 0 until nThreads * 4) yield {
-      Future {
-        val esClient =
-          ElasticSearchTransportClientUtil.ConstructTransportClientFromESconfig(esConfig)
-        val bulkProcessor: BulkProcessor =
-          bulkProcessorUtility.buildDumpOnErrorBulkProcessor(esClient, dumpFolderPath)
-
-        // Implicit conversion here to ParIteratorEnrichment
-        fileTree parForeach (path => {
-          val file = path.toFile
-          // ignore .DS_STORE and any other hidden surprises that should not be indexed
-          if (!file.isDirectory && !file.isHidden) addFileToIndex(file, bulkProcessor, codec)
-        })
-
-        bulkProcessor.flush()
-        bulkProcessor.awaitClose(Integer.MAX_VALUE, TimeUnit.DAYS)
-        esClient.close()
-      }
-    }
-  }
-
-  /** Index a folder into the elasticsearch instance, following the convention of the waterloo
-    * corpus. Sentences are encapsulated by <SENT> ... </SENT> tags.
-    * @param indirPath path to the input directory
-    */
-  def addWaterlooDirectoryToIndex(indirPath: String, codec: Codec): Seq[Future[Unit]] = {
-    val indir = new File(indirPath)
-    for (file <- indir.listFiles; if !file.getName.startsWith(".")) yield {
-      Future {
-        file.setReadOnly()
-        logger.debug("Now indexing: " + file.getName)
-        val esClient = ElasticSearchTransportClientUtil.
-          ConstructTransportClientFromESconfig(esConfig, sniffMode = true)
-        val bulkProcessor: BulkProcessor = bulkProcessorUtility.
-          buildDumpOnErrorBulkProcessor(esClient, dumpFolderPath)
-        addWaterlooFileToIndex(file, bulkProcessor, codec)
-        logger.debug("Done indexing: " + file.getName)
-        bulkProcessor.flush()
-        bulkProcessor.awaitClose(Integer.MAX_VALUE, TimeUnit.DAYS)
-        esClient.close()
-      }
-    }
-  }
-
-  /** Index a file into the elasticsearch instance, following the convention of the waterloo corpus.
-    * Sentences are encapsulated by <SENT> ... </SENT> tags.
-    * @param inputFile path to the input directory
-    * @param bulkProcessor to communicate with the elasticsearch instace
-    */
-  def addWaterlooFileToIndex(inputFile: File, bulkProcessor: BulkProcessor, codec: Codec): Unit = {
-    var filePositionCounter = 0
-
-    def segmentFunction(sentence: String): Unit = {
-      addSentenceToIndex(sentence, inputFile.getName, filePositionCounter, bulkProcessor)
-      filePositionCounter += 1
-    }
-    ParsingUtils.splitOnTag(
-      inputFile = inputFile,
-      splitString = "DOC",
-      splitRegex = splitRegex,
-      segmentFunction = segmentFunction,
-      bufferSize = 16384,
-      codec
-    )
-  }
+  val sentenceSplitRegex = """</?SENT>""".r.unanchored
 
   /** Build an index in ElasticSearch using the corpora specified in config. */
   def buildElasticSearchIndex(): Unit = {
@@ -202,41 +86,16 @@ class BuildCorpusIndex(config: Config) extends Logging {
     }
 
     val corpusConfigs = config.get[Seq[Config]]("corpora").getOrElse(Seq.empty[Config])
+    val parsedConfigs = corpusConfigs.map(parseCorpusConfig)
 
-    // Compile list of documents to be indexed in various formats
-    val waterlooPathList: Seq[(String, String)] =
-      BuildCorpusIndex.getWaterlooPathList(corpusConfigs)
-    val dataStoreFileTreeList: Seq[(Path, String)] =
-      BuildCorpusIndex.getDataStoreFileTreeList(corpusConfigs)
-    val dataStorePathList: Seq[(Path, String)] =
-      BuildCorpusIndex.getDataStoreFilePathList(corpusConfigs)
-
-    // Index all files
-    val datastorePathResults: Seq[Future[Unit]] = dataStorePathList.map {
-      case (path, encoding) =>
-        Future[Unit] {
-          logger.debug(s"Currently indexing: ${path.getFileName}")
-          val esClient =
-            ElasticSearchTransportClientUtil.ConstructTransportClientFromESconfig(esConfig)
-          val bulkProcessor: BulkProcessor =
-            bulkProcessorUtility.buildDumpOnErrorBulkProcessor(esClient, dumpFolderPath)
-          addFileToIndex(path.toFile, bulkProcessor, encoding)
-          bulkProcessor.flush()
-          bulkProcessor.awaitClose(Integer.MAX_VALUE, TimeUnit.DAYS)
-          esClient.close()
-        }
-    }
-    val datastoreTreeResults: Seq[Future[Unit]] = dataStoreFileTreeList flatMap {
-      case (path, encoding) => addTreeToIndex(Files.walk(path).iterator().asScala, encoding)
-    }
-    val waterlooPathResults: Seq[Future[Unit]] = waterlooPathList flatMap {
-      case (path, encoding) => addWaterlooDirectoryToIndex(path, encoding)
-    }
-
-    // combine all results into a single Future
-    val results: Future[Seq[Unit]] = Future.sequence(
-      datastoreTreeResults ++ datastorePathResults ++ waterlooPathResults
-    )
+    val results: Future[Seq[Unit]] = Future.sequence(parsedConfigs.flatMap(corpus => {
+      if (corpus.isDirectory) {
+        val iterator = Files.walk(corpus.path).iterator().asScala
+        addTreeToIndex(iterator, corpus.encoding, corpus.documentFormat)
+      } else {
+        addTreeToIndex(Seq(corpus.path).iterator, corpus.encoding, corpus.documentFormat)
+      }
+    }))
 
     results onComplete {
       case Success(l) =>
@@ -265,10 +124,208 @@ class BuildCorpusIndex(config: Config) extends Logging {
       logger.debug("No failed requests")
     }
   }
+
+  /** Index a file tree into the elasticSearch instance.  Divides work into nThreads*4 Futures. Each
+    * future syncs on currentFile which is a logging variable, and then grabs the next file from the
+    * stream if it is not empty.
+    * @param fileTree file stream to be indexed
+    * @return a sequence of Futures each representing the work done by a thread on this file tree.
+    */
+  def addTreeToIndex(
+    fileTree: Iterator[Path],
+    codec: Codec,
+    documentFormat: String
+  ): Seq[Future[Unit]] = {
+    for (i <- 0 until nThreads * 4) yield {
+      Future {
+        val esClient =
+          ElasticSearchTransportClientUtil.ConstructTransportClientFromESconfig(esConfig)
+        val bulkProcessor: BulkProcessor =
+          bulkProcessorUtility.buildDumpOnErrorBulkProcessor(esClient, dumpFolderPath)
+
+        // Implicit conversion here to ParIteratorEnrichment
+        fileTree parForeach (path => {
+          val file = path.toFile
+          // ignore .DS_STORE and any other hidden surprises that should not be indexed
+          if (!file.isDirectory && !file.isHidden) {
+            addFileToIndex(file, bulkProcessor, codec, documentFormat)
+          }
+        })
+
+        bulkProcessor.flush()
+        bulkProcessor.awaitClose(Integer.MAX_VALUE, TimeUnit.DAYS)
+        esClient.close()
+      }
+    }
+  }
+
+  /** Index a single file into elasticsearch.
+    * @param file to be indexed
+    * @param bulkProcessor to communicate with the elasticsearch instance
+    */
+  def addFileToIndex(
+    file: File,
+    bulkProcessor: BulkProcessor,
+    codec: Codec,
+    documentFormat: String
+  ): Unit = {
+    if (documentFormat == "waterloo") {
+      addWaterlooFileToIndex(file, bulkProcessor, codec)
+    } else {
+      val segments = segmentFile(file, codec, documentFormat)
+      segments.zipWithIndex.foreach {
+        case (segment, segmentIndex) => {
+          addSegmentToIndex(segment, file.getName, segmentIndex, bulkProcessor)
+        }
+      }
+    }
+  }
+
+  /** Index a file into the elasticsearch instance, following the convention of the waterloo corpus.
+    * Sentences are encapsulated by <SENT> ... </SENT> tags.
+    * @param inputFile path to the input directory
+    * @param bulkProcessor to communicate with the elasticsearch instace
+    */
+  def addWaterlooFileToIndex(inputFile: File, bulkProcessor: BulkProcessor, codec: Codec): Unit = {
+    var filePositionCounter = 0
+
+    def segmentFunction(segment: String): Unit = {
+      addSegmentToIndex(segment, inputFile.getName, filePositionCounter, bulkProcessor)
+      filePositionCounter += 1
+    }
+    ParsingUtils.splitOnTag(
+      inputFile = inputFile,
+      splitString = "DOC",
+      splitRegex = sentenceSplitRegex,
+      segmentFunction = segmentFunction,
+      bufferSize = 16384,
+      codec
+    )
+  }
+
+  def segmentFile(file: File, codec: Codec, documentFormat: String): Iterator[String] = {
+    documentFormat match {
+      case "plain text" => segmentPlainTextFile(file, codec)
+      case "barrons" => getSegmentsFromDocument(new BarronsDocumentReader(file, codec).read())
+      case "simple wikipedia" => segmentWikipediaFile(file, codec)
+      case "waterloo" => throw new IllegalStateException("you shouldn't have gotten here")
+      case _ => throw new IllegalStateException("Unrecognized document format")
+    }
+  }
+
+  def getSegmentsFromDocument(document: SegmentedDocument): Iterator[String] = {
+    val segments = document.getSegmentsOfType(indexType)
+    segments.map(_.getTextSegments.mkString(" ")).iterator
+  }
+
+  def segmentPlainTextFile(file: File, codec: Codec): Iterator[String] = {
+    if (indexType != "sentence") {
+      throw new IllegalStateException("plain text can only be segmented into sentences")
+    }
+    val bufSource = Source.fromFile(file, 8192)(codec)
+    val lines = bufSource.getLines
+    (lines flatMap { defaultSegmenter.segmentTexts })
+  }
+
+  def segmentWikipediaFile(file: File, codec: Codec): Iterator[String] = {
+    indexType match {
+      case "sentence" => segmentPlainTextFile(file, codec)
+      case "paragraph" => {
+        val bufSource = Source.fromFile(file, 8192)(codec)
+        val lines = bufSource.getLines
+        lines.flatMap(line => if (line.trim.isEmpty) Seq[String]() else Seq[String](line))
+      }
+      case _ => throw new IllegalStateException("unrecognized index type")
+    }
+  }
+
+  /** Index a single segment into elasticsearch.
+    * @param segment to be indexed
+    * @param source name of source for reference
+    * @param segmentIndex index of segment in file (for deduplication)
+    * @param bulkProcessor to communicate with the elasticsearch instance
+    */
+  def addSegmentToIndex(
+    segment: String,
+    source: String,
+    segmentIndex: Int,
+    bulkProcessor: BulkProcessor
+  ): Unit = {
+    val request = new IndexRequest(indexName, indexType).source(jsonBuilder().startObject()
+      .field("text", segment.trim)
+      .field("source", source + "_" + segmentIndex.toString)
+      .endObject())
+    bulkProcessor.add(request)
+  }
+
+  /** Take the config for a corpus, resolve paths, and return a simple object containing information
+    * about the corpus.
+    */
+  def parseCorpusConfig(corpusConfig: Config): ParsedConfig = {
+    val documentFormat = corpusConfig.get[String]("documentFormat").getOrElse("plain text")
+    val encoding = corpusConfig.get[String]("encoding").getOrElse("UTF-8")
+    // We could be a little smarter at detecting whether the intent was a local path, but this will
+    // do for now.
+    val pathIsLocal = corpusConfig.get[Boolean]("pathIsLocal").getOrElse(false)
+    val (path, isDirectory) = pathIsLocal match {
+      case true => getLocalPathFromConfig(corpusConfig)
+      case false => getDatastorePathFromConfig(corpusConfig)
+    }
+    ParsedConfig(path, isDirectory, encoding, documentFormat)
+  }
+
+  def getLocalPathFromConfig(corpusConfig: Config): (Path, Boolean) = {
+    val directory = corpusConfig.get[String]("directory")
+    val file = corpusConfig.get[String]("file")
+    file match {
+      case Some(f) => {
+        directory match {
+          case Some(d) => (Paths.get(d, f), false)
+          case None => (Paths.get(f), false)
+        }
+      }
+      case None => (Paths.get(directory.get), true)
+    }
+  }
+
+  def getDatastorePathFromConfig(corpusConfig: Config): (Path, Boolean) = {
+    val directory = corpusConfig.get[String]("directory")
+    val file = corpusConfig.get[String]("file")
+    val privacy = corpusConfig.get[String]("privacy").getOrElse("private")
+    val group = corpusConfig[String]("group")
+    val version = corpusConfig[Int]("version")
+    file match {
+      case Some(f) => (getFileFromDatastore(privacy, group, directory, f, version), false)
+      case None => (getDirectoryFromDatastore(privacy, group, directory.get, version), true)
+    }
+  }
+
+  def getFileFromDatastore(
+    privacy: String,
+    group: String,
+    directory: Option[String],
+    file: String,
+    version: Int
+  ): Path = {
+    directory match {
+      case Some(d) => Datastore(privacy).directoryPath(group, d, version).resolve(file)
+      case None => Datastore(privacy).filePath(group, file, version)
+    }
+  }
+
+  def getDirectoryFromDatastore(
+    privacy: String,
+    group: String,
+    directory: String,
+    version: Int
+  ): Path = {
+    Datastore(privacy).directoryPath(group, directory, version)
+  }
 }
 
-object BuildCorpusIndex {
+case class ParsedConfig(path: Path, isDirectory: Boolean, encoding: String, documentFormat: String)
 
+object BuildCorpusIndex {
   /** Execute a given index request if the document is not already in the index. */
   def indexWithoutDuplicate(
     request: IndexRequest,
@@ -284,73 +341,4 @@ object BuildCorpusIndex {
       esClient.index(request).actionGet()
     }
   }
-
-  /** Compile list if file paths (for files in Waterloo Corpus format).
-    * @param corpusConfigs list of all corpus configs
-    * @return filtered list of waterloo format paths, paired with their encodings
-    */
-  def getWaterlooPathList(corpusConfigs: Seq[Config]): Seq[(String, String)] = {
-    corpusConfigs.filter(corpusConfig => {
-      val corpusType = corpusConfig.get[String]("corpusType")
-      corpusType.isDefined && corpusType.get.equals("waterloo")
-    }).map(corpusConfig => (corpusConfig[String]("directory"), corpusConfig.get[String]("encoding").
-      getOrElse("UTF-8")))
-  }
-
-  /** Compile list of file trees from datastore.
-    * @param corpusConfigs list of all corpus configs
-    * @return filtered list of datastore directory file trees, paired with their encodings
-    */
-  def getDataStoreFileTreeList(corpusConfigs: Seq[Config]): Seq[(Path, String)] = {
-    val datastoreCorporaConfigs = corpusConfigs.filter(corpusConfig => {
-      val corpusType = corpusConfig.get[String]("corpusType")
-      corpusType.isEmpty || corpusType.get.equals("datastore")
-    })
-
-    datastoreCorporaConfigs.filter(config => config.hasPath("directory") && !config.hasPath("file"))
-      .map(config =>
-        (
-          Datastore(config.get[String]("privacy").getOrElse("private"))
-          .directoryPath(
-            config[String]("group"),
-            config[String]("directory"),
-            config[Int]("version")
-          ),
-            config.get[String]("encoding").getOrElse("UTF-8")
-        ))
-  }
-
-  /** Compile list of file paths from datastore.
-    * @param corpusConfigs list of all corpus configs
-    * @return filtered list of datastore paths, paired with their encodings
-    */
-  def getDataStoreFilePathList(corpusConfigs: Seq[Config]): Seq[(Path, String)] = {
-    val datastoreCorporaConfigs = corpusConfigs.filter(corpusConfig => {
-      val corpusType = corpusConfig.get[String]("corpusType")
-      corpusType.isEmpty || corpusType.get.equals("datastore")
-    })
-
-    datastoreCorporaConfigs.filter(config => config.hasPath("file")).map { config =>
-      val privacy = config.get[String]("privacy").getOrElse("private")
-      val path = config match {
-        case fileWithDir if config.hasPath("directory") => {
-          val fileString: String = fileWithDir[String]("file")
-          Datastore(privacy)
-            .directoryPath(
-              fileWithDir[String]("group"),
-              fileWithDir[String]("directory"),
-              fileWithDir[Int]("version")
-            )
-            .resolve(fileString)
-        }
-        case fileWithoutDir => Datastore(privacy).filePath(
-          fileWithoutDir[String]("group"),
-          fileWithoutDir[String]("file"),
-          fileWithoutDir[Int]("version")
-        )
-      }
-      (path, config.get[String]("encoding").getOrElse("UTF-8"))
-    }
-  }
 }
-
