@@ -207,7 +207,8 @@ class BuildCorpusIndex(config: Config) extends Logging {
     documentFormat match {
       case "plain text" => segmentPlainTextFile(file, codec)
       case "barrons" => getSegmentsFromDocument(new BarronsDocumentReader(file, codec).read())
-      case "simple wikipedia" => segmentWikipediaFile(file, codec)
+      case "simple wikipedia" => segmentParagraphPerLineFile(file, codec)
+      case "processed epub" => segmentParagraphPerLineFile(file, codec)
       case "waterloo" => throw new IllegalStateException("you shouldn't have gotten here")
       case _ => throw new IllegalStateException("Unrecognized document format")
     }
@@ -227,7 +228,7 @@ class BuildCorpusIndex(config: Config) extends Logging {
     (lines flatMap { defaultSegmenter.segmentTexts })
   }
 
-  def segmentWikipediaFile(file: File, codec: Codec): Iterator[String] = {
+  def segmentParagraphPerLineFile(file: File, codec: Codec): Iterator[String] = {
     indexType match {
       case "sentence" => segmentPlainTextFile(file, codec)
       case "paragraph" => {
@@ -235,7 +236,7 @@ class BuildCorpusIndex(config: Config) extends Logging {
         val lines = bufSource.getLines
         lines.flatMap(line => if (line.trim.isEmpty) Seq[String]() else Seq[String](line))
       }
-      case _ => throw new IllegalStateException("unrecognized index type")
+      case _ => throw new IllegalStateException(s"unrecognized index type: $indexType")
     }
   }
 
