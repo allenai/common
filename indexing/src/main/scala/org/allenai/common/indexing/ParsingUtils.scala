@@ -12,7 +12,7 @@ object ParsingUtils {
     * @param inputFile file to be segmented
     * @param splitString string that defines doc delimiting tags
     * @param splitRegex passed in so that the regex does not have to be built with each call (should
-    *                    look like """</?splitString>""")
+    * look like """</?splitString>""")
     * @param segmentFunction function to be called on each segment
     * @param bufferSize size of readingBuffer
     */
