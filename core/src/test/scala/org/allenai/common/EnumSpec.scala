@@ -18,9 +18,9 @@ class EnumSpec extends UnitSpec {
   }
 
   "withId" should "retrieve correct Enum" in {
-    assert(FakeEnum.withId("value1") === FakeEnum.Value1)
-    assert(FakeEnum.withId("value2") === FakeEnum.Value2)
-    assert(FakeEnum.withId("value3") === FakeEnum.Value3)
+    assert(FakeEnum.withId("Value1") === FakeEnum.Value1)
+    assert(FakeEnum.withId("Value2") === FakeEnum.Value2)
+    assert(FakeEnum.withId("Value3") === FakeEnum.Value3)
   }
 
   it should "throw NoSuchElementException" in {
@@ -30,7 +30,7 @@ class EnumSpec extends UnitSpec {
   }
 
   "toString" should "act like builtin Enumeration" in {
-    assert(FakeEnum.Value1.toString === "value1")
+    assert(FakeEnum.Value1.toString === "Value1")
   }
 
   "JSON serialization" should "work" in {
@@ -59,10 +59,10 @@ class EnumSpec extends UnitSpec {
 
 // Test enum. Must be defined outside of spec otherwise serialization tests will
 // fail due to scalatest WordSpec not being serializable.
-sealed abstract class FakeEnum(name: String) extends Enum[FakeEnum](name)
+sealed abstract class FakeEnum extends Enum[FakeEnum]
 object FakeEnum extends EnumCompanion[FakeEnum] {
-  case object Value1 extends FakeEnum("value1")
-  case object Value2 extends FakeEnum("value2")
-  case object Value3 extends FakeEnum("value3")
+  case object Value1 extends FakeEnum
+  case object Value2 extends FakeEnum
+  case object Value3 extends FakeEnum
   register(Value1, Value2, Value3)
 }
