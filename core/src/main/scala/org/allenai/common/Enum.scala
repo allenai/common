@@ -1,32 +1,33 @@
 package org.allenai.common
 
-import spray.json._
-import spray.json.DefaultJsonProtocol._
+import spray.json.{ deserializationError, JsString, JsValue, RootJsonFormat }
 
-/** Enumeration implementation that supports automatic Spray JSON serialization as JsString(id).
-  *
-  * @param id  value used for lookup and JSON serialization
+/** Enumeration implementation that supports automatic Spray JSON serialization of a case object as
+  * a JsString.
   *
   * Usage:
   * (format: OFF)
   * {{{
-  * sealed abstract class MyEnum(id: String) extends Enum[MyEnum](id)
+  * sealed abstract class MyEnum extends Enum[MyEnum]
   * object MyEnum extends EnumCompanion[MyEnum] {
-  *   case object One extends MyEnum("one")
-  *   case object Two extends MyEnum("two")
+  *   case object One extends MyEnum
+  *   case object Two extends MyEnum
   *   register(One, Two)
   * }
   *
   * // JSON serialization:
-  * MyEnum.One.toJson // JsString("one")
-  * MyEnum.Two.toJson // JsString("two")
-  * JsString("one").convertTo[MyEnum] // MyEnum.One
-  * JsString("two").convertTo[MyEnum] // MyEnum.Two
+  * MyEnum.One.toJson // JsString("One")
+  * MyEnum.Two.toJson // JsString("Two")
+  * JsString("One").convertTo[MyEnum] // MyEnum.One
+  * JsString("Two").convertTo[MyEnum] // MyEnum.Two
   * }}}
   * (format: ON)
   */
-abstract class Enum[E <: Enum[E]](val id: String) extends Serializable {
-  override def toString: String = id
+abstract class Enum[E <: Enum[E]] {
+  /** The serialization string. By default, use the toString implementation. For a case object, this
+    * uses the object name.
+    */
+  def id: String = toString
 }
 
 /** Superclass for Enum companion objects providing enum registration and JSON serialization */
@@ -52,7 +53,7 @@ abstract class EnumCompanion[E <: Enum[E]] {
     registry = registry + (e.id -> e)
   }
 
-  implicit object EnumJsonFormat extends JsonFormat[E] {
+  implicit object EnumJsonFormat extends RootJsonFormat[E] {
     override def read(jsValue: JsValue): E = jsValue match {
       case JsString(id) => withId(id)
       case other => deserializationError(s"Enum id must be a JsString: $other")
