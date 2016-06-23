@@ -11,7 +11,7 @@ import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder
 import org.elasticsearch.action.bulk.BulkProcessor
 import org.elasticsearch.action.index.IndexRequest
 import org.elasticsearch.client.transport.TransportClient
-import org.elasticsearch.common.settings.ImmutableSettings
+import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.common.xcontent.XContentFactory._
 import org.elasticsearch.index.query.QueryBuilders
 
@@ -61,10 +61,7 @@ class BuildCorpusIndex(config: Config) extends Logging {
       val createIndexRequestBuilder: CreateIndexRequestBuilder =
         esClient.admin().indices().prepareCreate(indexName)
 
-      // Optimize settings for indexing
-      createIndexRequestBuilder.setSettings(ImmutableSettings.settingsBuilder()
-        .put("number_of_shards", 1)
-        .put("number_of_replicas", 0))
+      createIndexRequestBuilder.setSettings(Settings.settingsBuilder())
 
       val indexSetting = esConfig.get[ConfigObject]("setting").getOrElse(ConfigFactory.empty.root)
       val indexMapping = esConfig.get[ConfigObject]("mapping").getOrElse(ConfigFactory.empty.root)

@@ -1,6 +1,6 @@
 package org.allenai.common.indexing
 
-import com.typesafe.config.{ Config, ConfigFactory }
+import com.typesafe.config.ConfigFactory
 
 import java.io.File
 
