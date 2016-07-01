@@ -4,8 +4,10 @@ import org.allenai.common.Logging
 
 import com.typesafe.config.Config
 import org.elasticsearch.client.transport.TransportClient
-import org.elasticsearch.common.settings.ImmutableSettings
+import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.common.transport.InetSocketTransportAddress
+
+import java.net.InetSocketAddress
 
 /** Utility object that takes config parameters from application config file and constructs a
   * transport client to talk to ElasticSearch.
@@ -23,17 +25,17 @@ object ElasticSearchTransportClientUtil extends Logging {
     esConfig: Config,
     sniffMode: Boolean = false
   ): TransportClient = {
-    val settings = ImmutableSettings.builder()
+    val settings = Settings.builder()
       .put("cluster.name", esConfig.getString("clusterName"))
       .put("client.transport.sniff", sniffMode)
       .put("sniffOnConnectionFault", sniffMode)
       .build()
     val address = new InetSocketTransportAddress(
-      esConfig.getString("hostIp"),
-      esConfig.getInt("hostPort")
+      new InetSocketAddress(esConfig.getString("hostIp"), esConfig.getInt("hostPort"))
     )
 
     logger.debug(s"Created Elastic Search Client in cluster ${esConfig.getString("clusterName")}")
-    new TransportClient(settings).addTransportAddresses(address)
+    val clientBuilder = TransportClient.builder().settings(settings)
+    clientBuilder.build().addTransportAddress(address)
   }
 }

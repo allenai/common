@@ -15,7 +15,7 @@ object Dependencies extends CoreDependencies {
   // TODO(jkinkead) Break circular dependency between common and datastore
   val datastore = "org.allenai" %% "datastore" % "1.0.0"
 
-  val elasticSearch = "org.elasticsearch" % "elasticsearch" % "1.7.1"
+  val elasticSearch = "org.elasticsearch" % "elasticsearch" % "2.3.3"
 
   val jedis = "redis.clients" % "jedis" % "2.7.2"
 
