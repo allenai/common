@@ -24,6 +24,8 @@ object Dependencies extends CoreDependencies {
   def nlpstack(component: String) = ("org.allenai.nlpstack" % s"nlpstack-${component}_2.11" % "1.6")
     .exclude("commons-logging", "commons-logging")
 
+  val okHttp = "com.squareup.okhttp3" % "okhttp" % "3.4.1"
+
   val openCsv = "net.sf.opencsv" % "opencsv" % "2.1"
 
   val pegdown = "org.pegdown" % "pegdown" % "1.4.2"
