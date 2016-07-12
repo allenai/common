@@ -3,8 +3,6 @@ package org.allenai.common.webapp
 import okhttp3._
 import spray.json._
 
-import scala.concurrent.Future
-
 import java.net.URLEncoder
 
 /** A simple case class representing one of the "blue links" from a Bing API query.
@@ -76,15 +74,6 @@ class BingClient(apiKey: String) {
           } yield BingResult(query, pos, id, url, title, description)
       }
     }
-  }
-
-  /** Execute several queries in parallel, running the supplied callback on each individual result.
-    * @param queries sequence of queries to submit
-    * @param top number of desired results for each query
-    * @return a sequence of futures mapping each result
-    */
-  def bulkQuery(queries: Seq[String], top: Int = 10): Seq[Future[Seq[BingResult]]] = queries.map {
-    q => Future { query(q, top = top) }
   }
 
   /** A helper function to get a string out of a JsObject

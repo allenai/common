@@ -24,30 +24,4 @@ class BingClientSpec extends UnitSpec {
       cancel("AZURE_AUTH_KEY not defined, skipping test")
     }
   }
-  it should "execute bulk queries" in {
-    if (bingClient.isDefined) {
-      val queries = Seq(
-        "alligator",
-        "baboon",
-        "cat",
-        "dog",
-        "elephant",
-        "fox",
-        "giraffe",
-        "hyena",
-        "iguana",
-        "jackal"
-      )
-
-      val bulkResults = bingClient.get.bulkQuery(queries.map(animal => animal + " adaptations"))
-      bulkResults.foreach { bulkFuture =>
-        bulkFuture.onComplete {
-          case Success(results) => assert(results.nonEmpty)
-          case Failure(_) => fail()
-        }
-      }
-    } else {
-      cancel("AZURE_AUTH_KEY not defined, skipping test")
-    }
-  }
 }
