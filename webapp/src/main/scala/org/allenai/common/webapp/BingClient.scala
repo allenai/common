@@ -83,7 +83,7 @@ class BingClient(apiKey: String) {
     * @param top number of desired results for each query
     * @return a sequence of futures mapping each result
     */
-  def bulkQuery(queries: Seq[String], top: Int = 10) = queries.map {
+  def bulkQuery(queries: Seq[String], top: Int = 10): Seq[Future[Seq[BingResult]]] = queries.map {
     q => Future { query(q, top = top) }
   }
 
@@ -92,8 +92,10 @@ class BingClient(apiKey: String) {
     * @param jsMap the map of Json fields
     * @return the string, or None if unavailable
     */
-  private def getString(key: String, jsMap: Map[String, JsValue]) = jsMap.get(key).flatMap {
-    case JsString(s) => Some(s)
-    case _ => None
+  private def getString(key: String, jsMap: Map[String, JsValue]): Option[String] = {
+    jsMap.get(key).flatMap {
+      case JsString(s) => Some(s)
+      case _ => None
+    }
   }
 }
