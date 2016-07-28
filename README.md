@@ -1,4 +1,4 @@
-common
+common [![Build Status](https://semaphoreci.com/api/v1/allenai/common/branches/master/badge.svg)](https://semaphoreci.com/allenai/common)
 ======
 
 **Boss**: Michael
