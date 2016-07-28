@@ -167,12 +167,12 @@ class BuildCorpusIndex(config: Config) extends Logging {
     documentFormat: String
   ): Unit = {
     if (documentFormat == "waterloo") {
-      addWaterlooFileToIndex(file, bulkProcessor, codec)
+      addWaterlooFileToIndex(file, documentFormat, bulkProcessor, codec)
     } else {
       val segments = segmentFile(file, codec, documentFormat)
       segments.zipWithIndex.foreach {
         case (segment, segmentIndex) => {
-          addSegmentToIndex(segment, file.getName, segmentIndex, bulkProcessor)
+          addSegmentToIndex(segment, documentFormat, file.getName, segmentIndex, bulkProcessor)
         }
       }
     }
@@ -183,11 +183,11 @@ class BuildCorpusIndex(config: Config) extends Logging {
     * @param inputFile path to the input directory
     * @param bulkProcessor to communicate with the elasticsearch instace
     */
-  def addWaterlooFileToIndex(inputFile: File, bulkProcessor: BulkProcessor, codec: Codec): Unit = {
+  def addWaterlooFileToIndex(inputFile: File, documentFormat: String, bulkProcessor: BulkProcessor, codec: Codec): Unit = {
     var filePositionCounter = 0
 
     def segmentFunction(segment: String): Unit = {
-      addSegmentToIndex(segment, inputFile.getName, filePositionCounter, bulkProcessor)
+      addSegmentToIndex(segment, documentFormat, inputFile.getName, filePositionCounter, bulkProcessor)
       filePositionCounter += 1
     }
     ParsingUtils.splitOnTag(
@@ -202,7 +202,7 @@ class BuildCorpusIndex(config: Config) extends Logging {
 
   def segmentFile(file: File, codec: Codec, documentFormat: String): Iterator[String] = {
     documentFormat match {
-      case "plain text" => segmentPlainTextFile(file, codec)
+      case "plain text" | "question-answer" | "term-definition" => segmentPlainTextFile(file, codec)
       case "barrons" => getSegmentsFromDocument(new BarronsDocumentReader(file, codec).read())
       case "simple wikipedia" => segmentWikipediaFile(file, codec)
       case "waterloo" => throw new IllegalStateException("you shouldn't have gotten here")
@@ -238,21 +238,58 @@ class BuildCorpusIndex(config: Config) extends Logging {
 
   /** Index a single segment into elasticsearch.
     * @param segment to be indexed
+    * @param documentFormat also describes the format of the segment
     * @param source name of source for reference
     * @param segmentIndex index of segment in file (for deduplication)
     * @param bulkProcessor to communicate with the elasticsearch instance
     */
   def addSegmentToIndex(
     segment: String,
+    documentFormat: String,
     source: String,
     segmentIndex: Int,
     bulkProcessor: BulkProcessor
   ): Unit = {
-    val request = new IndexRequest(indexName, indexType).source(jsonBuilder().startObject()
-      .field("text", segment.trim)
-      .field("source", source + "_" + segmentIndex.toString)
-      .endObject())
-    bulkProcessor.add(request)
+    // Helper Function
+    def breakQAline(line: String): Option[(String, String)] = {
+      line.split(""":\|:""") match {
+        case Array(lhs, rhs, _*) if (!lhs.trim.isEmpty() && !rhs.trim.isEmpty()) =>
+          Some((lhs.trim, rhs.trim))
+        case _ => None
+      }
+    }
+
+    val requestOption = documentFormat match {
+      case "question-answer" =>
+        breakQAline(segment.trim) match {
+          case Some((lhs, rhs)) =>
+            Some(new IndexRequest(indexName, indexType).source(jsonBuilder().startObject()
+              .field("question", lhs)
+              .field("answer", rhs)
+              .field("source", source + "_" + segmentIndex.toString)
+              .endObject()))
+          case _ => None
+        }
+      case "term-definition" =>
+        breakQAline(segment.trim) match {
+          case Some((lhs, rhs)) =>
+            Some(new IndexRequest(indexName, indexType).source(jsonBuilder().startObject()
+              .field("term", lhs)
+              .field("definition", rhs)
+              .field("source", source + "_" + segmentIndex.toString)
+              .endObject()))
+          case _ => None
+        }
+      case _ =>
+        Some(new IndexRequest(indexName, indexType).source(jsonBuilder().startObject()
+          .field("text", segment.trim)
+          .field("source", source + "_" + segmentIndex.toString)
+          .endObject()))
+    }
+    requestOption match {
+      case Some(request) => bulkProcessor.add(request)
+      case _ =>
+    }
   }
 
   /** Take the config for a corpus, resolve paths, and return a simple object containing information
