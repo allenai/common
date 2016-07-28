@@ -35,7 +35,7 @@ object JsonQueryCache {
   * part of the cache key (prepended to the actual query)
   * @param pool the JedisPool that the client should use to serve requests
   */
-class JsonQueryCache[V: JsonFormat] private[cache] (clientPrefix: String, pool: JedisPool) {
+class JsonQueryCache[V: JsonFormat] protected[cache] (clientPrefix: String, pool: JedisPool) {
 
   /** @return the cache key for the query, with client prefix prepended */
   protected def keyForQuery(query: String): String = s"${clientPrefix}_$query"
