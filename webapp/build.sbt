@@ -4,6 +4,7 @@ name := "common-webapp"
 
 libraryDependencies ++= Seq(
   akkaActor,
+  okHttp,
   sprayClient,
   sprayJson,
   sprayRouting,
@@ -18,4 +19,3 @@ dependencyOverrides ++= Set(
   scalaCheck,
   scalaReflection(defaultScalaVersion)
 )
-
