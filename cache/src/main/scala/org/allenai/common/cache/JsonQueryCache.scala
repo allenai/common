@@ -79,5 +79,14 @@ class JsonQueryCache[V: JsonFormat] protected[cache] (clientPrefix: String, pool
       }
     }
   }
+
+  /** Returns all the keys matching the glob-style pattern as space separated strings. The time complexity is O(n),
+    * with n being the number of keys in the DB, and assuming keys and pattern.
+    * of limited length)
+    * @param pattern Glob style pattern; examples are "h*llo", "h?llo", h[ea]llo
+    */
+  def keys(pattern: String): Unit = withResource[Unit] { client: Jedis =>
+    client.keys(keyForQuery(pattern))
+  }
 }
 
