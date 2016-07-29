@@ -216,9 +216,6 @@ class BuildCorpusIndex(config: Config) extends Logging {
   }
 
   def segmentPlainTextFile(file: File, codec: Codec): Iterator[String] = {
-    if (indexType != "sentence") {
-      throw new IllegalStateException("plain text can only be segmented into sentences")
-    }
     val bufSource = Source.fromFile(file, 8192)(codec)
     val lines = bufSource.getLines
     (lines flatMap { defaultSegmenter.segmentTexts })
@@ -252,9 +249,9 @@ class BuildCorpusIndex(config: Config) extends Logging {
   ): Unit = {
     // Helper Function
     def breakQAline(line: String): Option[(String, String)] = {
-      line.split(""":\|:""") match {
-        case Array(lhs, rhs, _*) if (!lhs.trim.isEmpty() && !rhs.trim.isEmpty()) =>
-          Some((lhs.trim, rhs.trim))
+      line.split(""":\|:""").map(_.trim) match {
+        case Array(lhs, rhs, _*) if (!lhs.isEmpty() && !rhs.isEmpty()) =>
+          Some((lhs, rhs))
         case _ => None
       }
     }
