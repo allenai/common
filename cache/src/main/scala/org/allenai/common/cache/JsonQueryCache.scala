@@ -5,6 +5,7 @@ import org.allenai.common.Config._
 import com.typesafe.config.Config
 import redis.clients.jedis.{ Jedis, JedisPool, JedisPoolConfig, Protocol }
 import spray.json._
+import scala.collection.JavaConverters._
 
 object JsonQueryCache {
   /** Factory method for creating a cache instance from config.
@@ -85,8 +86,8 @@ class JsonQueryCache[V: JsonFormat] protected[cache] (clientPrefix: String, pool
     * of limited length)
     * @param pattern Glob style pattern; examples are "h*llo", "h?llo", h[ea]llo
     */
-  def keys(pattern: String): Unit = withResource[Unit] { client: Jedis =>
-    client.keys(keyForQuery(pattern))
+  def keys(pattern: String): Iterable[String] = withResource[Iterable[String]] { client: Jedis =>
+    client.keys(keyForQuery(pattern)).asScala
   }
 }
 
