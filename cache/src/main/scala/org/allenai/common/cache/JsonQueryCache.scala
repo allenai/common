@@ -21,11 +21,21 @@ object JsonQueryCache {
     val port: Int = config.get[Int]("port") getOrElse Protocol.DEFAULT_PORT
     val timeoutMillis: Int = config.get[Int]("timeoutMillis") getOrElse Protocol.DEFAULT_TIMEOUT
 
+    apply[V](hostname, clientPrefix, port, timeoutMillis)
+  }
+
+  def apply[V](
+    hostname: String,
+    clientPrefix: String,
+    port: Int = Protocol.DEFAULT_PORT,
+    timeoutMillis: Int = Protocol.DEFAULT_TIMEOUT
+  ): JsonQueryCache[V] = {
     new JsonQueryCache[V](
       clientPrefix,
       new JedisPool(new JedisPoolConfig, hostname, port, timeoutMillis)
     )
   }
+
 }
 
 /** Class holding a Redis cache of query results. This is meant to store any value `T` where
