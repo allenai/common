@@ -29,7 +29,7 @@ object JsonQueryCache {
     clientPrefix: String,
     port: Int = Protocol.DEFAULT_PORT,
     timeoutMillis: Int = Protocol.DEFAULT_TIMEOUT
-  ): JsonQueryCache[V] = {
+  )(implicit jsonFormat: JsonFormat[V]): JsonQueryCache[V] = {
     new JsonQueryCache[V](
       clientPrefix,
       new JedisPool(new JedisPoolConfig, hostname, port, timeoutMillis)
