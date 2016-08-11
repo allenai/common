@@ -21,7 +21,7 @@ object JsonQueryCache {
     val port: Int = config.get[Int]("port") getOrElse Protocol.DEFAULT_PORT
     val timeoutMillis: Int = config.get[Int]("timeoutMillis") getOrElse Protocol.DEFAULT_TIMEOUT
 
-    apply[V](hostname, clientPrefix, port, timeoutMillis)
+    apply[V](clientPrefix, hostname, port, timeoutMillis)
   }
 
   def apply[V](
