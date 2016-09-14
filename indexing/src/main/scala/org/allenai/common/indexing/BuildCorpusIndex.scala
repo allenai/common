@@ -23,6 +23,8 @@ import scala.collection.JavaConverters._
 import scala.util.{ Failure, Success }
 import java.io.File
 import java.nio.file.{ Files, Path, Paths }
+import java.text.SimpleDateFormat
+import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 /** CLI to build an Elastic Search index on Aristo corpora.
@@ -36,7 +38,13 @@ class BuildCorpusIndex(config: Config) extends Logging {
 
   /** Get Index Name and Index Type. */
   val esConfig: Config = config[Config]("elasticSearch")
-  val indexName: String = esConfig[String]("indexName")
+  val indexName: String = {
+    // The index name must be appended with the current date.
+    val name = esConfig[String]("indexName")
+    val dateFormat = new SimpleDateFormat("yyyy-MM-dd")
+    name + "-" + dateFormat.format(Calendar.getInstance().getTime())
+  }
+
   val indexType: String = esConfig[String]("indexType")
 
   val buildFromScratch = config.get[Boolean]("buildIndexOptions.buildFromScratch").getOrElse(true)
