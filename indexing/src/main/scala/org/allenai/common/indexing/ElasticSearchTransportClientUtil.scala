@@ -31,7 +31,7 @@ object ElasticSearchTransportClientUtil extends Logging {
       .put("sniffOnConnectionFault", sniffMode)
       .build()
     val address = new InetSocketTransportAddress(
-      new InetSocketAddress(esConfig.getString("hostIp"), esConfig.getInt("hostPort"))
+      new InetSocketAddress(esConfig.getString("hostAddress"), esConfig.getInt("hostPort"))
     )
 
     logger.debug(s"Created Elastic Search Client in cluster ${esConfig.getString("clusterName")}")
