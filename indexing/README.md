@@ -11,18 +11,17 @@ Once you have ElasticSearch, go to the `bin` directory and run: `./elasticsearch
 Configurations are of the form:
 
 ```
-org.allenai.common.indexing.[NAME_OF_INDEX] 
+org.allenai.common.indexing.[NAME_OF_INDEX]
 
       elasticSearch {
         clusterName: [CLUSTER_NAME]
-        hostIp: "127.0.0.1"
-        hostPort: 9300
-        indexName:[NAME_OF_INDEX]
+        hostAddress: "127.0.0.1"
+        indexName: [NAME_OF_INDEX]
         indexType: "sentence"
-    
+
         mapping = ${org.allenai.common.indexing.standardMapping}
       }
-    
+
       buildIndexOptions {
         // If set to true will throw an exception if the index already exists
         // NOTE: if set to false, and a document already exists in the index, will create a duplicate document
@@ -31,7 +30,7 @@ org.allenai.common.indexing.[NAME_OF_INDEX]
         // specifies where to dump serialized failed bulk index requests
         dumpFolder: "[PATH_TO_DUMP]"
       }
-    
+
         // Template list of corpora
       corpora: [
         {
@@ -86,4 +85,3 @@ Without Config Overrides:
 ```
 sbt "indexing/runMain org.allenai.common.indexing.BuildCorpusIndexRunner --index-name barrons"
 ```
-
