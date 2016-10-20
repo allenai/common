@@ -210,7 +210,8 @@ class BuildCorpusIndex(config: Config) extends Logging {
 
   def segmentFile(file: File, codec: Codec, documentFormat: String): Iterator[String] = {
     documentFormat match {
-      case "plain text" | "question-answer" | "term-definition" => segmentPlainTextFile(file, codec)
+      case "plain text" => segmentPlainTextFile(file, codec)
+      case "sentence per line" | "question-answer" | "term-definition" => getFileLines(file, codec)
       case "barrons" => getSegmentsFromDocument(new BarronsDocumentReader(file, codec).read())
       case "simple wikipedia" => segmentWikipediaFile(file, codec)
       case "waterloo" => throw new IllegalStateException("you shouldn't have gotten here")
@@ -223,10 +224,13 @@ class BuildCorpusIndex(config: Config) extends Logging {
     segments.map(_.getTextSegments.mkString(" ")).iterator
   }
 
-  def segmentPlainTextFile(file: File, codec: Codec): Iterator[String] = {
+  def getFileLines(file: File, codec: Codec): Iterator[String] = {
     val bufSource = Source.fromFile(file, 8192)(codec)
-    val lines = bufSource.getLines
-    (lines flatMap { defaultSegmenter.segmentTexts })
+    bufSource.getLines
+  }
+
+  def segmentPlainTextFile(file: File, codec: Codec): Iterator[String] = {
+    (getFileLines(file, codec) flatMap { defaultSegmenter.segmentTexts })
   }
 
   def segmentWikipediaFile(file: File, codec: Codec): Iterator[String] = {
