@@ -22,44 +22,60 @@ case class BingResult(
 class BingClient(apiKey: String) {
   import scala.concurrent.ExecutionContext.Implicits.global
 
-  val credentials = okhttp3.Credentials.basic(apiKey, apiKey)
   val client = new OkHttpClient()
 
   def closeConnection() = {
     val req = new Request.Builder()
-      .url("https://api.datamarket.azure.com")
+      .url("https://api.cognitive.microsoft.com")
       .header("Connection", "close")
       .get()
       .build();
     client.newCall(req).execute()
   }
 
+  /** The new v5 Bing API returns URLs as bing redirects, with the original url in the query
+    * string as the r= parameter. This extracts that parameter.
+    *
+    * @param redirectUrl the Bing redirect url
+    * @return the original url
+    */
+  def extractUrlFromBingRedirect(redirectUrl: String): Option[String] = {
+    new java.net.URI(redirectUrl)
+      .getQuery()
+      .split('&')
+      // Find the query param that looks like r=....
+      .flatMap("(?s)^r=(.*)$".r.findFirstMatchIn)
+      // There should be exactly one, but use .headOption to be safe
+      .headOption
+      .map(_.group(1))
+  }
+
   /** Synchronously issues a query to the Bing API.
     * @param query what to search for
-    * @param sourceType The type of result to search for, defaults to `Web`. For valid values, see
-    * (https://msdn.microsoft.com/en-us/library/dd250895.aspx).
+    * @param responseFilter ...
     * @param top number of desired results, defaults to 10
     * @return all valid results as a sequence
     */
-  def query(query: String, sourceType: String = "Web", top: Int = 10): Seq[BingResult] = {
+  def query(query: String, responseFilter: String = "webpages", top: Int = 10): Seq[BingResult] = {
     // Create the URI representing the query
     val encodedQuery = "%27" + URLEncoder.encode(query, "UTF-8") + "%27"
-    val baseUrl = "https://api.datamarket.azure.com/Bing/SearchWeb/" + sourceType
-    val uri = baseUrl + "?Query=" + encodedQuery + "&$top=" + top.toString + "&$format=json"
+    val filter = if (responseFilter.isEmpty) "" else s"&responseFilter=${responseFilter}"
+
+    val uri = s"https://api.cognitive.microsoft.com/bing/v5.0/search?q=${encodedQuery}${filter}"
 
     val request = new Request.Builder()
       .url(uri)
-      .header("Authorization", credentials)
+      .header("Ocp-Apim-Subscription-Key", apiKey)
       .build()
 
     val response = client.newCall(request).execute()
     val rawData = response.body.string
     val json = JsonParser(rawData).asJsObject
 
-    // The results we want are an array at json["d"]["results"].
+    // The results we want are an array at json["webPages"]["value"].
     val rawResults = json
-      .getFields("d").head.asJsObject
-      .getFields("results").head.asInstanceOf[JsArray]
+      .getFields("webPages").head.asJsObject
+      .getFields("value").head.asInstanceOf[JsArray]
 
     // Extract the results from the JsArray and map them to our case class.
     rawResults match {
@@ -67,10 +83,11 @@ class BingClient(apiKey: String) {
         case (jsValue, pos) =>
           val jsMap = jsValue.asJsObject.fields
           for {
-            id <- getString("ID", jsMap)
-            url <- getString("Url", jsMap)
-            title <- getString("Title", jsMap)
-            description <- getString("Description", jsMap)
+            id <- getString("id", jsMap)
+            redirectUrl <- getString("url", jsMap)
+            url = extractUrlFromBingRedirect(redirectUrl).getOrElse(redirectUrl)
+            title <- getString("name", jsMap)
+            description <- getString("snippet", jsMap)
           } yield BingResult(query, pos, id, url, title, description)
       }
     }
