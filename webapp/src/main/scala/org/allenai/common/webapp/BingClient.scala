@@ -62,7 +62,7 @@ class BingClient(apiKey: String) {
     val filter = if (responseFilter.isEmpty) "" else s"&responseFilter=${responseFilter}"
 
     val uri = s"https://api.cognitive.microsoft.com/bing/v5.0/" +
-        s"search?q=${encodedQuery}&count=${top}${filter}"
+      s"search?q=${encodedQuery}&count=${top}${filter}"
 
     val request = new Request.Builder()
       .url(uri)
