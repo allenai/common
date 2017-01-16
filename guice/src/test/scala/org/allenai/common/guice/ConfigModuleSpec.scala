@@ -40,8 +40,15 @@ case class PrefixClass @Inject() (
   // This string has a default value in the module.conf file.
   @Named("prefix.hasDefault") hasDefault: String,
   @Named("prefix.boolbool") boolean: Boolean,
+  @Named("prefix.nested.bool") nestedBool: Boolean,
   // This doesn't begin with the right prefix, so it shouldn't get a binding.
   @Named("ignored_no_prefix") bar: Int
+)
+
+// Test class with dotted keys.
+case class DottedKeys @Inject() (
+  @Named("\"i.have\".dots") dots: String,
+  @Named("\"i.have.more.dots\".bar") bar: Int
 )
 
 class ConfigModuleSpec extends UnitSpec {
@@ -142,6 +149,7 @@ class ConfigModuleSpec extends UnitSpec {
       hasDefault = "default"
       fooString = "Foo"
       boolbool = true
+      nested.bool = true
       ignored_no_prefix = "Should be ignored"
       """)
     val testModule = new ConfigModule(testConfig) {
@@ -156,7 +164,7 @@ class ConfigModuleSpec extends UnitSpec {
     val instance = injector.getInstance(classOf[PrefixClass])
 
     // Verify bindings.
-    instance should be(PrefixClass("Foo", "default", true, 33))
+    instance should be(PrefixClass("Foo", "default", true, true, 33))
   }
 
   it should "bind Option values" in {
@@ -200,5 +208,19 @@ class ConfigModuleSpec extends UnitSpec {
     instance.root.getString("nested.string") should be("nested string")
     instance.root.getString("string") should be("root string")
     instance.nested.getString("string") should be("nested string")
+  }
+
+  it should "handle keys containing dots" in {
+    val testConfig = ConfigFactory.parseString("""
+      "i.have".dots = "foo"
+      "i.have.more.dots" = {
+        bar = 123
+      }
+      """)
+    val testModule = new ConfigModule(testConfig)
+
+    val injector = Guice.createInjector(testModule)
+
+    val instance = injector.getInstance(classOf[DottedKeys])
   }
 }

@@ -156,7 +156,7 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
         case ConfigValueType.OBJECT =>
           bindConfigKey[Config](fullPath)
           // Recurse.
-          bindConfigObject(config.toConfig()[Config](key).root, fullPathElements)
+          bindConfigObject(config.toConfig()[Config](ConfigUtil.quoteString(key)).root, fullPathElements)
         case other =>
           // Shouldn't happen - but warn if it does.
           logger.warn(s"Unhandled config value type [$other] for key $key")
