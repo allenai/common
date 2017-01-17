@@ -155,33 +155,34 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
         case ConfigValueType.LIST =>
           // Figure out the list subtype. Note that there is no API call to handle this, so we try
           // methods in serial until one succeeds.
-          val methods: Seq[Unit => Unit] = Seq(
-            _ => {
+          val methods: Seq[() => Unit] = Seq(
+            () => {
               fullConfig.apply[Seq[Config]](key)
               bindConfigKey[Seq[Config]](key)
             },
-            _ => {
+            () => {
               // Scala compiles a type in a constructor of Seq[Double] to Seq[Object], meaning we
               // need to bind as Seq[Object] in order for Guice to work.
               val value = fullConfig[Seq[Double]](key).asInstanceOf[Seq[Object]]
               bind[Seq[Object]].annotatedWithName(key).toInstance(value)
               bind[Option[Seq[Object]]].annotatedWithName(key).toInstance(Some(value))
             },
-            _ => {
+            () => {
               val value = fullConfig.apply[Seq[Boolean]](key).asInstanceOf[Seq[Object]]
               bind[Seq[Object]].annotatedWithName(key).toInstance(value)
               bind[Option[Seq[Object]]].annotatedWithName(key).toInstance(Some(value))
             },
-            _ => {
+            () => {
               // All values will parse as strings, which is odd, so this is last.
               fullConfig.apply[Seq[String]](key)
               bindConfigKey[Seq[String]](key)
             }
           )
           // Lazily apply the first method that works.
-          val success = methods.iterator.map(method => Try(method(key))).exists(_.isSuccess)
+          val success = methods.iterator.map(method => Try(method())).exists(_.isSuccess)
           if (!success) {
-            addError(s"Could not find list type for key '$key' in in ${getClass.getSimpleName}")
+            logger.warn(s"Could not find list type for key '$key' in in " +
+              s"${getClass.getSimpleName}. No value will be bound to '$key'.")
           }
         case ConfigValueType.OBJECT =>
           bindConfigKey[Config](fullPath)
