@@ -15,6 +15,7 @@ import com.typesafe.config.{
 import net.codingwell.scalaguice.ScalaModule
 
 import scala.collection.JavaConverters._
+import scala.util.Try
 
 /** Parent class for modules which use a typesafe config for values. This automatically binds all
   * configuration values within a given Config instance, along with defaults from an optional
@@ -152,7 +153,37 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
         case ConfigValueType.STRING =>
           bindConfigKey[String](fullPath)
         case ConfigValueType.LIST =>
-          bindConfigKey[Seq[Config]](fullPath)
+          // Figure out the list subtype. Note that there is no API call to handle this, so we try
+          // methods in serial until one succeeds.
+          val methods: Seq[() => Unit] = Seq(
+            () => {
+              fullConfig.apply[Seq[Config]](key)
+              bindConfigKey[Seq[Config]](key)
+            },
+            () => {
+              // Scala compiles a type in a constructor of Seq[Double] to Seq[Object], meaning we
+              // need to bind as Seq[Object] in order for Guice to work.
+              val value = fullConfig[Seq[Double]](key).asInstanceOf[Seq[Object]]
+              bind[Seq[Object]].annotatedWithName(key).toInstance(value)
+              bind[Option[Seq[Object]]].annotatedWithName(key).toInstance(Some(value))
+            },
+            () => {
+              val value = fullConfig.apply[Seq[Boolean]](key).asInstanceOf[Seq[Object]]
+              bind[Seq[Object]].annotatedWithName(key).toInstance(value)
+              bind[Option[Seq[Object]]].annotatedWithName(key).toInstance(Some(value))
+            },
+            () => {
+              // All values will parse as strings, which is odd, so this is last.
+              fullConfig.apply[Seq[String]](key)
+              bindConfigKey[Seq[String]](key)
+            }
+          )
+          // Lazily apply the first method that works.
+          val success = methods.iterator.map(method => Try(method())).exists(_.isSuccess)
+          if (!success) {
+            logger.warn(s"Could not find list type for key '$key' in in " +
+              s"${getClass.getSimpleName}. No value will be bound to '$key'.")
+          }
         case ConfigValueType.OBJECT =>
           bindConfigKey[Config](fullPath)
           // Recurse.
@@ -176,6 +207,8 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
     bind[Option[Double]].annotatedWith(classOf[Named]).toInstance(None)
     bind[Option[Config]].annotatedWith(classOf[Named]).toInstance(None)
     bind[Option[Seq[Config]]].annotatedWith(classOf[Named]).toInstance(None)
+    bind[Option[Seq[String]]].annotatedWith(classOf[Named]).toInstance(None)
+    bind[Option[Seq[Object]]].annotatedWith(classOf[Named]).toInstance(None)
     bind[Option[String]].annotatedWith(classOf[Named]).toInstance(None)
   }
 }
