@@ -51,6 +51,14 @@ case class DottedKeys @Inject() (
   @Named("\"i.have.more.dots\".bar") bar: Int
 )
 
+// Test class with Seq values.
+case class SeqValues @Inject() (
+  @Named("seqOfConfig") configs: Seq[Config],
+  @Named("seqOfString") strings: Seq[String],
+  @Named("seqOfBool") booleans: Seq[Boolean],
+  @Named("seqOfDouble") doubles: Seq[Double]
+)
+
 class ConfigModuleSpec extends UnitSpec {
   "bindConfig" should "bind config values to appropriate @Named bindings" in {
     // Config with an entry for all of the bindable values except the one with a default.
@@ -222,5 +230,22 @@ class ConfigModuleSpec extends UnitSpec {
     val injector = Guice.createInjector(testModule)
 
     val instance = injector.getInstance(classOf[DottedKeys])
+  }
+
+  it should "handle sequences" in {
+    val testConfig = ConfigFactory.parseString("""
+      seqOfConfig = [ {a: "a"}, {b: "b"} ]
+      seqOfString = [ "foo", "bar" ]
+      seqOfBool = [ true, false, true ]
+      seqOfDouble = [ 1, 2 ]
+      """)
+    val testModule = new ConfigModule(testConfig)
+
+    val injector = Guice.createInjector(testModule)
+
+    val instance = injector.getInstance(classOf[SeqValues])
+    instance.strings shouldBe Seq("foo", "bar")
+    instance.booleans shouldBe Seq(true, false, true)
+    instance.doubles shouldBe Seq(1.0, 2.0)
   }
 }
