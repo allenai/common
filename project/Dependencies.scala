@@ -21,7 +21,7 @@ object Dependencies extends CoreDependencies {
 
   val mockJedis = "com.fiftyonred" % "mock-jedis" % "0.4.0"
 
-  def nlpstack(component: String) = ("org.allenai.nlpstack" % s"nlpstack-${component}_2.11" % "1.6")
+  def nlpstack(component: String) = ("org.allenai.nlpstack" %% s"nlpstack-${component}" % "1.6")
     .exclude("commons-logging", "commons-logging")
 
   val okHttp = "com.squareup.okhttp3" % "okhttp" % "3.4.1"
