@@ -40,8 +40,24 @@ class EnumSpec extends UnitSpec {
     }
   }
 
-  "Java serialization" should "work" in {
+  "Java serialization" should "work with no constructor argument" in {
     FakeEnum.all foreach { enum =>
+      val tmp = Files.createTempFile(enum.id, "dat")
+      val tmpFile = tmp.toFile()
+      tmpFile.deleteOnExit()
+      Resource.using(new ObjectOutputStream(new FileOutputStream(tmpFile))) { os =>
+        os.writeObject(enum)
+      }
+      val obj = Resource.using(new ObjectInputStream(new FileInputStream(tmpFile))) { is =>
+        is.readObject()
+      }
+      obj should equal(enum)
+      tmpFile.delete()
+    }
+  }
+
+  it should "work with a constructor argument" in {
+    FakeEnumWithId.all foreach { enum =>
       val tmp = Files.createTempFile(enum.id, "dat")
       val tmpFile = tmp.toFile()
       tmpFile.deleteOnExit()
@@ -64,5 +80,15 @@ object FakeEnum extends EnumCompanion[FakeEnum] {
   case object Value1 extends FakeEnum
   case object Value2 extends FakeEnum
   case object Value3 extends FakeEnum
+  register(Value1, Value2, Value3)
+}
+
+// Test enum. Must be defined outside of spec otherwise serialization tests will
+// fail due to scalatest WordSpec not being serializable.
+sealed abstract class FakeEnumWithId(override val id: String) extends Enum[FakeEnumWithId]
+object FakeEnumWithId extends EnumCompanion[FakeEnumWithId] {
+  case object Value1 extends FakeEnumWithId("one")
+  case object Value2 extends FakeEnumWithId("two")
+  case object Value3 extends FakeEnumWithId("three")
   register(Value1, Value2, Value3)
 }
