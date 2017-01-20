@@ -40,6 +40,22 @@ class EnumSpec extends UnitSpec {
     }
   }
 
+  "Java serialization" should "work with no constructor argument" in {
+    FakeEnum.all foreach { enum =>
+      val tmp = Files.createTempFile(enum.id, "dat")
+      val tmpFile = tmp.toFile()
+      tmpFile.deleteOnExit()
+      Resource.using(new ObjectOutputStream(new FileOutputStream(tmpFile))) { os =>
+        os.writeObject(enum)
+      }
+      val obj = Resource.using(new ObjectInputStream(new FileInputStream(tmpFile))) { is =>
+        is.readObject()
+      }
+      obj should equal(enum)
+      tmpFile.delete()
+    }
+  }
+
   it should "work with a constructor argument" in {
     FakeEnumWithId.all foreach { enum =>
       val tmp = Files.createTempFile(enum.id, "dat")
