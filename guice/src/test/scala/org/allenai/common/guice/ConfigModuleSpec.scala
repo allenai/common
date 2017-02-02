@@ -53,10 +53,10 @@ case class DottedKeys @Inject() (
 
 // Test class with Seq values.
 case class SeqValues @Inject() (
-  @Named("seqOfConfig") configs: Seq[Config],
-  @Named("seqOfString") strings: Seq[String],
-  @Named("seqOfBool") booleans: Seq[Boolean],
-  @Named("seqOfDouble") doubles: Seq[Double]
+  @Named("seq.ofConfig") configs: Seq[Config],
+  @Named("seq.ofString") strings: Seq[String],
+  @Named("seq.ofBool") booleans: Seq[Boolean],
+  @Named("seq.ofDouble") doubles: Seq[Double]
 )
 
 class ConfigModuleSpec extends UnitSpec {
@@ -234,10 +234,10 @@ class ConfigModuleSpec extends UnitSpec {
 
   it should "handle sequences" in {
     val testConfig = ConfigFactory.parseString("""
-      seqOfConfig = [ {a: "a"}, {b: "b"} ]
-      seqOfString = [ "foo", "bar" ]
-      seqOfBool = [ true, false, true ]
-      seqOfDouble = [ 1, 2 ]
+      seq.ofConfig = [ {a: "a"}, {b: "b"} ]
+      seq.ofString = [ "foo", "bar" ]
+      seq.ofBool = [ true, false, true ]
+      seq.ofDouble = [ 1, 2 ]
       """)
     val testModule = new ConfigModule(testConfig)
 

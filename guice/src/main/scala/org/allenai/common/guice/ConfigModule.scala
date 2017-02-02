@@ -157,32 +157,32 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
           // methods in serial until one succeeds.
           val methods: Seq[() => Unit] = Seq(
             () => {
-              fullConfig.apply[Seq[Config]](key)
-              bindConfigKey[Seq[Config]](key)
+              fullConfig.apply[Seq[Config]](fullPath)
+              bindConfigKey[Seq[Config]](fullPath)
             },
             () => {
               // Scala compiles a type in a constructor of Seq[Double] to Seq[Object], meaning we
               // need to bind as Seq[Object] in order for Guice to work.
-              val value = fullConfig[Seq[Double]](key).asInstanceOf[Seq[Object]]
-              bind[Seq[Object]].annotatedWithName(key).toInstance(value)
-              bind[Option[Seq[Object]]].annotatedWithName(key).toInstance(Some(value))
+              val value = fullConfig[Seq[Double]](fullPath).asInstanceOf[Seq[Object]]
+              bind[Seq[Object]].annotatedWithName(fullPath).toInstance(value)
+              bind[Option[Seq[Object]]].annotatedWithName(fullPath).toInstance(Some(value))
             },
             () => {
-              val value = fullConfig.apply[Seq[Boolean]](key).asInstanceOf[Seq[Object]]
-              bind[Seq[Object]].annotatedWithName(key).toInstance(value)
-              bind[Option[Seq[Object]]].annotatedWithName(key).toInstance(Some(value))
+              val value = fullConfig.apply[Seq[Boolean]](fullPath).asInstanceOf[Seq[Object]]
+              bind[Seq[Object]].annotatedWithName(fullPath).toInstance(value)
+              bind[Option[Seq[Object]]].annotatedWithName(fullPath).toInstance(Some(value))
             },
             () => {
               // All values will parse as strings, which is odd, so this is last.
-              fullConfig.apply[Seq[String]](key)
-              bindConfigKey[Seq[String]](key)
+              fullConfig.apply[Seq[String]](fullPath)
+              bindConfigKey[Seq[String]](fullPath)
             }
           )
           // Lazily apply the first method that works.
           val success = methods.iterator.map(method => Try(method())).exists(_.isSuccess)
           if (!success) {
-            logger.warn(s"Could not find list type for key '$key' in in " +
-              s"${getClass.getSimpleName}. No value will be bound to '$key'.")
+            logger.warn(s"Could not find list type for key '$fullPath' in in " +
+              s"${getClass.getSimpleName}. No value will be bound to '$fullPath'.")
           }
         case ConfigValueType.OBJECT =>
           bindConfigKey[Config](fullPath)
@@ -190,7 +190,7 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
           bindConfigObject(config.toConfig()[Config](ConfigUtil.quoteString(key)).root, fullPathElements)
         case other =>
           // Shouldn't happen - but warn if it does.
-          logger.warn(s"Unhandled config value type [$other] for key $key")
+          logger.warn(s"Unhandled config value type [$other] for key $fullPath")
       }
     }
   }
