@@ -25,6 +25,7 @@ trait Directives {
       } map { goodOrigin =>
         respondWithHeaders(
           Headers.AccessControlAllowHeadersAll,
+          Headers.AccessControlAllowMethodsAll,
           HttpHeaders.`Access-Control-Allow-Origin`(SomeOrigins(Seq(goodOrigin)))
         ) {
             options {
