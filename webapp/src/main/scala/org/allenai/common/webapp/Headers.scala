@@ -1,6 +1,6 @@
 package org.allenai.common.webapp
 
-import spray.http.{HttpHeaders, HttpMethods}
+import spray.http.{ HttpHeaders, HttpMethods }
 
 /** Helpers for setting HTTP headers. */
 object Headers {
@@ -8,7 +8,17 @@ object Headers {
   val AccessControlAllowHeadersAll = HttpHeaders.`Access-Control-Allow-Headers`(
     Seq("Origin", "X-Requested-With", "Content-Type", "Accept")
   )
-  val AccessControlAllowMethodsCommon = HttpHeaders.`Access-Control-Allow-Methods`(
-    Seq(HttpMethods.GET, HttpMethods.POST, HttpMethods.PUT, HttpMethods.DELETE)
+  val AccessControlAllowMethodsAll = HttpHeaders.`Access-Control-Allow-Methods`(
+    Seq(
+      HttpMethods.CONNECT,
+      HttpMethods.DELETE,
+      HttpMethods.GET,
+      HttpMethods.HEAD,
+      HttpMethods.OPTIONS,
+      HttpMethods.PATCH,
+      HttpMethods.POST,
+      HttpMethods.PUT,
+      HttpMethods.TRACE
+    )
   )
 }
