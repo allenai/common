@@ -12,10 +12,6 @@ libraryDependencies ++= Seq(
   sprayTestkit % Test
 )
 
-dependencyOverrides ++= Set(
-  // Override needed because spray testkit declares dependency on an older version of akka
-  akkaTestkit,
-  pegdown,
-  scalaCheck,
-  scalaReflection(defaultScalaVersion)
-)
+dependencyOverrides += akkaTestkit
+dependencyOverrides += pegdown
+dependencyOverrides += scalaCheck
