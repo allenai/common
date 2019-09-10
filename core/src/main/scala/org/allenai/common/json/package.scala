@@ -39,7 +39,9 @@ package object json {
       * @param packedFormats
       */
     def unpackOptWith[T](packedFormats: PackedJsonFormat[_ <: T] *): Option[T] = {
-      val unpacks: Seq[PartialFunction[JsValue, T]] = packedFormats map (_.unpack)
+      val unpacks: Seq[PartialFunction[JsValue, T]] = packedFormats
+          .map(_.asInstanceOf[PackedJsonFormat[T]])
+          .map(_.unpack)
       val combinedUnpack = unpacks reduce (_ orElse _)
       combinedUnpack.lift(jsObj)
     }
