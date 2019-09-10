@@ -81,7 +81,7 @@ class ParIteratorSpec extends UnitSpec {
     val values = Range(0, max).reverse
     val iter = values.toIterator
     val expected = values.map { i => s"$i" }
-    val time = Timing.time {
+    val time: Duration = Timing.time {
       val result = iter.parMap { i =>
         Thread.sleep(i * 100)
         s"$i"
@@ -89,7 +89,8 @@ class ParIteratorSpec extends UnitSpec {
       assert(expected === result.toSeq)
     }
 
-    assert(time < ((max * 100) millis) + (50 millis))
+    val limit: Duration = ((max * 100) millis) + (50 millis)
+    assert(time < limit)
   }
 
   it should "map lots of things concurrently" in {
