@@ -3,26 +3,37 @@ import Dependencies._
 lazy val scala211 = "2.11.12"
 lazy val scala212 = "2.12.9"
 lazy val scala213 = "2.13.0"
-lazy val supportedScalaVersions = List(scala211)
+lazy val supportedScalaVersions = List(scala212, scala211)
 
 ThisBuild / organization := "org.allenai.common"
-ThisBuild / version      := "1.4.11-SNAPSHOT"
-ThisBuild / scalaVersion := scala211
+ThisBuild / version      := "2.0.0-SNAPSHOT"
+ThisBuild / scalaVersion := scala213
 
 lazy val common = (project in file("."))
     .aggregate(cache,
       core,
       guice,
-      indexing,
-      testkit,
-      webapp)
+      testkit)
     .settings(
       crossScalaVersions := Nil,
       publish / skip := true,
       buildSettings
     )
 
+lazy val spray = "spray" at "http://repo.spray.io/"
+lazy val typesafeReleases = "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
+
+lazy val projectSettings = Seq(
+  fork := true,
+  javaOptions += s"-Dlogback.appname=${name.value}",
+  scalacOptions ++= Seq("-target:jvm-1.8", "-Xlint", "-deprecation", "-feature"),
+  javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+  resolvers ++= Seq(spray, Resolver.jcenterRepo, typesafeReleases),
+  dependencyOverrides ++= Logging.loggingDependencyOverrides
+)
+
 lazy val buildSettings = Seq(
+  crossScalaVersions := supportedScalaVersions,
   organization := "org.allenai.common",
   publishMavenStyle := true,
   publishArtifact in Test := false,
@@ -48,47 +59,16 @@ lazy val buildSettings = Seq(
 )
 
 lazy val cache = Project(id = "cache", base = file("cache"))
-    .settings(
-      crossScalaVersions := supportedScalaVersions,
-      buildSettings
-    )
+    .settings(buildSettings)
     .dependsOn(core, testkit % "test->compile")
 
 lazy val core = Project(id = "core", base = file("core"))
-    .settings(
-      crossScalaVersions := supportedScalaVersions,
-      buildSettings
-    )
+    .settings(buildSettings)
     .dependsOn(testkit % "test->compile")
 
 lazy val guice = Project(id = "guice", base = file("guice"))
-    .settings(
-      crossScalaVersions := supportedScalaVersions,
-      buildSettings
-    )
-    .dependsOn(core, testkit % "test->compile")
-
-lazy val indexing = Project(id = "indexing", base = file("indexing"))
-    .settings(
-      crossScalaVersions := supportedScalaVersions,
-      buildSettings
-    )
+    .settings(buildSettings)
     .dependsOn(core, testkit % "test->compile")
 
 lazy val testkit = Project(id = "testkit", base = file("testkit"))
-    .settings(
-      crossScalaVersions := supportedScalaVersions,
-      buildSettings
-    )
-
-lazy val webapp = Project(id = "webapp", base = file("webapp"))
-    .settings(
-      crossScalaVersions := supportedScalaVersions,
-      buildSettings,
-      libraryDependencies ++= Seq(
-        "org.scala-lang" % "scala-reflect" % scalaVersion.value
-      )
-    )
-    .dependsOn(core, testkit % "test->compile")
-
-
+    .settings(buildSettings)
