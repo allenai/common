@@ -2,7 +2,7 @@ import Dependencies._
 
 lazy val scala211 = "2.11.12"
 lazy val scala212 = "2.12.9"
-lazy val scala213 = "2.13.0"
+lazy val scala213 = "2.13.0" // Not supported yet (collections changes required)
 lazy val supportedScalaVersions = List(scala212, scala211)
 
 ThisBuild / organization := "org.allenai.common"
