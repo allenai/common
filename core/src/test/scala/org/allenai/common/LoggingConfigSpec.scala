@@ -44,10 +44,12 @@ class LoggingConfigSpec extends UnitSpec with Logging {
       )
       .setLevel(Level.INFO)
 
+    // Tags will be escaped for rendering inside table cell of HTML logger
     logger.info("<i>html</i>")
 
     assert(
-      Source.fromFile(path.toString).mkString.contains("<td class=\"Message\"><i>html</i></td>")
+      Source.fromFile(path.toString).mkString.contains(
+        "<td class=\"Message\">&lt;i&gt;html&lt;/i&gt;</td>")
     )
   }
 }
