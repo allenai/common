@@ -4,7 +4,7 @@ import org.allenai.common.testkit.UnitSpec
 
 import java.nio.ByteBuffer
 import java.nio.channels.FileChannel
-import java.nio.file.{Files, StandardOpenOption}
+import java.nio.file.{ Files, StandardOpenOption }
 
 import scala.io.Codec
 

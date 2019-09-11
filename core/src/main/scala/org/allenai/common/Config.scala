@@ -1,6 +1,6 @@
 package org.allenai.common
 
-import com.typesafe.config.{Config => TypesafeConfig, _}
+import com.typesafe.config.{ Config => TypesafeConfig, _ }
 import spray.json._
 
 import java.net.URI

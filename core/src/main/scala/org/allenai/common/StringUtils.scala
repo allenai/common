@@ -1,6 +1,6 @@
 package org.allenai.common
 
-import org.apache.commons.lang3.{StringUtils => ApacheStringUtils}
+import org.apache.commons.lang3.{ StringUtils => ApacheStringUtils }
 
 object StringUtils {
   val whiteSpaceRegex = """\s+""".r
@@ -327,7 +327,7 @@ object StringUtils {
     }
 
     def unescaped: String = {
-      import org.apache.commons.lang3.StringEscapeUtils.{unescapeHtml4, unescapeXml}
+      import org.apache.commons.lang3.StringEscapeUtils.{ unescapeHtml4, unescapeXml }
       unescapeHtml4(unescapeXml(str))
     }
   }

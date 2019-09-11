@@ -4,7 +4,7 @@ import spray.json._
 
 import scala.io.Source
 
-import java.io.{OutputStream, PrintWriter, Writer}
+import java.io.{ OutputStream, PrintWriter, Writer }
 
 /** Helpers for streaming lists of JSON objects to and from disk. */
 object JsonIo {

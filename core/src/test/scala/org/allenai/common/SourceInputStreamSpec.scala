@@ -3,7 +3,7 @@ package org.allenai.common
 import org.allenai.common.testkit.UnitSpec
 
 import scala.collection.mutable
-import scala.io.{Codec, Source}
+import scala.io.{ Codec, Source }
 
 class SourceInputStreamSpec extends UnitSpec {
   "SourceInputStream" should "handle ASCII (single-byte) characters correctly" in {

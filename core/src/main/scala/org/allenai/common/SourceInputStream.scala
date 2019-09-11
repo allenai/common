@@ -1,10 +1,10 @@
 package org.allenai.common
 
 import scala.collection.Iterator
-import scala.io.{Codec, Source}
+import scala.io.{ Codec, Source }
 
 import java.io.InputStream
-import java.nio.{ByteBuffer, CharBuffer}
+import java.nio.{ ByteBuffer, CharBuffer }
 
 /** Input stream wrapping a Source object, using the codec to convert characters to bytes. Not
   * thread-safe.

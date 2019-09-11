@@ -1,6 +1,6 @@
 package org.allenai.common
 
-import java.util.concurrent.{Semaphore, TimeUnit}
+import java.util.concurrent.{ Semaphore, TimeUnit }
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.concurrent._

@@ -1,6 +1,6 @@
 package org.allenai.common
 
-import spray.json.{deserializationError, JsString, JsValue, RootJsonFormat}
+import spray.json.{ deserializationError, JsString, JsValue, RootJsonFormat }
 
 /** Enumeration implementation that supports automatic Spray JSON serialization of a case object as
   * a JsString, or using java native serialization for Spark jobs.

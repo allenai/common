@@ -3,7 +3,7 @@ package org.allenai.common.cache
 import org.allenai.common.Config._
 
 import com.typesafe.config.Config
-import redis.clients.jedis.{Jedis, JedisPool, JedisPoolConfig, Protocol}
+import redis.clients.jedis.{ Jedis, JedisPool, JedisPoolConfig, Protocol }
 import spray.json._
 import scala.collection.JavaConverters._
 

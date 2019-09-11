@@ -3,7 +3,7 @@ package org.allenai.common
 import org.allenai.common.testkit.UnitSpec
 import org.allenai.common.Config._
 
-import com.typesafe.config.{Config => TypesafeConfig, _}
+import com.typesafe.config.{ Config => TypesafeConfig, _ }
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 

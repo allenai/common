@@ -1,8 +1,8 @@
 package org.allenai.common.guice
 
-import com.google.inject.{Guice, Inject}
+import com.google.inject.{ Guice, Inject }
 import com.google.inject.name.Named
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{ Config, ConfigFactory }
 import org.allenai.common.testkit.UnitSpec
 
 case class CaseClass(a: String)
