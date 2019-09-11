@@ -27,8 +27,8 @@ jobs:
           name: Test package
           command: cat /dev/null | sbt +test
       - run:
-          name: Check scalastyle
-          command: cat /dev/null | sbt scalastyle test:scalastyle
+          name: Check formatting
+          command: cat /dev/null | sbt scalafmtCheckAll
       - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
           path: target/universal/common.zip
           destination: common

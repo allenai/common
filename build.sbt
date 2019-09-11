@@ -1,5 +1,4 @@
 import Dependencies._
-import scalariform.formatter.preferences._
 
 lazy val scala211 = "2.11.12"
 lazy val scala212 = "2.12.9"
@@ -17,7 +16,9 @@ lazy val common = (project in file("."))
       guice,
       testkit
     )
+    .configs(IntegrationTest)
     .settings(
+      Defaults.itSettings,
       crossScalaVersions := Nil,
       publish / skip := true,
       buildSettings
@@ -35,25 +36,7 @@ lazy val projectSettings = Seq(
   dependencyOverrides ++= Logging.loggingDependencyOverrides
 )
 
-lazy val scalastyleUrl = Some(url("https://raw.githubusercontent.com/allenai/sbt-plugins/master/src/main/resources/allenai-style-config.xml"))
-
 lazy val buildSettings = Seq(
-  scalastyleConfigUrl := scalastyleUrl,
-  scalastyleConfigRefreshHours := 24,
-  scalastyleFailOnError := true,
-
-  (scalastyleConfigUrl in Test) := scalastyleUrl,
-  (scalastyleConfigRefreshHours in Test) := 24,
-  (scalastyleFailOnError in Test) := true,
-
-  scalariformAutoformat := false,
-  scalariformPreferences := scalariformPreferences.value
-      .setPreference(MultilineScaladocCommentsStartOnFirstLine, true)
-      .setPreference(PlaceScaladocAsterisksBeneathSecondAsterisk, true)
-      .setPreference(DanglingCloseParenthesis, Preserve)
-      .setPreference(DoubleIndentMethodDeclaration, true)
-      .setPreference(NewlineAtEndOfFile, true),
-
   crossScalaVersions := supportedScalaVersions,
   organization := "org.allenai.common",
   publishMavenStyle := true,
@@ -78,6 +61,8 @@ lazy val buildSettings = Seq(
       </developers>),
   bintrayPackage := s"${organization.value}:${name.value}_${scalaBinaryVersion.value}"
 )
+
+inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings)
 
 lazy val cache = Project(id = "cache", base = file("cache"))
     .settings(buildSettings)
