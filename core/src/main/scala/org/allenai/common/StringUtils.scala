@@ -1,6 +1,6 @@
 package org.allenai.common
 
-import org.apache.commons.lang3.{ StringUtils => ApacheStringUtils }
+import org.apache.commons.lang3.{StringUtils => ApacheStringUtils}
 
 object StringUtils {
   val whiteSpaceRegex = """\s+""".r
@@ -13,20 +13,111 @@ object StringUtils {
   val articles = Set("a", "an", "the")
 
   val simplePrepositions = Set(
-    "a", "abaft", "aboard", "about", "above", "absent", "across", "afore",
-    "after", "against", "along", "alongside", "amid", "amidst", "among",
-    "amongst", "an", "apropos", "around", "as", "aside", "astride", "at",
-    "athwart", "atop", "barring", "before", "behind", "below", "beneath",
-    "beside", "besides", "between", "betwixt", "beyond", "but", "by", "circa",
-    "concerning", "despite", "down", "during", "except", "excluding",
-    "failing", "following", "for", "from", "given", "in", "including",
-    "inside", "into", "lest", "like", "mid", "midst", "minus", "modulo",
-    "near", "next", "notwithstanding", "of", "off", "on", "onto", "opposite",
-    "out", "outside", "over", "pace", "past", "per", "plus", "pro", "qua",
-    "regarding", "round", "sans", "save", "since", "than", "through",
-    "thru", "throughout", "thruout", "till", "times", "to", "toward",
-    "towards", "under", "underneath", "unlike", "until", "up", "upon",
-    "versus", "vs.", "v.", "via", "vice", "with", "within", "without",
+    "a",
+    "abaft",
+    "aboard",
+    "about",
+    "above",
+    "absent",
+    "across",
+    "afore",
+    "after",
+    "against",
+    "along",
+    "alongside",
+    "amid",
+    "amidst",
+    "among",
+    "amongst",
+    "an",
+    "apropos",
+    "around",
+    "as",
+    "aside",
+    "astride",
+    "at",
+    "athwart",
+    "atop",
+    "barring",
+    "before",
+    "behind",
+    "below",
+    "beneath",
+    "beside",
+    "besides",
+    "between",
+    "betwixt",
+    "beyond",
+    "but",
+    "by",
+    "circa",
+    "concerning",
+    "despite",
+    "down",
+    "during",
+    "except",
+    "excluding",
+    "failing",
+    "following",
+    "for",
+    "from",
+    "given",
+    "in",
+    "including",
+    "inside",
+    "into",
+    "lest",
+    "like",
+    "mid",
+    "midst",
+    "minus",
+    "modulo",
+    "near",
+    "next",
+    "notwithstanding",
+    "of",
+    "off",
+    "on",
+    "onto",
+    "opposite",
+    "out",
+    "outside",
+    "over",
+    "pace",
+    "past",
+    "per",
+    "plus",
+    "pro",
+    "qua",
+    "regarding",
+    "round",
+    "sans",
+    "save",
+    "since",
+    "than",
+    "through",
+    "thru",
+    "throughout",
+    "thruout",
+    "till",
+    "times",
+    "to",
+    "toward",
+    "towards",
+    "under",
+    "underneath",
+    "unlike",
+    "until",
+    "up",
+    "upon",
+    "versus",
+    "vs.",
+    "v.",
+    "via",
+    "vice",
+    "with",
+    "within",
+    "without",
     "worth"
   )
 
@@ -149,6 +240,7 @@ object StringUtils {
     * format: ON
     */
   trait StringExtras extends Any {
+
     /** value that is transformed by extension methods.
       * Must be declared as the constructor argument for the implementing  extension method class
       * (see trait scaladoc)
@@ -158,7 +250,8 @@ object StringUtils {
     /** @return Trim white spaces, lower case, then strip the accents.
       */
     def normalize: String = whiteSpaceRegex.replaceAllIn(
-      ApacheStringUtils.stripAccents(str.toLowerCase.trim), " "
+      ApacheStringUtils.stripAccents(str.toLowerCase.trim),
+      " "
     )
 
     def removeNonAlpha: String =
@@ -191,8 +284,8 @@ object StringUtils {
 
     /** @return Trim non-letter chars from the beginning and end
       */
-    def trimNonAlphabetic(): String = str.dropWhile(c =>
-      !Character.isAlphabetic(c)).trimRight(c => !Character.isAlphabetic(c))
+    def trimNonAlphabetic(): String =
+      str.dropWhile(c => !Character.isAlphabetic(c)).trimRight(c => !Character.isAlphabetic(c))
 
     /** @param chars String containing the blacklist chars.
       * @return Trim characters from the right that belongs to a blacklist.
@@ -213,8 +306,8 @@ object StringUtils {
           words.update(i, ApacheStringUtils.capitalize(word))
         } // Capitalize words that are not simple prepositions
         else if (!articles(word) &&
-          !simplePrepositions(word) &&
-          !coordinatingConjunction(word)) {
+                 !simplePrepositions(word) &&
+                 !coordinatingConjunction(word)) {
           words.update(i, ApacheStringUtils.capitalize(word))
         } // Otherwise, leave the word as lowercase
         else {
@@ -234,7 +327,7 @@ object StringUtils {
     }
 
     def unescaped: String = {
-      import org.apache.commons.lang3.StringEscapeUtils.{ unescapeXml, unescapeHtml4 }
+      import org.apache.commons.lang3.StringEscapeUtils.{unescapeHtml4, unescapeXml}
       unescapeHtml4(unescapeXml(str))
     }
   }

@@ -229,8 +229,10 @@ class SeekableSource(inFile: FileChannel, bufferSize: Int = 8 << 20)(implicit co
 
     /** The buffer to read the file into, and create strings out of. */
     private[common] val lineBuffer: Array[Byte] = new Array(bufferSize)
+
     /** The current index into lineBuffer. Kept in sync with inBuffer.position. */
     private[common] var index = 0
+
     /** The index of the last valid byte in lineBuffer. Kept in sync with inBuffer.limit. */
     private[common] var limit = 0
 

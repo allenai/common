@@ -59,6 +59,7 @@ import scala.util.Try
   * @param config the runtime config to use containing all values to bind
   */
 class ConfigModule(config: Config) extends ScalaModule with Logging {
+
   /** The actual config to bind. */
   private lazy val fullConfig = {
     val resolvedConfig = config.withFallback(defaultConfig).resolve()
@@ -84,9 +85,10 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
   /** The config to use as a fallback. This is where keys will be looked up if they aren't present
     * in the provided config.
     */
-  def defaultConfig: Config = configName map { name =>
-    ConfigFactory.parseResources(getClass, name)
-  } getOrElse ConfigFactory.empty
+  def defaultConfig: Config =
+    configName map { name =>
+      ConfigFactory.parseResources(getClass, name)
+    } getOrElse ConfigFactory.empty
 
   /** Configure method for implementing classes to override if they wish to create additional
     * bindings, or bindings based on config values.
@@ -104,7 +106,7 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
 
   /** Internal helper to bind the config key `key` to the given type `T`. */
   private def bindConfigKey[T](
-    key: String
+      key: String
   )(implicit manifest: Manifest[T], configReader: ConfigReader[T]): Unit = {
     try {
       fullConfig.get[T](key) match {
@@ -112,13 +114,17 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
           bind[T].annotatedWithName(key).toInstance(value)
           bind[Option[T]].annotatedWithName(key).toInstance(Some(value))
         case None =>
-          addError(s"Config in ${getClass.getSimpleName} missing key '$key' with expected type " +
-            s"'${manifest.runtimeClass.getSimpleName}'")
+          addError(
+            s"Config in ${getClass.getSimpleName} missing key '$key' with expected type " +
+              s"'${manifest.runtimeClass.getSimpleName}'"
+          )
       }
     } catch {
       case _: ConfigException.WrongType =>
-        addError(s"Config in ${getClass.getSimpleName} has bad type for key '$key'; expected " +
-          s"value of type '${manifest.runtimeClass.getSimpleName}'")
+        addError(
+          s"Config in ${getClass.getSimpleName} has bad type for key '$key'; expected " +
+            s"value of type '${manifest.runtimeClass.getSimpleName}'"
+        )
     }
   }
 
@@ -181,13 +187,18 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
           // Lazily apply the first method that works.
           val success = methods.iterator.map(method => Try(method())).exists(_.isSuccess)
           if (!success) {
-            logger.warn(s"Could not find list type for key '$fullPath' in in " +
-              s"${getClass.getSimpleName}. No value will be bound to '$fullPath'.")
+            logger.warn(
+              s"Could not find list type for key '$fullPath' in in " +
+                s"${getClass.getSimpleName}. No value will be bound to '$fullPath'."
+            )
           }
         case ConfigValueType.OBJECT =>
           bindConfigKey[Config](fullPath)
           // Recurse.
-          bindConfigObject(config.toConfig()[Config](ConfigUtil.quoteString(key)).root, fullPathElements)
+          bindConfigObject(
+            config.toConfig()[Config](ConfigUtil.quoteString(key)).root,
+            fullPathElements
+          )
         case other =>
           // Shouldn't happen - but warn if it does.
           logger.warn(s"Unhandled config value type [$other] for key $fullPath")

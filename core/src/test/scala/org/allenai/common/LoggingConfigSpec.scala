@@ -12,7 +12,8 @@ class LoggingConfigSpec extends UnitSpec with Logging {
     val path = Files.createTempFile("nio-temp", ".tmp")
     path.toFile().deleteOnExit()
 
-    loggerConfig.Logger("org.allenai.common")
+    loggerConfig
+      .Logger("org.allenai.common")
       .reset()
       .addAppender(
         loggerConfig.newPatternLayoutEncoder("%-5level: %message%n"),
@@ -36,7 +37,8 @@ class LoggingConfigSpec extends UnitSpec with Logging {
     val path = Files.createTempFile("nio-temp2", ".tmp")
     path.toFile().deleteOnExit()
 
-    loggerConfig.Logger("org.allenai.common")
+    loggerConfig
+      .Logger("org.allenai.common")
       .reset()
       .addAppender(
         loggerConfig.newHtmlLayoutEncoder("%relative%thread%level%logger%msg"),
@@ -48,8 +50,10 @@ class LoggingConfigSpec extends UnitSpec with Logging {
     logger.info("<i>html</i>")
 
     assert(
-      Source.fromFile(path.toString).mkString.contains(
-        "<td class=\"Message\">&lt;i&gt;html&lt;/i&gt;</td>")
+      Source
+        .fromFile(path.toString)
+        .mkString
+        .contains("<td class=\"Message\">&lt;i&gt;html&lt;/i&gt;</td>")
     )
   }
 }

@@ -4,6 +4,7 @@ import scala.concurrent.duration._
 
 /** Methods for measuring the amount of time a method takes. */
 object Timing {
+
   /** Time a unit block and return the duration. */
   def time(block: => Unit): Duration = {
     val start = System.nanoTime()

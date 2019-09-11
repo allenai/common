@@ -5,7 +5,7 @@ import org.allenai.common.testkit.UnitSpec
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 
-import scala.util.{ Try, Success, Failure }
+import scala.util.{Failure, Success, Try}
 
 // scalastyle:off magic.number
 class RichJsObjectSpec extends UnitSpec {
@@ -18,10 +18,12 @@ class RichJsObjectSpec extends UnitSpec {
     val json = foo.toJson
     val jsonObj = json.asJsObject
     val packed = jsonObj.pack("age" -> 10.toJson)
-    assert(packed === JsObject(
-      "name" -> JsString("John"),
-      "age" -> JsNumber(10)
-    ))
+    assert(
+      packed === JsObject(
+        "name" -> JsString("John"),
+        "age" -> JsNumber(10)
+      )
+    )
   }
 
   it should "handle types that are not JsValue but have a JsonWriter" in {
@@ -29,9 +31,11 @@ class RichJsObjectSpec extends UnitSpec {
     val json = foo.toJson
     val jsonObj = json.asJsObject
     val packed = jsonObj.pack("age" -> 10)
-    assert(packed === JsObject(
-      "name" -> JsString("John"),
-      "age" -> JsNumber(10)
-    ))
+    assert(
+      packed === JsObject(
+        "name" -> JsString("John"),
+        "age" -> JsNumber(10)
+      )
+    )
   }
 }

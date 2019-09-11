@@ -31,7 +31,6 @@
   * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   */
-
 package org.allenai.common.immutable
 
 import Interval.empty
@@ -50,7 +49,8 @@ import scala.util.matching.Regex
   * @author  Michael Schmitz
   */
 sealed class Interval private (val start: Int, val end: Int)
-    extends IndexedSeq[Int] with Ordered[Interval] {
+    extends IndexedSeq[Int]
+    with Ordered[Interval] {
   import Interval._
   require(start <= end, "start must be <= end: " + start + ">" + end)
 
@@ -312,6 +312,7 @@ sealed class Interval private (val start: Int, val end: Int)
 }
 
 object Interval {
+
   /** The empty interval. */
   val empty: Interval = Empty
 
@@ -439,20 +440,23 @@ object Interval {
     */
   def minimal(intervals: Iterable[Interval]): List[Interval] = {
     val set = collection.immutable.SortedSet.empty[Int] ++ intervals.flatten
-    set.foldLeft(List.empty[Interval]) {
-      case (list, i) =>
-        val singleton = Interval.singleton(i)
-        list match {
-          case Nil => List(singleton)
-          case x :: xs if x borders i => (x union singleton) :: xs
-          case xs => singleton :: xs
-        }
-    }.reverse
+    set
+      .foldLeft(List.empty[Interval]) {
+        case (list, i) =>
+          val singleton = Interval.singleton(i)
+          list match {
+            case Nil => List(singleton)
+            case x :: xs if x borders i => (x union singleton) :: xs
+            case xs => singleton :: xs
+          }
+      }
+      .reverse
   }
 
   // implementations
 
   object Open {
+
     /** Match exposing the bounds as an open interval */
     def unapply(interval: Interval): Option[(Int, Int)] = interval match {
       case `empty` => None
@@ -473,13 +477,13 @@ object Interval {
   /** An interval that includes only a single index.
     * All intervals with a single element will always extend Singleton.
     */
-  sealed abstract class Singleton private[Interval] (elem: Int)
-      extends Interval(elem, elem + 1) {
+  sealed abstract class Singleton private[Interval] (elem: Int) extends Interval(elem, elem + 1) {
     def index: Int = this.start
     override def toString: String = "{" + elem + "}"
   }
 
   object Singleton {
+
     /** Match exposing the bounds as a singleton */
     def unapply(interval: Interval): Option[Int] = interval match {
       case singleton: Singleton => Some(singleton.index)

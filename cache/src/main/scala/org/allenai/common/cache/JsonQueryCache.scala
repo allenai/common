@@ -3,11 +3,12 @@ package org.allenai.common.cache
 import org.allenai.common.Config._
 
 import com.typesafe.config.Config
-import redis.clients.jedis.{ Jedis, JedisPool, JedisPoolConfig, Protocol }
+import redis.clients.jedis.{Jedis, JedisPool, JedisPoolConfig, Protocol}
 import spray.json._
 import scala.collection.JavaConverters._
 
 object JsonQueryCache {
+
   /** Factory method for creating a cache instance from config.
     * The config must have keys for `hostname` and `clientPrefix`. It may also optionally have
     * keys for `port` and `timeoutMillis`; if not given, these values are set to the Jedis defaults.
@@ -25,10 +26,10 @@ object JsonQueryCache {
   }
 
   def apply[V](
-    clientPrefix: String,
-    hostname: String,
-    port: Int = Protocol.DEFAULT_PORT,
-    timeoutMillis: Int = Protocol.DEFAULT_TIMEOUT
+      clientPrefix: String,
+      hostname: String,
+      port: Int = Protocol.DEFAULT_PORT,
+      timeoutMillis: Int = Protocol.DEFAULT_TIMEOUT
   )(implicit jsonFormat: JsonFormat[V]): JsonQueryCache[V] = {
     new JsonQueryCache[V](
       clientPrefix,
@@ -100,4 +101,3 @@ class JsonQueryCache[V: JsonFormat] protected[cache] (clientPrefix: String, pool
     client.keys(keyForQuery(pattern)).asScala
   }
 }
-

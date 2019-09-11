@@ -1,13 +1,13 @@
 package org.allenai.common
 
-import com.typesafe.config.{ Config => TypesafeConfig }
+import com.typesafe.config.{Config => TypesafeConfig}
 import spray.json.SerializationException
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 
 import java.io.PrintWriter
 import java.io.StringWriter
-import scala.util.{ Try, Success, Failure }
+import scala.util.{Failure, Success, Try}
 
 /** Common spray.json.JsonFormats, spray.json.JsonReaders, and spray.json.JsonWriters */
 object JsonFormats {

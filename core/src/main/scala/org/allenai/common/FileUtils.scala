@@ -2,10 +2,10 @@ package org.allenai.common
 
 import au.com.bytecode.opencsv.CSVReader
 
-import java.io.{ BufferedInputStream, BufferedReader, File, FileInputStream, InputStreamReader }
+import java.io.{BufferedInputStream, BufferedReader, File, FileInputStream, InputStreamReader}
 
 import scala.collection.JavaConverters._
-import scala.io.{ BufferedSource, Codec, Source }
+import scala.io.{BufferedSource, Codec, Source}
 
 /** Various convenient utilities for reading files and resources. */
 object FileUtils extends Logging {
@@ -58,8 +58,8 @@ object FileUtils extends Logging {
     * of strings.
     */
   def getCSVContentFromResource(
-    clazz: Class[_],
-    name: String
+      clazz: Class[_],
+      name: String
   )(implicit codec: Codec): Seq[Seq[String]] = {
     logger.debug(s"Loading CSV resource $name")
     val csvReader = new CSVReader(getResourceAsReader(clazz, name)(codec))

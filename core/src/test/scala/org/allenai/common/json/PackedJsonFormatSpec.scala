@@ -5,7 +5,7 @@ import org.allenai.common.testkit.UnitSpec
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 
-import scala.util.{ Try, Success, Failure }
+import scala.util.{Failure, Success, Try}
 
 class PackedJsonFormatSpec extends UnitSpec {
 

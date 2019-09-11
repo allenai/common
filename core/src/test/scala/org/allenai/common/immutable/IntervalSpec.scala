@@ -31,7 +31,6 @@
   * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   */
-
 package org.allenai.common.immutable
 
 import org.allenai.common.testkit.UnitSpec
@@ -148,7 +147,9 @@ class IntervalSpec extends UnitSpec with Checkers {
       // for all points in one of the new intervals
       // no other interval may contain the same point
       min.forall { interval =>
-        !min.exists { other => !(other eq interval) && (other intersects interval) }
+        !min.exists { other =>
+          !(other eq interval) && (other intersects interval)
+        }
       }
 
       // result is sorted
@@ -224,11 +225,12 @@ class IntervalSpec extends UnitSpec with Checkers {
 
   def roundtripJson(x: Interval): Interval = (x.toJson).convertTo[Interval]
 
-  def roundtripsJsonOk(x: Interval): Unit = assert({
-    val rtrip = roundtripJson(x)
-    /* check string form as well to distinguish open/closed intervals */
-    rtrip == x && rtrip.toString == x.toString
-  })
+  def roundtripsJsonOk(x: Interval): Unit =
+    assert({
+      val rtrip = roundtripJson(x)
+      /* check string form as well to distinguish open/closed intervals */
+      rtrip == x && rtrip.toString == x.toString
+    })
 
   "Json serialization for intervals" should "work" in {
     roundtripsJsonOk(Interval.empty)

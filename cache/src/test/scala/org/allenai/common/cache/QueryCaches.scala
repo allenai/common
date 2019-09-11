@@ -41,8 +41,8 @@ class QueryCaches(
 
   def allThereAndEq(): Boolean = {
     stringQueryCache.get(stringKey).exists(_.equals(stringValue)) &&
-      intQueryCache.get(intKey).exists(_.equals(intValue)) &&
-      seqStringQueryCache.get(seqStringKey).exists(_.equals(seqStringValue)) &&
-      fooQueryCache.get(fooKey).exists(_.equals(fooValue))
+    intQueryCache.get(intKey).exists(_.equals(intValue)) &&
+    seqStringQueryCache.get(seqStringKey).exists(_.equals(seqStringValue)) &&
+    fooQueryCache.get(fooKey).exists(_.equals(fooValue))
   }
 }

@@ -1,6 +1,6 @@
 package org.allenai.common
 
-import java.util.concurrent.{ TimeUnit, Semaphore }
+import java.util.concurrent.{Semaphore, TimeUnit}
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.concurrent._
@@ -27,8 +27,8 @@ object ParIterator {
       * @param ec the execution context to run the function executions in
       */
     def parForeach(
-      f: T => Unit,
-      queueLimit: Int = defaultQueueLimit
+        f: T => Unit,
+        queueLimit: Int = defaultQueueLimit
     )(implicit ec: ExecutionContext): Unit = {
       // If there are a billion items in the iterator, we don't want to create a billion futures,
       // so we limit the number of futures we create with this semaphore.
@@ -69,7 +69,9 @@ object ParIterator {
       }
 
       // throw first exception if there is one
-      firstException.get().foreach { e => throw e }
+      firstException.get().foreach { e =>
+        throw e
+      }
     }
 
     /** Maps an iterator to another iterator, performing the maps on the elements in parallel.
@@ -89,8 +91,8 @@ object ParIterator {
       * @return   a new iterator with the mapped values from the old iterator
       */
     def parMap[O](
-      f: T => O,
-      queueLimit: Int = defaultQueueLimit
+        f: T => O,
+        queueLimit: Int = defaultQueueLimit
     )(implicit ec: ExecutionContext): Iterator[O] = new Iterator[O] {
       private val inner = input.toIterator
       private val q = new scala.collection.mutable.Queue[Future[O]]()

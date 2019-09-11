@@ -1,19 +1,22 @@
 package org.allenai.common
 
 import scala.collection.Iterator
-import scala.io.{ Codec, Source }
+import scala.io.{Codec, Source}
 
 import java.io.InputStream
-import java.nio.{ ByteBuffer, CharBuffer }
+import java.nio.{ByteBuffer, CharBuffer}
 
 /** Input stream wrapping a Source object, using the codec to convert characters to bytes. Not
   * thread-safe.
   */
 class SourceInputStream(val source: Source)(implicit codec: Codec) extends InputStream {
+
   /** Buffer to write (potentially multi-byte) character encodings to. */
   private val outputBuffer = ByteBuffer.allocate(codec.encoder.maxBytesPerChar.ceil.toInt)
+
   /** Number of bytes left in our output buffer. */
   private var availableBytes = 0
+
   /** Buffer to re-use when passing characters to our encoder. */
   private val charBuffer = Array[Char](1)
 

@@ -1,11 +1,11 @@
 package org.allenai.common
 
-import ch.qos.logback.classic.{ Level, Logger }
+import ch.qos.logback.classic.{Level, Logger}
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
 import ch.qos.logback.classic.html.HTMLLayout
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core._
-import ch.qos.logback.core.encoder.{ Encoder, LayoutWrappingEncoder }
+import ch.qos.logback.core.encoder.{Encoder, LayoutWrappingEncoder}
 import org.slf4j.LoggerFactory
 
 /** This trait is meant to be mixed into a class to provide logging and logging configuration.
@@ -103,8 +103,8 @@ trait Logging {
         * </code>
         */
       def addAppender(
-        encoder: Encoder[ILoggingEvent],
-        appender: OutputStreamAppender[ILoggingEvent]
+          encoder: Encoder[ILoggingEvent],
+          appender: OutputStreamAppender[ILoggingEvent]
       ): Logger = {
         val loggerContext = logger.getLoggerContext
         encoder.setContext(loggerContext)
