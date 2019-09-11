@@ -106,7 +106,7 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
 
   /** Internal helper to bind the config key `key` to the given type `T`. */
   private def bindConfigKey[T](
-      key: String
+    key: String
   )(implicit manifest: Manifest[T], configReader: ConfigReader[T]): Unit = {
     try {
       fullConfig.get[T](key) match {

@@ -58,8 +58,8 @@ object FileUtils extends Logging {
     * of strings.
     */
   def getCSVContentFromResource(
-      clazz: Class[_],
-      name: String
+    clazz: Class[_],
+    name: String
   )(implicit codec: Codec): Seq[Seq[String]] = {
     logger.debug(s"Loading CSV resource $name")
     val csvReader = new CSVReader(getResourceAsReader(clazz, name)(codec))

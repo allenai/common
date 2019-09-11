@@ -8,55 +8,55 @@ import org.allenai.common.testkit.UnitSpec
 case class CaseClass(a: String)
 // Test class, defined in a way that's injectable by Guice (outside of a wrapping class).
 case class AnnotatedClass @Inject()(
-    @Named("fooString") foo: String,
-    // This string has a default value in the module.conf file.
-    @Named("hasDefault") hasDefault: String,
-    unannotated: Set[String],
-    @Named("boolbool") boolean: Boolean,
-    @Named("barNum") bar: Int,
-    @Named("barNum") barLong: Long,
-    @Named("barNum") barDouble: Double,
-    @Named("unsupported") unsupported: CaseClass
+  @Named("fooString") foo: String,
+  // This string has a default value in the module.conf file.
+  @Named("hasDefault") hasDefault: String,
+  unannotated: Set[String],
+  @Named("boolbool") boolean: Boolean,
+  @Named("barNum") bar: Int,
+  @Named("barNum") barLong: Long,
+  @Named("barNum") barDouble: Double,
+  @Named("unsupported") unsupported: CaseClass
 )
 
 case class OptionalParamClass @Inject()(
-    @Named("presentString") present: String,
-    @Named("presentString") presentOption: Option[String],
-    @Named("missingString") missingOption: Option[String]
+  @Named("presentString") present: String,
+  @Named("presentString") presentOption: Option[String],
+  @Named("missingString") missingOption: Option[String]
 )
 
 // Test class with nested Config objects.
 case class NestedConfig @Inject()(
-    @Named("root") root: Config,
-    @Named("root.nested") nested: Config,
-    @Named("nested") nestedNone: Option[Config],
-    @Named("root.string") rootString: String,
-    @Named("root.nested.string") nestedString: String
+  @Named("root") root: Config,
+  @Named("root.nested") nested: Config,
+  @Named("nested") nestedNone: Option[Config],
+  @Named("root.string") rootString: String,
+  @Named("root.nested.string") nestedString: String
 )
 
 // Test class, using namespaced values.
 case class PrefixClass @Inject()(
-    @Named("prefix.fooString") foo: String,
-    // This string has a default value in the module.conf file.
-    @Named("prefix.hasDefault") hasDefault: String,
-    @Named("prefix.boolbool") boolean: Boolean,
-    @Named("prefix.nested.bool") nestedBool: Boolean,
-    // This doesn't begin with the right prefix, so it shouldn't get a binding.
-    @Named("ignored_no_prefix") bar: Int
+  @Named("prefix.fooString") foo: String,
+  // This string has a default value in the module.conf file.
+  @Named("prefix.hasDefault") hasDefault: String,
+  @Named("prefix.boolbool") boolean: Boolean,
+  @Named("prefix.nested.bool") nestedBool: Boolean,
+  // This doesn't begin with the right prefix, so it shouldn't get a binding.
+  @Named("ignored_no_prefix") bar: Int
 )
 
 // Test class with dotted keys.
 case class DottedKeys @Inject()(
-    @Named("\"i.have\".dots") dots: String,
-    @Named("\"i.have.more.dots\".bar") bar: Int
+  @Named("\"i.have\".dots") dots: String,
+  @Named("\"i.have.more.dots\".bar") bar: Int
 )
 
 // Test class with Seq values.
 case class SeqValues @Inject()(
-    @Named("seq.ofConfig") configs: Seq[Config],
-    @Named("seq.ofString") strings: Seq[String],
-    @Named("seq.ofBool") booleans: Seq[Boolean],
-    @Named("seq.ofDouble") doubles: Seq[Double]
+  @Named("seq.ofConfig") configs: Seq[Config],
+  @Named("seq.ofString") strings: Seq[String],
+  @Named("seq.ofBool") booleans: Seq[Boolean],
+  @Named("seq.ofDouble") doubles: Seq[Double]
 )
 
 class ConfigModuleSpec extends UnitSpec {

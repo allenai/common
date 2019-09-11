@@ -26,10 +26,10 @@ object JsonQueryCache {
   }
 
   def apply[V](
-      clientPrefix: String,
-      hostname: String,
-      port: Int = Protocol.DEFAULT_PORT,
-      timeoutMillis: Int = Protocol.DEFAULT_TIMEOUT
+    clientPrefix: String,
+    hostname: String,
+    port: Int = Protocol.DEFAULT_PORT,
+    timeoutMillis: Int = Protocol.DEFAULT_TIMEOUT
   )(implicit jsonFormat: JsonFormat[V]): JsonQueryCache[V] = {
     new JsonQueryCache[V](
       clientPrefix,

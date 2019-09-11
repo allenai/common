@@ -103,8 +103,8 @@ trait Logging {
         * </code>
         */
       def addAppender(
-          encoder: Encoder[ILoggingEvent],
-          appender: OutputStreamAppender[ILoggingEvent]
+        encoder: Encoder[ILoggingEvent],
+        appender: OutputStreamAppender[ILoggingEvent]
       ): Logger = {
         val loggerContext = logger.getLoggerContext
         encoder.setContext(loggerContext)
