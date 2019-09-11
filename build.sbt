@@ -9,36 +9,17 @@ ThisBuild / organization := "org.allenai.common"
 ThisBuild / version      := "2.0.0-SNAPSHOT"
 ThisBuild / scalaVersion := scala212
 
-lazy val common = (project in file("."))
-    .aggregate(
-      cache,
-      core,
-      guice,
-      testkit
-    )
-    .configs(IntegrationTest)
-    .settings(
-      Defaults.itSettings,
-      crossScalaVersions := Nil,
-      publish / skip := true,
-      buildSettings
-    )
-
 lazy val spray = "spray" at "http://repo.spray.io/"
 lazy val typesafeReleases = "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
 
 lazy val projectSettings = Seq(
-  fork := true,
-  javaOptions += s"-Dlogback.appname=${name.value}",
-  scalacOptions ++= Seq("-target:jvm-1.8", "-Xlint", "-deprecation", "-feature"),
-  javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
-  resolvers ++= Seq(spray, Resolver.jcenterRepo, typesafeReleases),
-  dependencyOverrides ++= Logging.loggingDependencyOverrides
-)
-
-lazy val buildSettings = Seq(
-  crossScalaVersions := supportedScalaVersions,
-  organization := "org.allenai.common",
+  resolvers ++= Seq(
+    Resolver.bintrayRepo("allenai", "maven"),
+    spray,
+    Resolver.jcenterRepo,
+    typesafeReleases
+  ),
+  dependencyOverrides ++= Logging.loggingDependencyOverrides,
   publishMavenStyle := true,
   publishArtifact in Test := false,
   pomIncludeRepository := { _ => false },
@@ -59,22 +40,47 @@ lazy val buildSettings = Seq(
           <email>dev-role@allenai.org</email>
         </developer>
       </developers>),
-  bintrayPackage := s"${organization.value}:${name.value}_${scalaBinaryVersion.value}"
+  bintrayPackage := s"${organization.value}:${name.value}_${scalaBinaryVersion.value}",
+  bintrayOrganization := Some("allenai"),
+  bintrayRepository := "maven"
 )
 
+lazy val buildSettings = Seq(
+  javaOptions += s"-Dlogback.appname=${name.value}",
+  scalacOptions ++= Seq("-target:jvm-1.8", "-Xlint", "-deprecation", "-feature"),
+  javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
+  crossScalaVersions := supportedScalaVersions,
+)
+
+// Not necessary for this repository but here as an example
 inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings)
 
+lazy val common = (project in file("."))
+    .aggregate(
+      cache,
+      core,
+      guice,
+      testkit
+    )
+    .configs(IntegrationTest)
+    .settings(
+      Defaults.itSettings,
+      crossScalaVersions := Nil,
+      publish / skip := true,
+      buildSettings
+    )
+
 lazy val cache = Project(id = "cache", base = file("cache"))
-    .settings(buildSettings)
+    .settings(projectSettings, buildSettings)
     .dependsOn(core, testkit % "test->compile")
 
 lazy val core = Project(id = "core", base = file("core"))
-    .settings(buildSettings)
+    .settings(projectSettings, buildSettings)
     .dependsOn(testkit % "test->compile")
 
 lazy val guice = Project(id = "guice", base = file("guice"))
-    .settings(buildSettings)
+    .settings(projectSettings, buildSettings)
     .dependsOn(core, testkit % "test->compile")
 
 lazy val testkit = Project(id = "testkit", base = file("testkit"))
-    .settings(buildSettings)
+    .settings(projectSettings, buildSettings)
