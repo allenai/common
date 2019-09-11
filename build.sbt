@@ -57,7 +57,6 @@ inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings
 
 lazy val common = (project in file("."))
     .aggregate(
-      cache,
       core,
       guice,
       testkit
@@ -69,10 +68,6 @@ lazy val common = (project in file("."))
       publish / skip := true,
       buildSettings
     )
-
-lazy val cache = Project(id = "cache", base = file("cache"))
-    .settings(projectSettings, buildSettings)
-    .dependsOn(core, testkit % "test->compile")
 
 lazy val core = Project(id = "core", base = file("core"))
     .settings(projectSettings, buildSettings)

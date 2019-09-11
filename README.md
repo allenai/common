@@ -5,8 +5,6 @@ common
 
 A collection of useful utility classes and functions. Slowly on the path to deprecation.
 
-[API Docs](http://allenai.github.io/common/latest/api/#package).
-
 `testkit` - Unit test classes and utilities.
 
 `guice` - Guice-specific libraries.
