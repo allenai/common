@@ -6,7 +6,7 @@ lazy val scala213 = "2.13.0" // Not supported yet (collections changes required)
 lazy val supportedScalaVersions = List(scala212, scala211)
 
 ThisBuild / organization := "org.allenai.common"
-ThisBuild / version      := "2.0.0"
+ThisBuild / version      := "2.0.1-SNAPSHOT"
 ThisBuild / scalaVersion := scala212
 
 lazy val spray = "spray" at "http://repo.spray.io/"
