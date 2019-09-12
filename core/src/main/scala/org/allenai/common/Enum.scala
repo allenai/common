@@ -24,6 +24,7 @@ import spray.json.{ deserializationError, JsString, JsValue, RootJsonFormat }
   * (format: ON)
   */
 abstract class Enum[E <: Enum[E]] extends Serializable {
+
   /** The serialization string. By default, use the toString implementation. For a case object, this
     * uses the object name.
     */

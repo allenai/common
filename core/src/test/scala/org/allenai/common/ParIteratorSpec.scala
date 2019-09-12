@@ -80,8 +80,10 @@ class ParIteratorSpec extends UnitSpec {
     val max = 5
     val values = Range(0, max).reverse
     val iter = values.toIterator
-    val expected = values.map { i => s"$i" }
-    val time = Timing.time {
+    val expected = values.map { i =>
+      s"$i"
+    }
+    val time: Duration = Timing.time {
       val result = iter.parMap { i =>
         Thread.sleep(i * 100)
         s"$i"
@@ -89,22 +91,29 @@ class ParIteratorSpec extends UnitSpec {
       assert(expected === result.toSeq)
     }
 
-    assert(time < ((max * 100) millis) + (50 millis))
+    val limit: Duration = ((max * 100) millis) + (50 millis)
+    assert(time < limit)
   }
 
   it should "map lots of things concurrently" in {
     val max = 50000
     val values = Range(0, max).reverse
     val iter = values.toIterator
-    val expected = values.map { i => s"$i" }
-    val result = iter.parMap { i => s"$i" }
+    val expected = values.map { i =>
+      s"$i"
+    }
+    val result = iter.parMap { i =>
+      s"$i"
+    }
     assert(expected === result.toSeq)
   }
 
   it should "return exceptions from foreach functions" in {
     val successes = synchronized(collection.mutable.Set[Int]())
     intercept[ArithmeticException] {
-      Range(-20, 20).toIterator.parForeach { i => successes.add(10000 / i) }
+      Range(-20, 20).toIterator.parForeach { i =>
+        successes.add(10000 / i)
+      }
     }
   }
 

@@ -29,7 +29,7 @@ package object json {
     }
 
     /** Create a new JsObject with an additional field */
-    def pack[A : JsonWriter](newField: (String, A)): JsObject = {
+    def pack[A: JsonWriter](newField: (String, A)): JsObject = {
       val aJsValue = implicitly[JsonWriter[A]].write(newField._2)
       pack(newField._1 -> aJsValue)
     }
@@ -38,8 +38,10 @@ package object json {
       *
       * @param packedFormats
       */
-    def unpackOptWith[T](packedFormats: PackedJsonFormat[_ <: T] *): Option[T] = {
-      val unpacks: Seq[PartialFunction[JsValue, T]] = packedFormats map (_.unpack)
+    def unpackOptWith[T](packedFormats: PackedJsonFormat[_ <: T]*): Option[T] = {
+      val unpacks: Seq[PartialFunction[JsValue, T]] = packedFormats
+        .map(_.asInstanceOf[PackedJsonFormat[T]])
+        .map(_.unpack)
       val combinedUnpack = unpacks reduce (_ orElse _)
       combinedUnpack.lift(jsObj)
     }
@@ -49,10 +51,11 @@ package object json {
       * @param packedFormats
       * @throws spray.json.DeserializationException
       */
-    def unpackWith[T](packedFormats: PackedJsonFormat[_ <: T] *): T = {
+    def unpackWith[T](packedFormats: PackedJsonFormat[_ <: T]*): T = {
       unpackOptWith[T](packedFormats: _*) getOrElse {
         deserializationError(
-          s"Invalid JSON. Expected a JsObject with a valid packed field, but got ${jsObj.toString}")
+          s"Invalid JSON. Expected a JsObject with a valid packed field, but got ${jsObj.toString}"
+        )
       }
     }
 
@@ -65,15 +68,16 @@ package object json {
     def unpackAs[T](implicit unpackers: Seq[PackedJsonFormat[_ <: T]]): T = {
       unpackOptWith[T](unpackers: _*) getOrElse {
         deserializationError(
-          s"Invalid JSON. Expected a JsObject with a valid packed field, but got ${jsObj.toString}")
+          s"Invalid JSON. Expected a JsObject with a valid packed field, but got ${jsObj.toString}"
+        )
       }
     }
 
     /** Extract a value of type A by the given key */
-    def apply[A : JsonReader](key: String): A = jsObj.fields(key).convertTo[A]
+    def apply[A: JsonReader](key: String): A = jsObj.fields(key).convertTo[A]
 
     /** Extract a value of type A by the given key */
-    def get[A : JsonReader](key: String): Option[A] = jsObj.fields.get(key) map (_.convertTo[A])
+    def get[A: JsonReader](key: String): Option[A] = jsObj.fields.get(key) map (_.convertTo[A])
   }
 
   implicit class RichJsonFormat[T](val jsFormat: JsonFormat[T]) {
@@ -95,7 +99,7 @@ package object json {
       * @param packField the key -> value pair to pack into the JsObject
       *        on write. Typically, this would be a type indicator.
       */
-    def pack[A : JsonWriter](packField: (String, A)): PackedJsonFormat[T] =
+    def pack[A: JsonWriter](packField: (String, A)): PackedJsonFormat[T] =
       pack(packField._1 -> packField._2.toJson)
   }
 }

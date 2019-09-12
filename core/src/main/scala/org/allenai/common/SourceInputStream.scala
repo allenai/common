@@ -10,10 +10,13 @@ import java.nio.{ ByteBuffer, CharBuffer }
   * thread-safe.
   */
 class SourceInputStream(val source: Source)(implicit codec: Codec) extends InputStream {
+
   /** Buffer to write (potentially multi-byte) character encodings to. */
   private val outputBuffer = ByteBuffer.allocate(codec.encoder.maxBytesPerChar.ceil.toInt)
+
   /** Number of bytes left in our output buffer. */
   private var availableBytes = 0
+
   /** Buffer to re-use when passing characters to our encoder. */
   private val charBuffer = Array[Char](1)
 

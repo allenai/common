@@ -1,9 +1,7 @@
 import sbt._
 
-import org.allenai.plugins.CoreDependencies
-
 /** Object holding the dependencies Common has, plus resolvers and overrides. */
-object Dependencies extends CoreDependencies {
+object Dependencies {
 
   val apacheLang3 = "org.apache.commons" % "commons-lang3" % "3.4"
 
@@ -11,9 +9,6 @@ object Dependencies extends CoreDependencies {
     .exclude("commons-logging", "commons-logging")
 
   val commonsIO = "commons-io" % "commons-io" % "2.4"
-
-  // TODO(jkinkead) Break circular dependency between common and datastore
-  val datastore = "org.allenai" %% "datastore" % "1.0.0"
 
   val elasticSearch = "org.elasticsearch" % "elasticsearch" % "2.3.3"
 
@@ -30,11 +25,32 @@ object Dependencies extends CoreDependencies {
 
   val pegdown = "org.pegdown" % "pegdown" % "1.4.2"
 
-  val scalaGuice = "net.codingwell" %% "scala-guice" % "4.0.1"
+  val scalaGuice = "net.codingwell" %% "scala-guice" % "4.2.6"
 
-  val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.11.4"
+  val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.14.0"
 
-  def scalaReflection(scalaVersion: String) = "org.scala-lang" % "scala-reflect" % scalaVersion
+  val scalaTest = "org.scalatest" %% "scalatest" % "3.0.8"
 
-  val scalaTest = "org.scalatest" %% "scalatest" % "2.2.1"
+  val sprayJson = "io.spray" %% "spray-json" % "1.3.5"
+
+  val typesafeConfig = "com.typesafe" % "config" % "1.2.1"
+
+  val scopt = "com.github.scopt" %% "scopt" % "3.7.1"
+
+  object Logging {
+    val slf4jVersion = "1.7.28"
+    val logbackVersion = "1.2.3"
+    // The logging API to use. This should be the only logging dependency of any API artifact
+    // (anything that's going to be depended on outside of this SBT project).
+    val slf4jApi = "org.slf4j" % "slf4j-api" % slf4jVersion
+    val logbackCore = "ch.qos.logback" % "logback-core" % logbackVersion
+    val logbackClassic = "ch.qos.logback" % "logback-classic" % logbackVersion
+
+    val loggingDependencyOverrides = Seq(
+      Logging.slf4jApi,
+      Logging.logbackCore,
+      Logging.logbackClassic
+    )
+  }
+
 }

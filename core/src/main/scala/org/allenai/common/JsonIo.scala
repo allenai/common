@@ -8,6 +8,7 @@ import java.io.{ OutputStream, PrintWriter, Writer }
 
 /** Helpers for streaming lists of JSON objects to and from disk. */
 object JsonIo {
+
   /** Reads single-lines from a given Source, and streams the JSON parsed from them to the caller.
     * @return a stream of objects of type T
     */

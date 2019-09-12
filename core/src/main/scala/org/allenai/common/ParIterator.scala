@@ -1,6 +1,6 @@
 package org.allenai.common
 
-import java.util.concurrent.{ TimeUnit, Semaphore }
+import java.util.concurrent.{ Semaphore, TimeUnit }
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.concurrent._
@@ -69,7 +69,9 @@ object ParIterator {
       }
 
       // throw first exception if there is one
-      firstException.get().foreach { e => throw e }
+      firstException.get().foreach { e =>
+        throw e
+      }
     }
 
     /** Maps an iterator to another iterator, performing the maps on the elements in parallel.

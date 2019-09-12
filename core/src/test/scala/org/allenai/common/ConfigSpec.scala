@@ -40,7 +40,9 @@ class ConfigSpec extends UnitSpec {
 
   "ConfigReader.map[A]" should "generate a new ConfigReader[A]" in {
     case class Stringy(value: String)
-    implicit val stringyConfigReader = ConfigReader.stringReader map { value => Stringy(value) }
+    implicit val stringyConfigReader = ConfigReader.stringReader map { value =>
+      Stringy(value)
+    }
     val stringy = testConfig.get[Stringy]("string")
     assert(stringy === Some(Stringy("Hello world")))
   }
@@ -90,8 +92,10 @@ class ConfigSpec extends UnitSpec {
   }
 
   it should "work for Seq[ConfigValue]" in {
-    assert((testConfig.get[Seq[ConfigValue]]("intList") map { _ map { _.unwrapped } }) ===
-      Some(Seq(1, 2, 3, 4)))
+    assert(
+      (testConfig.get[Seq[ConfigValue]]("intList") map { _ map { _.unwrapped } }) ===
+        Some(Seq(1, 2, 3, 4))
+    )
   }
 
   it should "work for URI" in {
@@ -103,9 +107,11 @@ class ConfigSpec extends UnitSpec {
   }
 
   it should "work for Seq[com.typesafe.config.Config]" in {
-    assert(testConfig.get[Seq[TypesafeConfig]]("objectList") === Some(
-      Seq(createConfig(Map("foo" -> "bar")), createConfig(Map("one" -> "two")))
-    ))
+    assert(
+      testConfig.get[Seq[TypesafeConfig]]("objectList") === Some(
+        Seq(createConfig(Map("foo" -> "bar")), createConfig(Map("one" -> "two")))
+      )
+    )
   }
 
   // non-happy path cases
