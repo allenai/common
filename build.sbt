@@ -6,7 +6,7 @@ lazy val scala213 = "2.13.2"
 lazy val supportedScalaVersions = List(scala211, scala212, scala213)
 
 ThisBuild / organization := "org.allenai.common"
-ThisBuild / version := "2.1.0"
+ThisBuild / version := "2.1.1-SNAPSHOT"
 ThisBuild / scalaVersion := scala212
 
 lazy val spray = "spray" at "http://repo.spray.io/"
@@ -50,18 +50,7 @@ lazy val buildSettings = Seq(
   javaOptions += s"-Dlogback.appname=${name.value}",
   scalacOptions ++= Seq("-target:jvm-1.8", "-Xlint", "-deprecation", "-feature"),
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
-  crossScalaVersions := supportedScalaVersions,
-  Compile / unmanagedSourceDirectories ++= {
-    CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, x)) if x == 11 || x == 12 => {
-        Seq(file(sourceDirectory.value.getPath + "/main/scala-2.11-2.12"))
-      }
-      case Some((2, x)) if x == 13 => {
-        Seq(file(sourceDirectory.value.getPath + "/main/scala-2.13"))
-      }
-      case _ => Seq.empty // dotty support would go here
-    }
-  }
+  crossScalaVersions := supportedScalaVersions
 )
 
 // Not necessary for this repository but here as an example
