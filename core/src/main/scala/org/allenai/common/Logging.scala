@@ -1,6 +1,6 @@
 package org.allenai.common
 
-import ch.qos.logback.classic.{ Level, Logger }
+import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder
 import ch.qos.logback.classic.html.HTMLLayout
 import ch.qos.logback.classic.spi.ILoggingEvent

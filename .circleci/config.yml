@@ -1,6 +1,7 @@
 version: 2
 jobs:
   build:
+    resource_class: large # need more dedotated wam
     working_directory: ~/common
     docker:
       - image: openjdk:8
@@ -8,6 +9,7 @@ jobs:
       SBT_VERSION: 1.2.8
     steps:
       - run: echo 'export ARTIFACT_BUILD=$CIRCLE_PROJECT_REPONAME-$CIRCLE_BUILD_NUM.zip' >> $BASH_ENV
+      - run: echo 'export SBT_OPTS="-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=2G -Xmx2G"'
       - run:
           name: Get sbt binary
           command: |
@@ -24,8 +26,14 @@ jobs:
           name: Clean package
           command: cat /dev/null | sbt clean
       - run:
-          name: Test package
-          command: cat /dev/null | sbt +test
+          name: Test package - 2.11
+          command: cat /dev/null | sbt "clean" "++2.11.12" "test"
+      - run:
+          name: Test package - 2.12
+          command: cat /dev/null | sbt "clean" "++2.12.10" "test"
+      - run:
+          name: Test package - 2.13
+          command: cat /dev/null | sbt "clean" "++2.13.2" "test"
       - run:
           name: Check formatting
           command: cat /dev/null | sbt scalafmtCheckAll

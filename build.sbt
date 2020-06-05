@@ -1,12 +1,12 @@
 import Dependencies._
 
 lazy val scala211 = "2.11.12"
-lazy val scala212 = "2.12.9"
-lazy val scala213 = "2.13.0" // Not supported yet (collections changes required)
-lazy val supportedScalaVersions = List(scala212, scala211)
+lazy val scala212 = "2.12.10"
+lazy val scala213 = "2.13.2"
+lazy val supportedScalaVersions = List(scala211, scala212, scala213)
 
 ThisBuild / organization := "org.allenai.common"
-ThisBuild / version      := "2.0.1-SNAPSHOT"
+ThisBuild / version := "2.1.1-SNAPSHOT"
 ThisBuild / scalaVersion := scala212
 
 lazy val spray = "spray" at "http://repo.spray.io/"
@@ -22,7 +22,9 @@ lazy val projectSettings = Seq(
   dependencyOverrides ++= Logging.loggingDependencyOverrides,
   publishMavenStyle := true,
   publishArtifact in Test := false,
-  pomIncludeRepository := { _ => false },
+  pomIncludeRepository := { _ =>
+    false
+  },
   licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
   homepage := Some(url("https://github.com/allenai/common")),
   apiURL := Some(url("https://allenai.github.io/common/")),
@@ -32,8 +34,7 @@ lazy val projectSettings = Seq(
       "https://github.com/allenai/common.git"
     )
   ),
-  pomExtra := (
-      <developers>
+  pomExtra := (<developers>
         <developer>
           <id>allenai-dev-role</id>
           <name>Allen Institute for Artificial Intelligence</name>
@@ -49,33 +50,33 @@ lazy val buildSettings = Seq(
   javaOptions += s"-Dlogback.appname=${name.value}",
   scalacOptions ++= Seq("-target:jvm-1.8", "-Xlint", "-deprecation", "-feature"),
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
-  crossScalaVersions := supportedScalaVersions,
+  crossScalaVersions := supportedScalaVersions
 )
 
 // Not necessary for this repository but here as an example
 inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings)
 
 lazy val common = (project in file("."))
-    .aggregate(
-      core,
-      guice,
-      testkit
-    )
-    .configs(IntegrationTest)
-    .settings(
-      Defaults.itSettings,
-      crossScalaVersions := Nil,
-      publish / skip := true,
-      buildSettings
-    )
+  .aggregate(
+    core,
+    guice,
+    testkit
+  )
+  .configs(IntegrationTest)
+  .settings(
+    Defaults.itSettings,
+    crossScalaVersions := Nil,
+    publish / skip := true,
+    buildSettings
+  )
 
 lazy val core = Project(id = "core", base = file("core"))
-    .settings(projectSettings, buildSettings)
-    .dependsOn(testkit % "test->compile")
+  .settings(projectSettings, buildSettings)
+  .dependsOn(testkit % "test->compile")
 
 lazy val guice = Project(id = "guice", base = file("guice"))
-    .settings(projectSettings, buildSettings)
-    .dependsOn(core, testkit % "test->compile")
+  .settings(projectSettings, buildSettings)
+  .dependsOn(core, testkit % "test->compile")
 
 lazy val testkit = Project(id = "testkit", base = file("testkit"))
-    .settings(projectSettings, buildSettings)
+  .settings(projectSettings, buildSettings)

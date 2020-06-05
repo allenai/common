@@ -1,6 +1,5 @@
 package org.allenai.common
 
-import scala.collection.Iterator
 import scala.io.{ Codec, Source }
 
 import java.io.InputStream

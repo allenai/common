@@ -19,7 +19,6 @@ package org.allenai.common
 package object json {
 
   import spray.json._
-  import spray.json.DefaultJsonProtocol._
 
   implicit class RichJsObject(val jsObj: JsObject) extends AnyVal {
 

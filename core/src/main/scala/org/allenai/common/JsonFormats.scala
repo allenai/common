@@ -1,9 +1,7 @@
 package org.allenai.common
 
 import com.typesafe.config.{ Config => TypesafeConfig }
-import spray.json.SerializationException
 import spray.json._
-import spray.json.DefaultJsonProtocol._
 
 import java.io.PrintWriter
 import java.io.StringWriter
