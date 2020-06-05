@@ -9,7 +9,7 @@ jobs:
       SBT_VERSION: 1.2.8
     steps:
       - run: echo 'export ARTIFACT_BUILD=$CIRCLE_PROJECT_REPONAME-$CIRCLE_BUILD_NUM.zip' >> $BASH_ENV
-      - run: echo 'export SBT_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx4G"'
+      - run: echo 'export SBT_OPTS="-XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=2G -Xmx2G"'
       - run:
           name: Get sbt binary
           command: |
