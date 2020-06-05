@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    resource_class: xlarge # need more dedotated wam
+    resource_class: large # need more dedotated wam
     working_directory: ~/common
     docker:
       - image: openjdk:8
@@ -9,6 +9,7 @@ jobs:
       SBT_VERSION: 1.2.8
     steps:
       - run: echo 'export ARTIFACT_BUILD=$CIRCLE_PROJECT_REPONAME-$CIRCLE_BUILD_NUM.zip' >> $BASH_ENV
+      - run: echo 'export SBT_OPTS="-XX:+CMSClassUnloadingEnabled -Xmx4G"'
       - run:
           name: Get sbt binary
           command: |
