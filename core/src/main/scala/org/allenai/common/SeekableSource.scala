@@ -282,7 +282,7 @@ class SeekableSource(inFile: FileChannel, bufferSize: Int = 8 << 20)(implicit co
       var stringBuilder: StringBuilder = null
       var moreChars = true
       while (moreChars) {
-        var start = index
+        val start = index
 
         // Read chars until we find a newline or the end-of-buffer.
         var ch: Byte = 0

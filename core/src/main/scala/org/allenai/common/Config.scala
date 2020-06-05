@@ -82,7 +82,7 @@ object Config {
     }
 
     implicit val stringListReader = apply[Seq[String]] { (config, key) =>
-      config.getStringList(key).asScala
+      config.getStringList(key).asScala.toSeq
     }
     implicit val intListReader = apply[Seq[Int]] { (config, key) =>
       config.getIntList(key).asScala.toList.map(_.intValue)

@@ -21,7 +21,7 @@ object FileUtils extends Logging {
   def getCSVContentFromFile(file: File)(implicit codec: Codec): Seq[Seq[String]] = {
     logger.debug(s"Loading CSV file ${file.getName}")
     val csvReader = new CSVReader(new InputStreamReader(new FileInputStream(file), codec.charSet))
-    Resource.using(csvReader)(_.readAll.asScala.map(_.toVector))
+    Resource.using(csvReader)(_.readAll.asScala.toSeq.map(_.toVector))
   }
 
   /** Get a resource file for a given class as a Stream. Caller is responsible for closing this
@@ -63,6 +63,6 @@ object FileUtils extends Logging {
   )(implicit codec: Codec): Seq[Seq[String]] = {
     logger.debug(s"Loading CSV resource $name")
     val csvReader = new CSVReader(getResourceAsReader(clazz, name)(codec))
-    Resource.using(csvReader)(_.readAll.asScala.map(_.toVector))
+    Resource.using(csvReader)(_.readAll.asScala.toSeq.map(_.toVector))
   }
 }

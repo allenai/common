@@ -33,9 +33,7 @@
   */
 package org.allenai.common.immutable
 
-import Interval.empty
 import spray.json._
-import spray.json.DefaultJsonProtocol._
 
 import scala.util.matching.Regex
 
@@ -469,7 +467,7 @@ object Interval {
   object Empty extends Interval(0, 0) {
     override def toString: String = "{}"
     def unapply(interval: Interval): Option[Unit] = interval match {
-      case `empty` => Some(Unit)
+      case `empty` => Some(())
       case _ => None
     }
   }
