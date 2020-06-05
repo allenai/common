@@ -26,8 +26,14 @@ jobs:
           name: Clean package
           command: cat /dev/null | sbt clean
       - run:
-          name: Test package
-          command: cat /dev/null | sbt +test
+          name: Test package - 2.11
+          command: cat /dev/null | sbt "clean" "2.11.12" "test"
+      - run:
+          name: Test package - 2.12
+          command: cat /dev/null | sbt "clean" "2.12.10" "test"
+      - run:
+          name: Test package - 2.13
+          command: cat /dev/null | sbt "clean" "2.13.2" "test"
       - run:
           name: Check formatting
           command: cat /dev/null | sbt scalafmtCheckAll
