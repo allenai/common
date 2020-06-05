@@ -1,6 +1,7 @@
 version: 2
 jobs:
   build:
+    resource_class: large # need more dedotated wam
     working_directory: ~/common
     docker:
       - image: openjdk:8
