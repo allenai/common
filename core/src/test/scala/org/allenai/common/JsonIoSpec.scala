@@ -2,10 +2,9 @@ package org.allenai.common
 
 import org.allenai.common.testkit.UnitSpec
 
-import spray.json._
 import spray.json.DefaultJsonProtocol._
 
-import scala.io.{ Codec, Source }
+import scala.io.Source
 
 import java.io.ByteArrayOutputStream
 
