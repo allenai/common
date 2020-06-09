@@ -67,6 +67,8 @@ lazy val buildSettings = Seq(
   }
 )
 
+Compile / doc / scalacOptions ~= { _.filterNot(_ == "-Xfatal-warnings") }
+
 // Not necessary for this repository but here as an example
 inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings)
 
