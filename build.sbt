@@ -7,10 +7,10 @@ lazy val supportedScalaVersions = List(scala211, scala212, scala213)
 
 ThisBuild / organization := "org.allenai.common"
 ThisBuild / version := "2.2.0"
-ThisBuild / scalaVersion := scala212
+ThisBuild / scalaVersion := scala213
 
-lazy val spray = "spray" at "http://repo.spray.io/"
-lazy val typesafeReleases = "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"
+lazy val spray = "spray" at "https://repo.spray.io/"
+lazy val typesafeReleases = "Typesafe Releases" at "https://repo.typesafe.com/typesafe/releases/"
 
 lazy val projectSettings = Seq(
   resolvers ++= Seq(
