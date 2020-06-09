@@ -1,10 +1,9 @@
 package org.allenai.common
 
 import au.com.bytecode.opencsv.CSVReader
+import Compat.JavaConverters._
 
 import java.io.{ BufferedInputStream, BufferedReader, File, FileInputStream, InputStreamReader }
-
-import scala.collection.JavaConverters._
 import scala.io.{ BufferedSource, Codec, Source }
 
 /** Various convenient utilities for reading files and resources. */

@@ -5,8 +5,6 @@ import org.allenai.common.testkit.UnitSpec
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 
-import scala.util.{ Failure, Success, Try }
-
 // scalastyle:off magic.number
 class RichJsObjectSpec extends UnitSpec {
 

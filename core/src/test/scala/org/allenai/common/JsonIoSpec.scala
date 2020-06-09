@@ -2,10 +2,9 @@ package org.allenai.common
 
 import org.allenai.common.testkit.UnitSpec
 
-import spray.json._
 import spray.json.DefaultJsonProtocol._
 
-import scala.io.{ Codec, Source }
+import scala.io.Source
 
 import java.io.ByteArrayOutputStream
 
@@ -35,18 +34,18 @@ class JsonIoSpec extends UnitSpec {
 
   "parseJson and writeJson" should "pipe correctly to each other" in {
     // Input. We'll pipe through writeJson & toJson twice (testing both directions).
-    val input = Seq(Foo("a"), Foo("b"), Foo("c"), Foo("d"))
+    val input = List(Foo("a"), Foo("b"), Foo("c"), Foo("d"))
 
     // Intermediary: Test that write -> read works.
     val buffer = new ByteArrayOutputStream()
     JsonIo.writeJson(input, buffer)
     val intermediaryOutput = JsonIo.parseJson[Foo](Source.fromString(buffer.toString("UTF8")))
-    intermediaryOutput should be(input)
+    intermediaryOutput.toList should be(input)
 
     // Final: Test that read -> write works (with a bonus read).
     buffer.reset()
     JsonIo.writeJson(input, buffer)
     val finalOutput = JsonIo.parseJson[Foo](Source.fromString(buffer.toString("UTF8")))
-    finalOutput should be(input)
+    finalOutput.toList should be(input)
   }
 }

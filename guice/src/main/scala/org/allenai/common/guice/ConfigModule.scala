@@ -1,5 +1,6 @@
 package org.allenai.common.guice
 
+import org.allenai.common.Compat.JavaConverters._
 import org.allenai.common.Logging
 import org.allenai.common.Config._
 
@@ -14,7 +15,6 @@ import com.typesafe.config.{
 }
 import net.codingwell.scalaguice.ScalaModule
 
-import scala.collection.JavaConverters._
 import scala.util.Try
 
 /** Parent class for modules which use a typesafe config for values. This automatically binds all

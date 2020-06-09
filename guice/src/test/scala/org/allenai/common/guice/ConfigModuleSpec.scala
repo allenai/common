@@ -229,7 +229,7 @@ class ConfigModuleSpec extends UnitSpec {
 
     val injector = Guice.createInjector(testModule)
 
-    val instance = injector.getInstance(classOf[DottedKeys])
+    injector.getInstance(classOf[DottedKeys])
   }
 
   it should "handle sequences" in {

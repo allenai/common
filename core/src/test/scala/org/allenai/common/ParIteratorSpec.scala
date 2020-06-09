@@ -1,15 +1,15 @@
 package org.allenai.common
 
-import java.util.concurrent.ConcurrentSkipListSet
-import java.util.concurrent.atomic.AtomicInteger
-
+import Compat.JavaConverters._
+import Compat.IterableOps.IterableOpsImplicits
 import org.allenai.common.testkit.UnitSpec
 import org.allenai.common.ParIterator.ParIteratorEnrichment
 
+import java.util.concurrent.ConcurrentSkipListSet
+import java.util.concurrent.atomic.AtomicInteger
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.language.postfixOps
-import scala.collection.JavaConverters._
 
 class ParIteratorSpec extends UnitSpec {
   // With small values (<1000) for scale, this test is unreliable, and with large ones it takes
@@ -36,31 +36,31 @@ class ParIteratorSpec extends UnitSpec {
       val successes = new ConcurrentSkipListSet[Int]()
 
       val max = 2000
-      val iter = Range(0, max).toIterator
+      val iter = Range(0, max).toIteratorCompat
       iter.parForeach { i =>
         Thread.sleep((max - i) % 10)
         successes.add(i)
       }
       val expected = Range(0, max).toSet
 
-      assert((successes.asScala -- expected) === Set.empty)
-      assert((expected -- successes.asScala) === Set.empty)
+      assert((successes.asScala.toSet -- expected) === Set.empty)
+      assert((expected -- successes.asScala.toSet) === Set.empty)
 
       Thread.sleep(1000)
 
-      assert((successes.asScala -- expected) === Set.empty)
-      assert((expected -- successes.asScala) === Set.empty)
+      assert((successes.asScala.toSet -- expected) === Set.empty)
+      assert((expected -- successes.asScala.toSet) === Set.empty)
     }
   }
 
   it should "nest properly" in {
     val count = new AtomicInteger()
     val max = 13
-    Range(0, max).toIterator.parForeach { _ =>
-      Range(0, max).toIterator.parForeach { _ =>
+    Range(0, max).toIteratorCompat.parForeach { _ =>
+      Range(0, max).toIteratorCompat.parForeach { _ =>
         val successes = new ConcurrentSkipListSet[Int]()
 
-        val iter = Range(0, max).toIterator
+        val iter = Range(0, max).toIteratorCompat
         iter.parForeach { i =>
           Thread.sleep((i * max * max) % 10)
           successes.add(i)
@@ -68,8 +68,8 @@ class ParIteratorSpec extends UnitSpec {
         }
         val expected = Range(0, max).toSet
 
-        assert((successes.asScala -- expected) === Set.empty)
-        assert((expected -- successes.asScala) === Set.empty)
+        assert((successes.asScala.toSet -- expected) === Set.empty)
+        assert((expected -- successes.asScala.toSet) === Set.empty)
       }
     }
 
@@ -79,7 +79,7 @@ class ParIteratorSpec extends UnitSpec {
   it should "map things concurrently" in {
     val max = 5
     val values = Range(0, max).reverse
-    val iter = values.toIterator
+    val iter = values.toIteratorCompat
     val expected = values.map { i =>
       s"$i"
     }
@@ -98,7 +98,7 @@ class ParIteratorSpec extends UnitSpec {
   it should "map lots of things concurrently" in {
     val max = 50000
     val values = Range(0, max).reverse
-    val iter = values.toIterator
+    val iter = values.toIteratorCompat
     val expected = values.map { i =>
       s"$i"
     }
@@ -111,7 +111,7 @@ class ParIteratorSpec extends UnitSpec {
   it should "return exceptions from foreach functions" in {
     val successes = synchronized(collection.mutable.Set[Int]())
     intercept[ArithmeticException] {
-      Range(-20, 20).toIterator.parForeach { i =>
+      Range(-20, 20).toIteratorCompat.parForeach { i =>
         successes.add(10000 / i)
       }
     }
@@ -129,7 +129,7 @@ class ParIteratorSpec extends UnitSpec {
 
   it should "return exceptions from map" in {
     intercept[ArithmeticException] {
-      Range(-20, 20).toIterator.parMap(10000 / _).toList
+      Range(-20, 20).toIteratorCompat.parMap(10000 / _).toList
     }
   }
 }
