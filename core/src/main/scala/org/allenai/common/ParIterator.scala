@@ -94,7 +94,7 @@ object ParIterator {
       f: T => O,
       queueLimit: Int = defaultQueueLimit
     )(implicit ec: ExecutionContext): Iterator[O] = new Iterator[O] {
-      private val inner = input.toIterator
+      private val inner = input
       private val q = new scala.collection.mutable.Queue[Future[O]]()
 
       private def fillQueue(): Unit = {

@@ -1,5 +1,6 @@
 package org.allenai.common
 
+import Compat.JavaConverters._
 import org.allenai.common.testkit.UnitSpec
 import org.allenai.common.Config._
 
@@ -7,7 +8,6 @@ import com.typesafe.config.{ Config => TypesafeConfig, _ }
 import spray.json._
 import spray.json.DefaultJsonProtocol._
 
-import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 
 import java.net.URI

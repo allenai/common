@@ -1,10 +1,10 @@
 package org.allenai.common
 
+import Compat.JavaConverters._
 import com.typesafe.config.{ Config => TypesafeConfig, _ }
 import spray.json._
 
 import java.net.URI
-import scala.collection.JavaConverters._
 import scala.concurrent.duration._
 
 /** Import to provide enhancements via implicit class conversion for making working

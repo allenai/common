@@ -2,9 +2,8 @@ package org.allenai.common
 
 import spray.json._
 
-import scala.io.Source
-
 import java.io.{ OutputStream, PrintWriter, Writer }
+import scala.io.Source
 
 /** Helpers for streaming lists of JSON objects to and from disk. */
 object JsonIo {
@@ -12,8 +11,8 @@ object JsonIo {
   /** Reads single-lines from a given Source, and streams the JSON parsed from them to the caller.
     * @return a stream of objects of type T
     */
-  def parseJson[T](source: Source)(implicit format: JsonFormat[T]): Stream[T] = {
-    for (line <- source.getLines().toStream) yield line.parseJson.convertTo[T]
+  def parseJson[T](source: Source)(implicit format: JsonFormat[T]): Iterator[T] = {
+    for (line <- source.getLines) yield line.parseJson.convertTo[T]
   }
 
   /** Writes the given objects to the given writer, as one-per-line JSON values. */

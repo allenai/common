@@ -1,12 +1,11 @@
 package org.allenai.common
 
+import Compat.JavaConverters._
 import org.allenai.common.Config._
 import org.allenai.common.json._
 
 import com.typesafe.config.ConfigFactory
 import spray.json.{ JsNumber, JsObject, JsString, JsValue, RootJsonFormat }
-
-import scala.collection.JavaConverters._
 
 import java.util.Date
 
@@ -107,7 +106,7 @@ object Version {
     val artifactVersion = artifactConf[String]("version")
     val sha1 = gitConf[String]("sha1")
     val commitDate = gitConf[Long]("date")
-    val remotes = gitConf.getStringList("remotes").asScala
+    val remotes = gitConf.getStringList("remotes").asScala.toSeq
     val cacheKey = Option(System.getProperty("application.cacheKey"))
     Version(GitVersion.create(sha1, commitDate, remotes), artifactVersion, cacheKey)
   }
