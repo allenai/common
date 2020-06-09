@@ -22,6 +22,7 @@ lazy val projectSettings = Seq(
   dependencyOverrides ++= Logging.loggingDependencyOverrides,
   publishMavenStyle := true,
   publishArtifact in Test := false,
+  publishArtifact in (Compile, packageDoc) := false,
   pomIncludeRepository := { _ =>
     false
   },
@@ -66,8 +67,6 @@ lazy val buildSettings = Seq(
     }
   }
 )
-
-Compile / doc / scalacOptions ~= { _.filterNot(_ == "-Xfatal-warnings") }
 
 // Not necessary for this repository but here as an example
 inConfig(IntegrationTest)(org.scalafmt.sbt.ScalafmtPlugin.scalafmtConfigSettings)
