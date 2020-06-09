@@ -48,7 +48,13 @@ lazy val projectSettings = Seq(
 
 lazy val buildSettings = Seq(
   javaOptions += s"-Dlogback.appname=${name.value}",
-  scalacOptions ++= Seq("-target:jvm-1.8", "-Xlint", "-deprecation", "-feature"),
+  scalacOptions ++= Seq(
+    "-target:jvm-1.8",
+    "-Xlint",
+    "-deprecation",
+    "-feature",
+    "-Xfatal-warnings"
+  ),
   javacOptions ++= Seq("-source", "1.8", "-target", "1.8"),
   crossScalaVersions := supportedScalaVersions
 )
