@@ -1,17 +1,18 @@
 import ScalaVersions._
 
-import sbtrelease.ReleaseStateTransformations._
 import sbtrelease.ReleasePlugin.autoImport._
+import sbtrelease.ReleaseStateTransformations._
+
 import sbt._
 import sbt.Keys._
 
 object Release {
 
-  def settings: Seq[Setting[_]] = Seq(
+  def settings = Seq(
     organization := "org.allenai.common",
     crossScalaVersions := SUPPORTED_SCALA_VERSIONS,
     releaseProcess := releaseSteps,
-    unmanagedSourceDirectories.in(Compile) ++= {
+    Compile / unmanagedSourceDirectories ++= {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, x)) if x == 11 || x == 12 =>
           Seq(file(sourceDirectory.value.getPath + "/main/scala-2.11-2.12"))
@@ -20,11 +21,9 @@ object Release {
         case _ => Seq.empty // dotty support would go here
       }
     },
-    publishArtifact in Test := false,
-    publishArtifact in (Compile, packageDoc) := false,
-    pomIncludeRepository := { _ =>
-      false
-    },
+    Test / publishArtifact := false,
+    Compile / packageDoc / publishArtifact := false,
+    pomIncludeRepository := { _ => false },
     licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     homepage := Some(url("https://github.com/allenai/common")),
     apiURL := Some(url("https://allenai.github.io/common/")),
@@ -42,11 +41,11 @@ object Release {
     runClean,
     releaseStepCommandAndRemaining("+test"),
     setReleaseVersion,
-    // commitReleaseVersion,
-    // tagRelease,
-    releaseStepCommandAndRemaining("+codeArtifactPublish")
-    // setNextVersion,
-    // commitNextVersion,
-    // pushChanges
+    commitReleaseVersion,
+    tagRelease,
+    releaseStepCommandAndRemaining("+codeArtifactPublish"),
+    setNextVersion,
+    commitNextVersion,
+    pushChanges
   )
 }

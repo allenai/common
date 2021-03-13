@@ -12,7 +12,7 @@ object JsonIo {
     * @return a stream of objects of type T
     */
   def parseJson[T](source: Source)(implicit format: JsonFormat[T]): Iterator[T] = {
-    for (line <- source.getLines) yield line.parseJson.convertTo[T]
+    for (line <- source.getLines()) yield line.parseJson.convertTo[T]
   }
 
   /** Writes the given objects to the given writer, as one-per-line JSON values. */
