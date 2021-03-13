@@ -6,8 +6,9 @@ import com.typesafe.config.{ Config, ConfigFactory }
 import org.allenai.common.testkit.UnitSpec
 
 case class CaseClass(a: String)
+
 // Test class, defined in a way that's injectable by Guice (outside of a wrapping class).
-case class AnnotatedClass @Inject()(
+case class AnnotatedClass @Inject() (
   @Named("fooString") foo: String,
   // This string has a default value in the module.conf file.
   @Named("hasDefault") hasDefault: String,
@@ -19,14 +20,14 @@ case class AnnotatedClass @Inject()(
   @Named("unsupported") unsupported: CaseClass
 )
 
-case class OptionalParamClass @Inject()(
+case class OptionalParamClass @Inject() (
   @Named("presentString") present: String,
   @Named("presentString") presentOption: Option[String],
   @Named("missingString") missingOption: Option[String]
 )
 
 // Test class with nested Config objects.
-case class NestedConfig @Inject()(
+case class NestedConfig @Inject() (
   @Named("root") root: Config,
   @Named("root.nested") nested: Config,
   @Named("nested") nestedNone: Option[Config],
@@ -35,7 +36,7 @@ case class NestedConfig @Inject()(
 )
 
 // Test class, using namespaced values.
-case class PrefixClass @Inject()(
+case class PrefixClass @Inject() (
   @Named("prefix.fooString") foo: String,
   // This string has a default value in the module.conf file.
   @Named("prefix.hasDefault") hasDefault: String,
@@ -46,13 +47,13 @@ case class PrefixClass @Inject()(
 )
 
 // Test class with dotted keys.
-case class DottedKeys @Inject()(
+case class DottedKeys @Inject() (
   @Named("\"i.have\".dots") dots: String,
   @Named("\"i.have.more.dots\".bar") bar: Int
 )
 
 // Test class with Seq values.
-case class SeqValues @Inject()(
+case class SeqValues @Inject() (
   @Named("seq.ofConfig") configs: Seq[Config],
   @Named("seq.ofString") strings: Seq[String],
   @Named("seq.ofBool") booleans: Seq[Boolean],
@@ -60,6 +61,8 @@ case class SeqValues @Inject()(
 )
 
 class ConfigModuleSpec extends UnitSpec {
+  import ConfigModuleSpec._
+
   "bindConfig" should "bind config values to appropriate @Named bindings" in {
     // Config with an entry for all of the bindable values except the one with a default.
     val testConfig = ConfigFactory.parseString("""
@@ -68,7 +71,7 @@ class ConfigModuleSpec extends UnitSpec {
       barNum = 42
       boolbool = true
     """)
-    val testModule = new ConfigModule(testConfig) {
+    val testModule = new TestConfig(testConfig) {
       override def configureWithConfig(c: Config): Unit = {
         // Manually bind things missing from the config.
         bind[Set[String]].toInstance(Set("unannotated"))
@@ -94,7 +97,7 @@ class ConfigModuleSpec extends UnitSpec {
       barNum = 42
       boolbool = true
     """)
-    val testModule = new ConfigModule(testConfig) {
+    val testModule = new TestConfig(testConfig) {
       override def configName: Option[String] = Some("test_default.conf")
 
       override def configureWithConfig(c: Config): Unit = {
@@ -131,7 +134,7 @@ class ConfigModuleSpec extends UnitSpec {
       barNum = 42
       boolbool = true
       """)
-    val testModule = new ConfigModule(testConfig) {
+    val testModule = new TestConfig(testConfig) {
       override def configName: Option[String] = Some("test_default.conf")
 
       override def configureWithConfig(c: Config): Unit = {
@@ -160,7 +163,7 @@ class ConfigModuleSpec extends UnitSpec {
       nested.bool = true
       ignored_no_prefix = "Should be ignored"
       """)
-    val testModule = new ConfigModule(testConfig) {
+    val testModule = new TestConfig(testConfig) {
       override def bindingPrefix: Option[String] = Some("prefix")
       override def configureWithConfig(c: Config): Unit = {
         bind[Int].annotatedWithName("ignored_no_prefix").toInstance(33)
@@ -181,7 +184,7 @@ class ConfigModuleSpec extends UnitSpec {
       presentString = "here"
       // missingString = "missing"
     """)
-    val testModule = new ConfigModule(testConfig)
+    val testModule = new TestConfig(testConfig)
 
     val injector = Guice.createInjector(testModule)
 
@@ -202,7 +205,7 @@ class ConfigModuleSpec extends UnitSpec {
       }
       """)
 
-    val testModule = new ConfigModule(testConfig)
+    val testModule = new TestConfig(testConfig)
 
     val injector = Guice.createInjector(testModule)
 
@@ -225,7 +228,7 @@ class ConfigModuleSpec extends UnitSpec {
         bar = 123
       }
       """)
-    val testModule = new ConfigModule(testConfig)
+    val testModule = new TestConfig(testConfig)
 
     val injector = Guice.createInjector(testModule)
 
@@ -239,7 +242,7 @@ class ConfigModuleSpec extends UnitSpec {
       seq.ofBool = [ true, false, true ]
       seq.ofDouble = [ 1, 2 ]
       """)
-    val testModule = new ConfigModule(testConfig)
+    val testModule = new TestConfig(testConfig)
 
     val injector = Guice.createInjector(testModule)
 
@@ -247,5 +250,12 @@ class ConfigModuleSpec extends UnitSpec {
     instance.strings shouldBe Seq("foo", "bar")
     instance.booleans shouldBe Seq(true, false, true)
     instance.doubles shouldBe Seq(1.0, 2.0)
+  }
+}
+
+object ConfigModuleSpec {
+
+  class TestConfig(config: Config) extends ConfigModule(config) {
+    def configureWithConfig(config: Config): Unit = ()
   }
 }

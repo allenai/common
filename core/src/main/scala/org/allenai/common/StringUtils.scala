@@ -266,9 +266,8 @@ object StringUtils {
     def removeUnprintable: String = unprintableRegex.replaceAllIn(str, "")
 
     def replaceFancyUnicodeChars: String =
-      fancyChar2simpleChar.foldLeft(str) {
-        case (s, (unicodeChar, replacement)) =>
-          s.replace(unicodeChar.toString, replacement)
+      fancyChar2simpleChar.foldLeft(str) { case (s, (unicodeChar, replacement)) =>
+        s.replace(unicodeChar.toString, replacement)
       }
 
     /** @param filter Determine if a character is blacklisted and should be trimmed.
@@ -285,7 +284,9 @@ object StringUtils {
     /** @return Trim non-letter chars from the beginning and end
       */
     def trimNonAlphabetic(): String =
-      str.dropWhile(c => !Character.isAlphabetic(c)).trimRight(c => !Character.isAlphabetic(c))
+      str
+        .dropWhile(c => !Character.isAlphabetic(c.toInt))
+        .trimRight(c => !Character.isAlphabetic(c.toInt))
 
     /** @param chars String containing the blacklist chars.
       * @return Trim characters from the right that belongs to a blacklist.
@@ -305,9 +306,11 @@ object StringUtils {
         if (i == 0 || i == words.size - 1) {
           words.update(i, ApacheStringUtils.capitalize(word))
         } // Capitalize words that are not simple prepositions
-        else if (!articles(word) &&
-                 !simplePrepositions(word) &&
-                 !coordinatingConjunction(word)) {
+        else if (
+          !articles(word) &&
+          !simplePrepositions(word) &&
+          !coordinatingConjunction(word)
+        ) {
           words.update(i, ApacheStringUtils.capitalize(word))
         } // Otherwise, leave the word as lowercase
         else {

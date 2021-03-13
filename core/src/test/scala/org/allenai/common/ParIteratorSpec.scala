@@ -22,8 +22,9 @@ class ParIteratorSpec extends UnitSpec {
     val iter = Iterator(3, 1, 2)
     val time = Timing.time {
       iter.parForeach { i =>
-        Thread.sleep(i * scale)
+        Thread.sleep((i * scale).toLong)
         successes.add(i)
+        ()
       }
     }
 
@@ -38,8 +39,9 @@ class ParIteratorSpec extends UnitSpec {
       val max = 2000
       val iter = Range(0, max).toIteratorCompat
       iter.parForeach { i =>
-        Thread.sleep((max - i) % 10)
+        Thread.sleep(((max - i) % 10).toLong)
         successes.add(i)
+        ()
       }
       val expected = Range(0, max).toSet
 
@@ -62,14 +64,16 @@ class ParIteratorSpec extends UnitSpec {
 
         val iter = Range(0, max).toIteratorCompat
         iter.parForeach { i =>
-          Thread.sleep((i * max * max) % 10)
+          Thread.sleep(((i * max * max) % 10).toLong)
           successes.add(i)
           count.incrementAndGet()
+          ()
         }
         val expected = Range(0, max).toSet
 
         assert((successes.asScala.toSet -- expected) === Set.empty)
         assert((expected -- successes.asScala.toSet) === Set.empty)
+        ()
       }
     }
 
@@ -85,10 +89,11 @@ class ParIteratorSpec extends UnitSpec {
     }
     val time: Duration = Timing.time {
       val result = iter.parMap { i =>
-        Thread.sleep(i * 100)
+        Thread.sleep((i * 100).toLong)
         s"$i"
       }
       assert(expected === result.toSeq)
+      ()
     }
 
     val limit: Duration = ((max * 100) millis) + (50 millis)
@@ -113,6 +118,7 @@ class ParIteratorSpec extends UnitSpec {
     intercept[ArithmeticException] {
       Range(-20, 20).toIteratorCompat.parForeach { i =>
         successes.add(10000 / i)
+        ()
       }
     }
   }
@@ -121,7 +127,7 @@ class ParIteratorSpec extends UnitSpec {
     intercept[ArithmeticException] {
       Iterator(new NotImplementedError(), new ArithmeticException()).zipWithIndex.parForeach {
         case (e, index) =>
-          Thread.sleep((1 - index) * 1000)
+          Thread.sleep(((1 - index) * 1000).toLong)
           throw e
       }
     }

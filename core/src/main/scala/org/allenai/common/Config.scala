@@ -20,7 +20,7 @@ object Config {
 
     override def read(jsValue: JsValue): TypesafeConfig = jsValue match {
       case obj: JsObject => ConfigFactory.parseString(obj.compactPrint, ParseOptions)
-      case _ => deserializationError("Expected JsObject for Config deserialization")
+      case _             => deserializationError("Expected JsObject for Config deserialization")
     }
 
     override def write(config: TypesafeConfig): JsValue =
@@ -65,18 +65,23 @@ object Config {
     implicit val stringReader = apply[String] { (config, key) =>
       config.getString(key)
     }
+
     implicit val intReader = apply[Int] { (config, key) =>
       config.getInt(key)
     }
+
     implicit val longReader = apply[Long] { (config, key) =>
       config.getLong(key)
     }
+
     implicit val doubleReader = apply[Double] { (config, key) =>
       config.getDouble(key)
     }
+
     implicit val boolReader = apply[Boolean] { (config, key) =>
       config.getBoolean(key)
     }
+
     implicit val configValueReader = apply[ConfigValue] { (config, key) =>
       config.getValue(key)
     }
@@ -84,18 +89,23 @@ object Config {
     implicit val stringListReader = apply[Seq[String]] { (config, key) =>
       config.getStringList(key).asScala.toSeq
     }
+
     implicit val intListReader = apply[Seq[Int]] { (config, key) =>
       config.getIntList(key).asScala.toList.map(_.intValue)
     }
+
     implicit val longListReader = apply[Seq[Long]] { (config, key) =>
       config.getLongList(key).asScala.toList.map(_.longValue)
     }
+
     implicit val boolListReader = apply[Seq[Boolean]] { (config, key) =>
       config.getBooleanList(key).asScala.toList.map(_.booleanValue)
     }
+
     implicit val doubleListReader = apply[Seq[Double]] { (config, key) =>
       config.getDoubleList(key).asScala.toList.map(_.doubleValue)
     }
+
     implicit val configValueListReader = apply[Seq[ConfigValue]] { (config, key) =>
       config.getList(key).asScala.toSeq
     }
@@ -103,9 +113,11 @@ object Config {
     implicit val configObjReader = apply[ConfigObject] { (config, key) =>
       config.getObject(key)
     }
+
     implicit val typesafeConfigReader = apply[TypesafeConfig] { (config, key) =>
       config.getConfig(key)
     }
+
     implicit val typesafeConfigListReader = apply[Seq[TypesafeConfig]] { (config, key) =>
       config.getConfigList(key).asScala.toSeq
     }
@@ -115,13 +127,13 @@ object Config {
     /** In addition to com.typesafe.config.ConfigException,
       * will potentially throw java.net.URISyntaxException
       */
-    implicit val uriReader: ConfigReader[URI] = stringReader map { URI.create(_) }
+    implicit val uriReader: ConfigReader[URI] = stringReader.map { URI.create(_) }
 
     // convert config object to a JsValue
     // this is useful for doing two-step conversion from config value to some class that already has
     // a JsFormat available (and therefore the user doesn't have to also define a ConfigReader)
     // Note: any exceptions due to JSON parse (such as DeserializationException) will not be caught.
-    val jsonReader: ConfigReader[JsValue] = configObjReader map { _.toConfig.toJson }
+    val jsonReader: ConfigReader[JsValue] = configObjReader.map { _.toConfig.toJson }
   }
 
   /** Adds Scala-friendly methods to a [[com.typesafe.config.Config]] instance:
@@ -137,11 +149,12 @@ object Config {
     * }}}
     */
   implicit class EnhancedConfig(config: TypesafeConfig) {
+
     private def optional[T](f: => T) =
       try {
         Some(f)
       } catch {
-        case e: ConfigException.Missing => None
+        case _: ConfigException.Missing => None
       }
 
     /** Required value extraction.

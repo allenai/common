@@ -13,11 +13,11 @@ class SeekableSourceSpec extends UnitSpec {
   implicit val codec = Codec.UTF8
 
   /** Stores fü入, in UTF-8. */
-  val foomlaut: Array[Byte] = Array('f'.toByte, 0xc3, 0xbc, 0xe5, 0x85, 0xa5) map { _.toByte }
+  val foomlaut: Array[Byte] = Array('f'.toInt, 0xc3, 0xbc, 0xe5, 0x85, 0xa5).map { _.toByte }
 
   /** @return a channel open to a new temp file containing the given chars */
   def newFileWithChars(chars: Iterable[Char]): FileChannel = {
-    newFileWithBytes(chars.toArray map { _.toByte })
+    newFileWithBytes(chars.toArray.map { _.toByte })
   }
 
   /** @return a channel open to a new temp file containing the given bytes */
@@ -198,7 +198,7 @@ class SeekableSourceSpec extends UnitSpec {
   }
 
   it should "handle four-byte unicode characters" in {
-    val thumbsUp = newFileWithBytes(Array('u', 0xf0, 0x9f, 0x91, 0x8d, 'p') map { _.toByte })
+    val thumbsUp = newFileWithBytes(Array('u', 0xf0, 0x9f, 0x91, 0x8d, 'p').map { _.toByte })
     val source = new SeekableSource(thumbsUp)
 
     source.next() should be('u')
@@ -215,7 +215,7 @@ class SeekableSourceSpec extends UnitSpec {
 
   it should "handle malformed input correctly" in {
     // Valid letter, invalid start, bad three-byte char, valid letter.
-    val badChars = newFileWithBytes(Array('a', 0xff, 0xe0, 0x03, 0x8f, 'b') map { _.toByte })
+    val badChars = newFileWithBytes(Array('a', 0xff, 0xe0, 0x03, 0x8f, 'b').map { _.toByte })
     val source = new SeekableSource(badChars)
 
     source.next() should be('a')
@@ -227,7 +227,7 @@ class SeekableSourceSpec extends UnitSpec {
   }
 
   it should "handle partial two-byte characters at the end of a stream" in {
-    val earlyEnd = newFileWithBytes(Array('a', 0xc3) map { _.toByte })
+    val earlyEnd = newFileWithBytes(Array('a', 0xc3).map { _.toByte })
     val source = new SeekableSource(earlyEnd)
 
     source.next() should be('a')
@@ -235,7 +235,7 @@ class SeekableSourceSpec extends UnitSpec {
   }
 
   it should "handle partial three-byte characters at the end of a stream" in {
-    val earlyEnd = newFileWithBytes(Array('a', 0xe5, 0x85) map { _.toByte })
+    val earlyEnd = newFileWithBytes(Array('a', 0xe5, 0x85).map { _.toByte })
     val source = new SeekableSource(earlyEnd)
 
     source.next() should be('a')
@@ -243,7 +243,7 @@ class SeekableSourceSpec extends UnitSpec {
   }
 
   it should "handle partial four-byte characters at the end of a stream" in {
-    val earlyEnd = newFileWithBytes(Array('a', 0xf0, 0x9f, 0x91) map { _.toByte })
+    val earlyEnd = newFileWithBytes(Array('a', 0xf0, 0x9f, 0x91).map { _.toByte })
     val source = new SeekableSource(earlyEnd)
 
     source.next() should be('a')

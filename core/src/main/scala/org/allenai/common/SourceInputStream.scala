@@ -30,7 +30,7 @@ class SourceInputStream(val source: Source)(implicit codec: Codec) extends Input
       -1
     } else {
       availableBytes -= 1
-      outputBuffer.get()
+      outputBuffer.get().toInt
     }
   }
 
@@ -53,5 +53,6 @@ class SourceInputStream(val source: Source)(implicit codec: Codec) extends Input
     // Set the availble bytes & reset the buffer for read.
     availableBytes = outputBuffer.position
     outputBuffer.rewind()
+    ()
   }
 }

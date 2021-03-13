@@ -11,7 +11,10 @@ trait ScratchDirectory extends BeforeAndAfterAll {
 
   val scratchDir: File = {
     val dir = Files.createTempDirectory(this.getClass.getSimpleName).toFile
-    sys.addShutdownHook(delete(dir))
+    sys.addShutdownHook {
+      delete(dir)
+      ()
+    }
     dir
   }
 
@@ -20,7 +23,10 @@ trait ScratchDirectory extends BeforeAndAfterAll {
     s"Unable to create scratch directory $scratchDir"
   )
 
-  override def afterAll(): Unit = delete(scratchDir)
+  override def afterAll(): Unit = {
+    delete(scratchDir)
+    ()
+  }
 
   private def delete(f: File): Boolean = {
     if (f.isDirectory()) {
