@@ -14,6 +14,7 @@ object GlobalPlugin extends AutoPlugin {
     Seq(
       scalaVersion := SCALA_213,
       CodeArtifactKeys.codeArtifactUrl := "https://org-allenai-s2-896129387501.d.codeartifact.us-west-2.amazonaws.com/maven/private",
+      fork := true,
       dependencyOverrides ++= Logging.loggingDependencyOverrides,
       javaOptions += s"-Dlogback.appname=${name.value}",
       javacOptions ++= Seq("-source", "1.8", "-target", "1.8")
