@@ -53,7 +53,7 @@ class LoggingConfigSpec extends UnitSpec with Logging {
       Source
         .fromFile(path.toString)
         .mkString
-        .contains("<td class=\"Message\">&lt;i&gt;html&lt;/i&gt;</td>")
+        .contains("<td class=\"Message\"><i>html</i></td>")
     )
   }
 }
