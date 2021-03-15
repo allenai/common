@@ -23,13 +23,10 @@ object Dependencies {
 
   val openCsv = "net.sf.opencsv" % "opencsv" % "2.1"
 
-  val pegdown = "org.pegdown" % "pegdown" % "1.4.2"
-
   val scalaGuice = "net.codingwell" %% "scala-guice" % "4.2.6"
 
-  val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.14.0"
-
-  val scalaTest = "org.scalatest" %% "scalatest" % "3.0.8"
+  val scalaTest = "org.scalatest" %% "scalatest" % "3.2.5"
+  val scalaTestMockito = "org.scalatestplus" %% "mockito-3-4" % "3.2.5.0"
 
   val sprayJson = "io.spray" %% "spray-json" % "1.3.5"
 

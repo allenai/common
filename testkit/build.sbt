@@ -2,8 +2,4 @@ import Dependencies._
 
 name := "common-testkit"
 
-libraryDependencies ++= Seq(
-  scalaCheck,
-  scalaTest,
-  pegdown
-)
+libraryDependencies ++= Seq(scalaTest, scalaTestMockito)
