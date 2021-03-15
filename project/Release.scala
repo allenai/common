@@ -8,6 +8,15 @@ import sbt.Keys._
 
 object Release {
 
+  def noPublish = Seq(
+    // crossScalaVersions must be set to Nil on the aggregating project
+    // in order to avoid double publishing.
+    // See: https://www.scala-sbt.org/1.x/docs/Cross-Build.html#Cross+building+a+project+statefully
+    crossScalaVersions := Nil,
+    releaseProcess := releaseSteps,
+    publish / skip := true
+  )
+
   def settings = Seq(
     organization := "org.allenai.common",
     crossScalaVersions := SUPPORTED_SCALA_VERSIONS,

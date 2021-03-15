@@ -5,15 +5,7 @@ lazy val common = project
     guice,
     testkit
   )
-  .configs(IntegrationTest)
-  .settings(
-    Defaults.itSettings,
-    // crossScalaVersions must be set to Nil on the aggregating project
-    // in order to avoid double publishing.
-    // See: https://www.scala-sbt.org/1.x/docs/Cross-Build.html#Cross+building+a+project+statefully
-    crossScalaVersions := Nil,
-    publish / skip := true
-  )
+  .settings(Release.noPublish)
 
 lazy val core = project
   .in(file("core"))
