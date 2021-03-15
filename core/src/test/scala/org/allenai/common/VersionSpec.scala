@@ -57,7 +57,9 @@ class VersionSpec extends UnitSpec {
       )
   }
 
-  "fromResources" should "find common-core's resources" in {
+  // TODO (bbstilson): Move this test to sbt-plugins where it belongs.
+  // See: https://github.com/allenai/common/issues/230
+  "fromResources" should "find common-core's resources" ignore {
     // No asserts; this will throw an exception if it's unfound.
     Version.fromResources("org.allenai.common", "common-core")
   }

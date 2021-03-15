@@ -7,4 +7,5 @@ bin/
 target/
 **/.bloop/
 **/.metals/
-project/metals.sbt
+**/*/metals.sbt
+.bsp/

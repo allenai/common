@@ -58,12 +58,12 @@ import scala.util.Try
   * format: ON
   * @param config the runtime config to use containing all values to bind
   */
-class ConfigModule(config: Config) extends ScalaModule with Logging {
+abstract class ConfigModule(config: Config) extends ScalaModule with Logging {
 
   /** The actual config to bind. */
   private lazy val fullConfig = {
     val resolvedConfig = config.withFallback(defaultConfig).resolve()
-    bindingPrefix map { resolvedConfig.atPath } getOrElse { resolvedConfig }
+    bindingPrefix.map { resolvedConfig.atPath }.getOrElse { resolvedConfig }
   }
 
   /** An optional filename pointing to a file containing default config values.
@@ -86,15 +86,17 @@ class ConfigModule(config: Config) extends ScalaModule with Logging {
     * in the provided config.
     */
   def defaultConfig: Config =
-    configName map { name =>
-      ConfigFactory.parseResources(getClass, name)
-    } getOrElse ConfigFactory.empty
+    configName
+      .map { name =>
+        ConfigFactory.parseResources(getClass, name)
+      }
+      .getOrElse(ConfigFactory.empty)
 
   /** Configure method for implementing classes to override if they wish to create additional
     * bindings, or bindings based on config values.
     * @param config the fully-initilized config object
     */
-  def configureWithConfig(config: Config): Unit = {}
+  def configureWithConfig(config: Config): Unit
 
   /** Binds the config provided in the constructor, plus any default config found, and calls
     * configureWithConfig with the resultant config object.
