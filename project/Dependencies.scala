@@ -28,7 +28,7 @@ object Dependencies {
   val scalaTest = "org.scalatest" %% "scalatest" % "3.2.5"
   val scalaTestMockito = "org.scalatestplus" %% "mockito-3-4" % "3.2.5.0"
 
-  val sprayJson = "io.spray" %% "spray-json" % "1.3.2"
+  val sprayJson = "io.spray" %% "spray-json" % "1.3.5"
 
   val typesafeConfig = "com.typesafe" % "config" % "1.2.1"
 
